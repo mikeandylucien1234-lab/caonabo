@@ -30,7 +30,7 @@ export default function PrepToTravel({ steps }: { steps: PrepStepDTO[] }) {
             <div style={{ width: 80, height: 80 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/prep-illustration.svg"
+                src="/images/prep-illustration.webp"
                 alt="Illustration passager + check-in"
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />

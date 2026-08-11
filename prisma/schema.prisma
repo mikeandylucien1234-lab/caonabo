@@ -143,24 +143,44 @@ model ExchangeRate {
   updatedAt  DateTime @updatedAt
 }
 
+// Comptes clients (optionnels : la réservation invité par référence reste possible)
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  milesBalance Int      @default(0) // Miles Caonabo utilisables au paiement (1 Mile = 0,01 USD)
+  createdAt    DateTime @default(now())
+
+  bookings Booking[]
+
+  @@index([email])
+}
+
 // Réservations
 model Booking {
   id            String   @id @default(cuid())
   reference     String   @unique // ex: CAO-7X4K2
   flightId      String
+  userId        String? // null = réservation invité (par référence)
   tripType      String   @default("aller-retour") // aller-retour | aller-simple | multi-destination
   contactEmail  String
   contactPhone  String?
   passengerCount Int     @default(1)
-  totalUsdCents Int
+  totalUsdCents Int // montant réellement payé (après déduction des Miles)
   currency      String   @default("USD")
+  milesEarned   Int      @default(0) // Miles crédités par cette réservation
+  milesRedeemed Int      @default(0) // Miles utilisés pour payer cette réservation
   status        String   @default("pending") // pending | confirmed | cancelled
   createdAt     DateTime @default(now())
 
   flight     Flight      @relation(fields: [flightId], references: [id])
+  user       User?       @relation(fields: [userId], references: [id])
   passengers Passenger[]
 
   @@index([reference])
+  @@index([userId])
 }
 
 // Passagers rattachés à une réservation

@@ -70,6 +70,54 @@ export async function getPrepSteps(): Promise<PrepStepDTO[]> {
   }));
 }
 
+export interface UserBookingDTO {
+  id: string;
+  reference: string;
+  status: string;
+  tripType: string;
+  totalUsdCents: number;
+  milesEarned: number;
+  milesRedeemed: number;
+  createdAt: string;
+  passengerCount: number;
+  flight: {
+    flightNumber: string;
+    origin: string;
+    destination: string;
+    departAt: string;
+  };
+}
+
+/** Réservations d'un compte (page "Mes réservations"). */
+export async function getUserBookings(userId: string): Promise<UserBookingDTO[]> {
+  const rows = await prisma.booking.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      flight: {
+        include: { route: { include: { origin: true, destination: true } } },
+      },
+    },
+  });
+  return rows.map((b) => ({
+    id: b.id,
+    reference: b.reference,
+    status: b.status,
+    tripType: b.tripType,
+    totalUsdCents: b.totalUsdCents,
+    milesEarned: b.milesEarned,
+    milesRedeemed: b.milesRedeemed,
+    createdAt: b.createdAt.toISOString(),
+    passengerCount: b.passengerCount,
+    flight: {
+      flightNumber: b.flight.flightNumber,
+      origin: b.flight.route.origin.city,
+      destination: b.flight.route.destination.city,
+      departAt: b.flight.departAt.toISOString(),
+    },
+  }));
+}
+
 /** Table de taux prête pour formatPrice(). Retombe sur les taux de secours. */
 export async function getRates(): Promise<Record<string, RateInfo>> {
   try {

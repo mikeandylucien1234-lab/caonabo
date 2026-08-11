@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,7 @@ interface BookingBody {
   contactEmail?: string;
   contactPhone?: string;
   passengers?: PassengerInput[];
+  useMiles?: number; // Miles à utiliser (1 Mile = 1 cent USD), compte connecté requis
 }
 
 function makeReference(): string {
@@ -25,7 +27,7 @@ function makeReference(): string {
   return `CAO-${s}`;
 }
 
-// POST /api/bookings → crée une réservation.
+// POST /api/bookings → crée une réservation (invité ou compte connecté).
 export async function POST(req: Request) {
   let body: BookingBody;
   try {
@@ -66,19 +68,38 @@ export async function POST(req: Request) {
     );
   }
 
-  const totalUsdCents = flight.priceUsdCents * passengers.length;
+  const user = await getCurrentUser();
+
+  const grossUsdCents = flight.priceUsdCents * passengers.length;
+
+  // Miles : 1 Mile = 1 cent USD. Utilisables uniquement si connecté, plafonnés
+  // au solde et au montant total.
+  let milesRedeemed = 0;
+  if (user && body.useMiles && body.useMiles > 0) {
+    milesRedeemed = Math.min(
+      Math.floor(body.useMiles),
+      user.milesBalance,
+      grossUsdCents,
+    );
+  }
+  const paidUsdCents = grossUsdCents - milesRedeemed;
+  // Miles gagnés : 1 Mile par dollar sur le prix du billet (avant remise Miles).
+  const milesEarned = Math.floor(grossUsdCents / 100);
 
   const booking = await prisma.$transaction(async (tx) => {
     const created = await tx.booking.create({
       data: {
         reference: makeReference(),
         flightId,
+        userId: user?.id ?? null,
         tripType: body.tripType ?? "aller-retour",
         contactEmail,
         contactPhone: body.contactPhone ?? null,
         passengerCount: passengers.length,
-        totalUsdCents,
+        totalUsdCents: paidUsdCents,
         currency: "USD",
+        milesEarned,
+        milesRedeemed,
         status: "confirmed",
         passengers: {
           create: passengers.map((p) => ({
@@ -96,6 +117,14 @@ export async function POST(req: Request) {
       data: { seatsAvailable: flight.seatsAvailable - passengers.length },
     });
 
+    // Mise à jour du solde de Miles du compte connecté
+    if (user) {
+      await tx.user.update({
+        where: { id: user.id },
+        data: { milesBalance: user.milesBalance - milesRedeemed + milesEarned },
+      });
+    }
+
     return created;
   });
 
@@ -105,6 +134,11 @@ export async function POST(req: Request) {
       status: booking.status,
       totalUsdCents: booking.totalUsdCents,
       passengerCount: booking.passengerCount,
+      milesEarned,
+      milesRedeemed,
+      newMilesBalance: user
+        ? user.milesBalance - milesRedeemed + milesEarned
+        : null,
     },
     { status: 201 },
   );

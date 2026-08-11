@@ -2,13 +2,14 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BookingFlow from "@/components/sections/BookingFlow";
 import { getCities } from "@/lib/data/queries";
+import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Réserver — Caonabo Airlinje" };
 
 export default async function BookPage() {
-  const cities = await getCities();
+  const [cities, user] = await Promise.all([getCities(), getCurrentUser()]);
   return (
     <div style={{ maxWidth: 1536, margin: "0 auto", background: "#fff" }}>
       <Header variant="solid" active="/book" />
@@ -24,7 +25,7 @@ export default async function BookPage() {
           clics.
         </p>
       </div>
-      <BookingFlow cities={cities} />
+      <BookingFlow cities={cities} milesBalance={user?.milesBalance ?? null} />
       <Footer />
     </div>
   );

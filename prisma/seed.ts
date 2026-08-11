@@ -217,6 +217,7 @@ async function main() {
   // Ordre de suppression : enfants → parents
   await prisma.passenger.deleteMany();
   await prisma.booking.deleteMany();
+  await prisma.user.deleteMany();
   await prisma.flight.deleteMany();
   await prisma.route.deleteMany();
   await prisma.airport.deleteMany();

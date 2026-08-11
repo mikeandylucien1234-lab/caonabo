@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/auth";
 
 const NAV = [
   { label: "Accueil", href: "/" },
@@ -11,8 +12,9 @@ const NAV = [
 /**
  * En-tête. `variant="hero"` => transparent, posé au-dessus de l'image du hero
  * (page d'accueil). `variant="solid"` => fond blanc (pages secondaires).
+ * Affiche "Connexion" ou "Mon compte" selon la session.
  */
-export default function Header({
+export default async function Header({
   variant = "solid",
   active,
 }: {
@@ -20,6 +22,7 @@ export default function Header({
   active?: string;
 }) {
   const isHero = variant === "hero";
+  const user = await getCurrentUser();
   return (
     <header
       className="relative z-[5] flex items-center justify-between"
@@ -56,6 +59,41 @@ export default function Header({
             </Link>
           );
         })}
+        {user ? (
+          <Link
+            href="/account"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              background: "#3d1e8a",
+              color: "#fff",
+              fontWeight: 600,
+              fontSize: 14,
+              padding: "10px 18px",
+              borderRadius: 12,
+            }}
+          >
+            👤 {user.firstName}
+          </Link>
+        ) : (
+          <Link
+            href="/login"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              background: "#3d1e8a",
+              color: "#fff",
+              fontWeight: 600,
+              fontSize: 14,
+              padding: "10px 18px",
+              borderRadius: 12,
+            }}
+          >
+            Connexion
+          </Link>
+        )}
       </nav>
     </header>
   );

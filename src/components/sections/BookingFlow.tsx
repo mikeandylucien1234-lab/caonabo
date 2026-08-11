@@ -10,7 +10,13 @@ interface PassengerForm {
   type: string;
 }
 
-export default function BookingFlow({ cities }: { cities: CityDTO[] }) {
+export default function BookingFlow({
+  cities,
+  milesBalance = null,
+}: {
+  cities: CityDTO[];
+  milesBalance?: number | null;
+}) {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [departDate, setDepartDate] = useState("");
@@ -21,9 +27,20 @@ export default function BookingFlow({ cities }: { cities: CityDTO[] }) {
   ]);
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [useMiles, setUseMiles] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reference, setReference] = useState<string | null>(null);
+  const [milesEarned, setMilesEarned] = useState<number | null>(null);
+
+  const isLoggedIn = milesBalance !== null;
+  const grossCents = selected ? selected.priceUsdCents * passengers.length : 0;
+  // Miles utilisables : plafonnés au solde et au montant total (1 Mile = 1 cent).
+  const milesToRedeem =
+    useMiles && milesBalance !== null
+      ? Math.min(milesBalance, grossCents)
+      : 0;
+  const finalCents = grossCents - milesToRedeem;
 
   const inputStyle: React.CSSProperties = {
     padding: "12px 14px",
@@ -76,11 +93,13 @@ export default function BookingFlow({ cities }: { cities: CityDTO[] }) {
           contactEmail: email,
           contactPhone: phone,
           passengers,
+          useMiles: milesToRedeem,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Erreur de réservation");
       setReference(data.reference as string);
+      setMilesEarned(typeof data.milesEarned === "number" ? data.milesEarned : null);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur");
     } finally {
@@ -138,6 +157,22 @@ export default function BookingFlow({ cities }: { cities: CityDTO[] }) {
           <p style={{ color: "#7a7a92", fontSize: 13 }}>
             Un e-mail de confirmation a été envoyé à {email}.
           </p>
+          {milesEarned !== null && (
+            <div
+              style={{
+                marginTop: 16,
+                display: "inline-block",
+                background: "#f0ecfb",
+                color: "#3d1e8a",
+                fontWeight: 700,
+                fontSize: 14,
+                padding: "10px 18px",
+                borderRadius: 999,
+              }}
+            >
+              ✦ +{milesEarned} Miles Caonabo crédités
+            </div>
+          )}
         </div>
       </div>
     );
@@ -245,11 +280,63 @@ export default function BookingFlow({ cities }: { cities: CityDTO[] }) {
               <input placeholder="Email de contact" type="email" style={inputStyle} value={email} onChange={(e) => setEmail(e.target.value)} />
               <input placeholder="Téléphone (optionnel)" style={inputStyle} value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
+            {/* Miles Caonabo — visible uniquement si connecté */}
+            {isLoggedIn ? (
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  background: "#f7f4fe",
+                  border: "1.5px solid #e4dbfb",
+                  borderRadius: 12,
+                  padding: "14px 16px",
+                  cursor: milesBalance! > 0 ? "pointer" : "default",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={useMiles}
+                  disabled={milesBalance! <= 0}
+                  onChange={(e) => setUseMiles(e.target.checked)}
+                  style={{ width: 18, height: 18, accentColor: "#5b21b6" }}
+                />
+                <div style={{ fontSize: 14, color: "#1e1b4b" }}>
+                  <b>Utiliser mes Miles Caonabo</b>{" "}
+                  <span style={{ color: "#8a8aa0" }}>
+                    ({milesBalance!.toLocaleString("fr-FR")} disponibles · 1 Mile = 0,01 $)
+                  </span>
+                  {milesToRedeem > 0 && (
+                    <div style={{ color: "#1f9d55", fontSize: 13, marginTop: 2 }}>
+                      −{formatPrice(milesToRedeem, "USD")} ({milesToRedeem} Miles)
+                    </div>
+                  )}
+                </div>
+              </label>
+            ) : (
+              <div style={{ fontSize: 13, color: "#8a8aa0" }}>
+                💡 <a href="/login">Connectez-vous</a> pour payer avec vos Miles Caonabo
+                et en gagner sur cette réservation.
+              </div>
+            )}
+
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 6 }}>
               <div style={{ fontSize: 15, color: "#1e1b4b" }}>
                 Total :{" "}
+                {milesToRedeem > 0 && (
+                  <span
+                    style={{
+                      color: "#b4b2c4",
+                      textDecoration: "line-through",
+                      fontSize: 15,
+                      marginRight: 8,
+                    }}
+                  >
+                    {formatPrice(grossCents, "USD")}
+                  </span>
+                )}
                 <span style={{ fontWeight: 800, color: "#3d1e8a", fontSize: 20 }}>
-                  {formatPrice(selected.priceUsdCents * passengers.length, "USD")}
+                  {formatPrice(finalCents, "USD")}
                 </span>
               </div>
               <button onClick={confirmBooking} disabled={loading} style={primaryBtn(loading)}>

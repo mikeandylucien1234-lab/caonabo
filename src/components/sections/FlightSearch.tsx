@@ -109,7 +109,7 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
   };
 
   return (
-    <div id="recherche" style={{ padding: "64px 56px" }}>
+    <div id="recherche" className="hz" style={{ padding: "64px 56px" }}>
       <h2
         className="font-heading"
         style={{
@@ -131,11 +131,13 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
         }}
       >
         <div
+          className="trip-row"
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             marginBottom: 22,
+            gap: 12,
           }}
         >
           <div style={{ fontSize: 16, color: "#1e1b4b", fontWeight: 600 }}>
@@ -332,6 +334,7 @@ function FieldSelect({
       {open && (
         <div
           onClick={(e) => e.stopPropagation()}
+          className="city-pop"
           style={{
             position: "absolute",
             top: "100%",

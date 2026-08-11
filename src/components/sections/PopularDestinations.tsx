@@ -14,8 +14,8 @@ export default function PopularDestinations({
 }) {
   const dots = [10, 7, 7, 7, 7, 7];
   return (
-    <div style={{ position: "relative", padding: "72px 56px", overflow: "hidden" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+    <div className="hz" style={{ position: "relative", padding: "72px 56px", overflow: "hidden" }}>
+      <div className="section-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div style={{ maxWidth: 640 }}>
           <div
             style={{
@@ -74,6 +74,7 @@ export default function PopularDestinations({
       </div>
 
       <div
+        className="grid-2"
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",

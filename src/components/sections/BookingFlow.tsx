@@ -116,7 +116,7 @@ export default function BookingFlow({
   // écran de confirmation
   if (reference) {
     return (
-      <div style={{ padding: "60px 56px 100px" }}>
+      <div className="hz" style={{ padding: "60px 56px 100px" }}>
         <div
           style={{
             maxWidth: 560,
@@ -179,10 +179,10 @@ export default function BookingFlow({
   }
 
   return (
-    <div style={{ padding: "40px 56px 100px", display: "flex", flexDirection: "column", gap: 24 }}>
+    <div className="hz" style={{ padding: "40px 56px 100px", display: "flex", flexDirection: "column", gap: 24 }}>
       {/* étape 1 : recherche */}
       <Card title="1 · Choisissez votre itinéraire">
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", gap: 14, alignItems: "end" }}>
+        <div className="bk-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", gap: 14, alignItems: "end" }}>
           <Field label="Depuis">
             <select style={inputStyle} value={origin} onChange={(e) => setOrigin(e.target.value)}>
               <option value="">Origine…</option>
@@ -260,7 +260,7 @@ export default function BookingFlow({
         <Card title="3 · Passagers et contact">
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {passengers.map((p, i) => (
-              <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 160px", gap: 12 }}>
+              <div key={i} className="bk-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 160px", gap: 12 }}>
                 <input placeholder="Prénom" style={inputStyle} value={p.firstName} onChange={(e) => updatePassenger(i, { firstName: e.target.value })} />
                 <input placeholder="Nom" style={inputStyle} value={p.lastName} onChange={(e) => updatePassenger(i, { lastName: e.target.value })} />
                 <select style={inputStyle} value={p.type} onChange={(e) => updatePassenger(i, { type: e.target.value })}>
@@ -276,7 +276,7 @@ export default function BookingFlow({
             >
               + Ajouter un passager
             </button>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="bk-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <input placeholder="Email de contact" type="email" style={inputStyle} value={email} onChange={(e) => setEmail(e.target.value)} />
               <input placeholder="Téléphone (optionnel)" style={inputStyle} value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>

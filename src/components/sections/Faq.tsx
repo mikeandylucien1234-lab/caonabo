@@ -7,8 +7,9 @@ export default function Faq({ faqs }: { faqs: FaqDTO[] }) {
   const [open, setOpen] = useState<number>(0);
 
   return (
-    <div style={{ padding: "72px 56px", background: "#faf9fc" }}>
+    <div className="hz" style={{ padding: "72px 56px", background: "#faf9fc" }}>
       <div
+        className="grid-2"
         style={{
           display: "grid",
           gridTemplateColumns: "1.4fr 1fr",

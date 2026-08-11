@@ -13,8 +13,9 @@ export default function Promotions({
   rates: Record<string, RateInfo>;
 }) {
   return (
-    <div style={{ padding: "72px 56px 88px" }}>
+    <div className="hz" style={{ padding: "72px 56px 88px" }}>
       <div
+        className="section-head"
         style={{
           display: "flex",
           justifyContent: "space-between",
@@ -72,6 +73,7 @@ export default function Promotions({
       </div>
 
       <div
+        className="grid-5"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(5,1fr)",

@@ -13,7 +13,7 @@ export default async function BookPage() {
   return (
     <div style={{ maxWidth: 1536, margin: "0 auto", background: "#fff" }}>
       <Header variant="solid" active="/book" />
-      <div style={{ padding: "48px 56px 0" }}>
+      <div className="hz" style={{ padding: "48px 56px 0" }}>
         <h1
           className="font-heading"
           style={{ fontWeight: 800, fontSize: 40, color: "#0f0f2d", margin: 0 }}

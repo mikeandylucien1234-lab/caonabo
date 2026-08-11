@@ -53,7 +53,7 @@ export default function CheckInForm() {
   }
 
   return (
-    <div style={{ padding: "40px 56px 100px" }}>
+    <div className="hz" style={{ padding: "40px 56px 100px" }}>
       <div
         style={{
           maxWidth: 620,
@@ -66,7 +66,7 @@ export default function CheckInForm() {
         <div style={{ fontWeight: 700, color: "#1e1b4b", fontSize: 17, marginBottom: 18 }}>
           Retrouvez votre réservation
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 16 }}>
+        <div className="bk-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 16 }}>
           <div>
             <div style={{ fontSize: 12, color: "#5c5c7a", marginBottom: 6 }}>
               Référence (ex : CAO-XXXXX)

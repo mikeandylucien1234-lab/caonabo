@@ -25,7 +25,7 @@ export default async function Header({
   const user = await getCurrentUser();
   return (
     <header
-      className="relative z-[5] flex items-center justify-between"
+      className="site-header relative z-[5] flex items-center justify-between"
       style={{
         padding: isHero ? "28px 56px 0" : "20px 56px",
         background: isHero ? "transparent" : "#fff",
@@ -37,10 +37,11 @@ export default async function Header({
         <img
           src="/images/logo.png"
           alt="Caonabo Airlinje"
+          className="logo-img"
           style={{ height: isHero ? 104 : 72, width: "auto" }}
         />
       </Link>
-      <nav className="flex items-center" style={{ gap: 40 }}>
+      <nav className="site-nav flex items-center" style={{ gap: 40 }}>
         {NAV.map((item) => {
           const isActive = active === item.href;
           return (

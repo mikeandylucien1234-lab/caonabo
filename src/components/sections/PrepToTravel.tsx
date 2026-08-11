@@ -2,8 +2,9 @@ import type { PrepStepDTO } from "@/lib/data/types";
 
 export default function PrepToTravel({ steps }: { steps: PrepStepDTO[] }) {
   return (
-    <div style={{ padding: "0 56px 88px" }}>
+    <div className="hz" style={{ padding: "0 56px 88px" }}>
       <div
+        className="grid-2"
         style={{
           border: "1px solid #eceafa",
           borderRadius: 24,

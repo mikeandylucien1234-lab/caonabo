@@ -19,7 +19,7 @@ export default async function AccountPage() {
     <div style={{ maxWidth: 1536, margin: "0 auto", background: "#fff" }}>
       <Header variant="solid" active="/account" />
 
-      <div style={{ padding: "48px 56px 0" }}>
+      <div className="hz" style={{ padding: "48px 56px 0" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
             <h1
@@ -59,7 +59,7 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      <div style={{ padding: "40px 56px 100px" }}>
+      <div className="hz" style={{ padding: "40px 56px 100px" }}>
         <h2
           className="font-heading"
           style={{ fontWeight: 800, fontSize: 24, color: "#0f0f2d", margin: "0 0 20px" }}

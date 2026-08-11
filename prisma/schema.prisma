@@ -1,16 +1,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Caonabo Airlinje — schéma de base de données
 //
-// DEV LOCAL   : provider = "sqlite",  DATABASE_URL="file:./dev.db"      (défaut)
-// PRODUCTION  : provider = "postgresql" (Supabase "caonabo").
-//               Pour passer en prod :
-//                 1. provider = "postgresql" ci-dessous
-//                 2. décommenter directUrl
-//                 3. renseigner DATABASE_URL (pooler 6543) + DIRECT_URL (5432)
-//                 4. `npx prisma db push`
+// PRODUCTION (défaut) : provider = "postgresql" (Supabase "caonabo").
+//   DATABASE_URL = connexion poolée (pgBouncer, port 6543) — API serverless Vercel
+//   DIRECT_URL   = connexion directe (port 5432) — migrations Prisma
 //
-// Le schéma évite volontairement les enums et types Postgres-spécifiques
-// afin que la bascule SQLite ↔ PostgreSQL se fasse sans réécriture.
+// DEV LOCAL sans Postgres : pour repasser sur SQLite, remplacer provider par
+//   "sqlite", retirer la ligne directUrl, et mettre DATABASE_URL="file:./dev.db".
+//   Le schéma évite enums et types Postgres-spécifiques : la bascule est triviale.
 //
 // Devise : tous les prix sont stockés en USD, en entiers (cents) => aucun
 // flottant en base. L'affichage dans une autre devise (CLP, CAD, PEN) se fait
@@ -22,9 +19,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL") // ← décommenter en production (PostgreSQL/Supabase)
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // connexion poolée (pgBouncer, port 6543) en prod
+  directUrl = env("DIRECT_URL") // connexion directe (port 5432) pour les migrations
 }
 
 // Aéroports / villes desservis

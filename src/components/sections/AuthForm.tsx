@@ -48,7 +48,7 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
   }
 
   return (
-    <div style={{ padding: "56px 56px 100px", display: "flex", justifyContent: "center" }}>
+    <div className="hz" style={{ padding: "56px 56px 100px", display: "flex", justifyContent: "center" }}>
       <div
         style={{
           width: "100%",

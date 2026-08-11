@@ -32,6 +32,7 @@ const COLUMNS: { title: string; links: string[] }[] = [
 export default function Footer() {
   return (
     <footer
+      className="hz footer-grid"
       style={{
         background: "#1e1b4b",
         padding: "56px 56px 64px",

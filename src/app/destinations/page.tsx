@@ -20,7 +20,7 @@ export default async function DestinationsPage() {
   return (
     <div style={{ maxWidth: 1536, margin: "0 auto", background: "#fff" }}>
       <Header variant="solid" active="/destinations" />
-      <div style={{ padding: "48px 56px 0" }}>
+      <div className="hz" style={{ padding: "48px 56px 0" }}>
         <div
           style={{
             display: "inline-flex",

@@ -8,6 +8,7 @@ import Header from "@/components/layout/Header";
 export default function Hero() {
   return (
     <div
+      className="hero-wrap"
       style={{
         position: "relative",
         minHeight: 960,
@@ -66,7 +67,7 @@ export default function Hero() {
           <span>✈</span> VOLS DIRECTS &amp; AVEC ESCALE
         </div>
         <h1
-          className="font-heading"
+          className="font-heading hero-title"
           style={{
             fontWeight: 800,
             fontSize: 62,
@@ -83,6 +84,7 @@ export default function Hero() {
 
       {/* carte de recherche flottante */}
       <div
+        className="hero-card"
         style={{
           position: "absolute",
           left: 56,

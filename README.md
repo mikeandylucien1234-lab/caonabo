@@ -18,15 +18,21 @@ destinations dynamiques).
 | Polices | Poppins + Inter (`next/font/google`, auto-hébergées) |
 | Déploiement | Vercel (frontend + API) + Supabase (base) |
 
-## Démarrage rapide (dev local, SQLite)
+## Démarrage rapide
+
+Le schéma cible **PostgreSQL** (Supabase) par défaut.
 
 ```bash
 npm install
-cp .env.example .env          # DATABASE_URL="file:./dev.db" par défaut
-npx prisma db push            # crée la base SQLite
+cp .env.example .env          # renseigner DATABASE_URL + DIRECT_URL + AUTH_SECRET
+npx prisma db push            # applique le schéma
 npm run db:seed               # injecte les données du prototype
 npm run dev                   # http://localhost:3000
 ```
+
+**Dev local sans Postgres (SQLite)** : dans `prisma/schema.prisma`, mettre
+`provider = "sqlite"`, retirer la ligne `directUrl`, poser
+`DATABASE_URL="file:./dev.db"`, puis `npx prisma db push && npm run db:seed`.
 
 ## Structure
 

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="Ruines du Palais Sans Souci">
+<defs>
+<linearGradient id="skyS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d9b8"/><stop offset="1" stop-color="#f0ede4"/></linearGradient></defs>
+
+<rect width="800" height="500" fill="url(#skyS)"/>
+<path d="M0 400 Q400 360 800 400 V500 H0Z" fill="#8ba06a"/>
+<g transform="translate(180 120)" fill="#c8b18f">
+  <!-- royal facade with arches -->
+  <rect x="0" y="120" width="440" height="200"/>
+  <g fill="#efe7d6">
+    <path d="M40 320 v-90 a34 34 0 0 1 68 0 v90 Z"/>
+    <path d="M150 320 v-90 a34 34 0 0 1 68 0 v90 Z"/>
+    <path d="M260 320 v-90 a34 34 0 0 1 68 0 v90 Z"/>
+    <path d="M366 320 v-70 a26 26 0 0 1 52 0 v70 Z"/>
+  </g>
+  <!-- grand central stair -->
+  <path d="M150 320 h140 l40 40 h-220 z" fill="#b59a72"/>
+  <!-- pediment -->
+  <path d="M120 120 L220 60 L320 120 Z" fill="#d8c4a0"/>
+  <rect x="150" y="30" width="140" height="30" fill="#c8b18f"/>
+</g>
+<ellipse cx="400" cy="452" rx="330" ry="24" fill="#5c6f42" opacity="0.35"/>
+</svg>

@@ -1,0 +1,179 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Caonabo Airlinje — schéma de base de données
+//
+// DEV LOCAL   : provider = "sqlite",  DATABASE_URL="file:./dev.db"      (défaut)
+// PRODUCTION  : provider = "postgresql" (Supabase "caonabo").
+//               Pour passer en prod :
+//                 1. provider = "postgresql" ci-dessous
+//                 2. décommenter directUrl
+//                 3. renseigner DATABASE_URL (pooler 6543) + DIRECT_URL (5432)
+//                 4. `npx prisma db push`
+//
+// Le schéma évite volontairement les enums et types Postgres-spécifiques
+// afin que la bascule SQLite ↔ PostgreSQL se fasse sans réécriture.
+//
+// Devise : tous les prix sont stockés en USD, en entiers (cents) => aucun
+// flottant en base. L'affichage dans une autre devise (CLP, CAD, PEN) se fait
+// par conversion via la table ExchangeRate.
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL") // ← décommenter en production (PostgreSQL/Supabase)
+}
+
+// Aéroports / villes desservis
+model Airport {
+  id        String   @id @default(cuid())
+  code      String   @unique // IATA, ex: SCL, PAP, CAP, YYZ, YUL, LIM
+  city      String
+  country   String
+  createdAt DateTime @default(now())
+
+  routesFrom Route[] @relation("RouteOrigin")
+  routesTo   Route[] @relation("RouteDestination")
+
+  @@index([country])
+}
+
+// Liaison origine → destination
+model Route {
+  id            String  @id @default(cuid())
+  originId      String
+  destinationId String
+  directFlight  Boolean @default(true)
+  stops         Int     @default(0)
+
+  origin      Airport @relation("RouteOrigin", fields: [originId], references: [id])
+  destination Airport @relation("RouteDestination", fields: [destinationId], references: [id])
+
+  flights Flight[]
+
+  @@unique([originId, destinationId])
+}
+
+// Vols concrets (recherchables / réservables)
+model Flight {
+  id             String   @id @default(cuid())
+  flightNumber   String   @unique
+  routeId        String
+  departAt       DateTime
+  arriveAt       DateTime
+  priceUsdCents  Int // prix de référence en USD (cents)
+  seatsTotal     Int      @default(180)
+  seatsAvailable Int      @default(180)
+  createdAt      DateTime @default(now())
+
+  route    Route     @relation(fields: [routeId], references: [id])
+  bookings Booking[]
+
+  @@index([routeId, departAt])
+}
+
+// Destinations phares affichées sur la home (bloc "Destinations populaires")
+model Destination {
+  id            String   @id @default(cuid())
+  city          String
+  country       String
+  priceUsdCents Int
+  discountPct   Int      @default(0)
+  imageUrl      String
+  placeholder   String   @default("") // description texte d'origine du proto
+  featured      Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  @@index([featured, sortOrder])
+}
+
+// Promotions (bloc "Promotions Caonabo")
+model Promotion {
+  id               String    @id @default(cuid())
+  slug             String    @unique
+  title            String
+  routeLabel       String // ex: "Cap-Haïtien → Labadee"
+  category         String // ex: "DIASPORA"
+  categoryColor    String    @default("#8a8aa0")
+  tag              String // ex: "PLAGE PARADIS"
+  tagColor         String    @default("#3d1e8a")
+  accentColor      String    @default("#5b21b6") // couleur prix + bouton
+  priceUsdCents    Int
+  oldPriceUsdCents Int
+  imageUrl         String
+  placeholder      String    @default("")
+  validUntil       DateTime?
+  sortOrder        Int       @default(0)
+  createdAt        DateTime  @default(now())
+
+  @@index([sortOrder])
+}
+
+// FAQ (accordéon)
+model Faq {
+  id        String @id @default(cuid())
+  question  String
+  answer    String
+  sortOrder Int    @default(0)
+
+  @@index([sortOrder])
+}
+
+// Étapes "Préparez-vous à voyager"
+model PrepStep {
+  id          String @id @default(cuid())
+  icon        String
+  title       String
+  description String
+  sortOrder   Int    @default(0)
+
+  @@index([sortOrder])
+}
+
+// Taux de change (USD = devise pivot)
+model ExchangeRate {
+  id         String   @id @default(cuid())
+  currency   String   @unique // "USD", "CLP", "CAD", "PEN"
+  symbol     String // "$", "CLP", "CA$", "S/"
+  ratePerUsd Float // 1 USD = ratePerUsd <currency>
+  updatedAt  DateTime @updatedAt
+}
+
+// Réservations
+model Booking {
+  id            String   @id @default(cuid())
+  reference     String   @unique // ex: CAO-7X4K2
+  flightId      String
+  tripType      String   @default("aller-retour") // aller-retour | aller-simple | multi-destination
+  contactEmail  String
+  contactPhone  String?
+  passengerCount Int     @default(1)
+  totalUsdCents Int
+  currency      String   @default("USD")
+  status        String   @default("pending") // pending | confirmed | cancelled
+  createdAt     DateTime @default(now())
+
+  flight     Flight      @relation(fields: [flightId], references: [id])
+  passengers Passenger[]
+
+  @@index([reference])
+}
+
+// Passagers rattachés à une réservation
+model Passenger {
+  id         String   @id @default(cuid())
+  bookingId  String
+  firstName  String
+  lastName   String
+  type       String   @default("adult") // adult | child | infant
+  birthDate  DateTime?
+  passportNo String?
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+}

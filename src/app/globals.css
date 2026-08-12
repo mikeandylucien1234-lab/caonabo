@@ -55,6 +55,14 @@ html {
   display: none;
 }
 
+/* Recherche de vol : bouton auto-largeur sur desktop, séparateur vertical */
+.search-btn {
+  display: inline-flex;
+}
+.ft-vers {
+  border-left: 1px solid #e4e2ef;
+}
+
 /* Footer : desktop = colonnes ouvertes, sans chevron ni bloc réseaux */
 .footer-chevron {
   display: none;
@@ -175,6 +183,21 @@ html {
   }
   .trip-row {
     flex-wrap: wrap !important;
+  }
+  /* Recherche mobile : Depuis en haut / Vers en bas, bouton pleine largeur */
+  .ft-bar {
+    flex-direction: column !important;
+  }
+  .ft-vers {
+    border-left: none !important;
+    border-top: 1px solid #e4e2ef !important;
+  }
+  .ft-swap {
+    transform: translate(-50%, -50%) rotate(90deg) !important;
+  }
+  .search-btn {
+    display: flex !important;
+    width: 100% !important;
   }
   /* FAQ mobile : toggle "+", illustration masquée */
   .faq-arrow {

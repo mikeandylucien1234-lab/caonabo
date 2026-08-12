@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
+import MobileNav from "@/components/layout/MobileNav";
 
 const NAV = [
   { label: "Accueil", href: "/" },
@@ -96,6 +97,9 @@ export default async function Header({
           </Link>
         )}
       </nav>
+
+      {/* Navigation mobile (hamburger) — masquée sur desktop */}
+      <MobileNav firstName={user?.firstName} />
     </header>
   );
 }

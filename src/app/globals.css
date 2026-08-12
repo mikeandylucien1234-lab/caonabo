@@ -45,6 +45,27 @@ html {
   font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
+/* Navigation mobile masquée par défaut (desktop) */
+.mobile-nav {
+  display: none;
+}
+
+/* Toggle "+" de la FAQ : masqué sur desktop (on garde la flèche) */
+.faq-plus {
+  display: none;
+}
+
+/* Footer : desktop = colonnes ouvertes, sans chevron ni bloc réseaux */
+.footer-chevron {
+  display: none;
+}
+.footer-links {
+  display: block;
+}
+.footer-extra {
+  display: none;
+}
+
 /* ─────────────────────────────────────────────────────────────────────────
    Responsive mobile / tablette.
    Le prototype d'origine était desktop-only (largeur fixe). Ces règles
@@ -61,13 +82,12 @@ html {
     padding-left: 20px !important;
     padding-right: 20px !important;
   }
+  /* sur mobile : nav desktop masquée, hamburger affiché */
   .site-nav {
-    flex-wrap: wrap !important;
-    gap: 12px 16px !important;
-    justify-content: flex-end !important;
+    display: none !important;
   }
-  .site-nav a {
-    font-size: 15px !important;
+  .mobile-nav {
+    display: flex !important;
   }
   .logo-img {
     height: 58px !important;
@@ -77,12 +97,29 @@ html {
   }
   .hero-title {
     font-size: 34px !important;
-    line-height: 1.2 !important;
+    line-height: 1.25 !important;
   }
-  /* la carte de recherche flottante duplique la section "Trouvez un vol" :
-     on la masque sur mobile pour éviter le chevauchement */
+  /* la carte de recherche passe en flux (empilée) sous le titre sur mobile */
+  .hero-wrap {
+    min-height: auto !important;
+    overflow: visible !important;
+    padding-bottom: 26px;
+  }
   .hero-card {
-    display: none !important;
+    position: static !important;
+    inset: auto !important;
+    margin: 22px 16px 0 !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    border-radius: 18px !important;
+    padding: 18px 18px !important;
+  }
+  .hero-card-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+  .hc-full {
+    grid-column: span 2 !important;
   }
   .grid-2 {
     grid-template-columns: 1fr !important;
@@ -91,9 +128,36 @@ html {
   .grid-5 {
     grid-template-columns: repeat(2, 1fr) !important;
   }
+  /* Footer mobile : accordéons empilés + bloc réseaux/copyright */
   .footer-grid {
-    grid-template-columns: 1fr 1fr !important;
-    row-gap: 26px !important;
+    grid-template-columns: 1fr !important;
+    row-gap: 0 !important;
+    padding-top: 40px !important;
+    padding-bottom: 24px !important;
+  }
+  .footer-col {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 6px 0;
+  }
+  .footer-col-title {
+    margin-bottom: 0 !important;
+    padding: 14px 0 !important;
+  }
+  .footer-chevron {
+    display: inline-block !important;
+  }
+  .footer-links {
+    display: none !important;
+    padding-bottom: 8px;
+  }
+  .footer-links.open {
+    display: block !important;
+  }
+  .footer-extra {
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 26px 20px 44px !important;
   }
   .bk-grid {
     grid-template-columns: 1fr !important;
@@ -108,6 +172,30 @@ html {
   }
   .trip-row {
     flex-wrap: wrap !important;
+  }
+  /* FAQ mobile : toggle "+", illustration masquée */
+  .faq-arrow {
+    display: none !important;
+  }
+  .faq-plus {
+    display: inline-block !important;
+  }
+  .faq-illus {
+    display: none !important;
+  }
+  /* Préparez-vous : centré sur mobile */
+  .prep-left {
+    text-align: center !important;
+  }
+  .prep-circle {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .prep-step {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 10px !important;
   }
 }
 

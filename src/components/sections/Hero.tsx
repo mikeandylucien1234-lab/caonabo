@@ -131,6 +131,7 @@ export default function Hero() {
           </span>
         </div>
         <div
+          className="hero-card-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "1.4fr 1.4fr 1fr 1fr 1fr auto",
@@ -138,16 +139,18 @@ export default function Hero() {
             alignItems: "end",
           }}
         >
-          <HeroField label="Depuis" icon="📍" value="Santiago, Chili" />
-          <HeroField label="Vers" icon="📍" value="Port-au-Prince, Haïti" />
+          <HeroField className="hc-full" label="Depuis" icon="📍" value="Santiago, Chili" />
+          <HeroField className="hc-full" label="Vers" icon="📍" value="Port-au-Prince, Haïti" />
           <HeroField label="Date aller" icon="📅" value="26 Mai 2025" />
           <HeroField label="Date retour" icon="📅" value="02 Juin 2025" />
-          <HeroField label="Passagers" icon="👤" value="1 Adulte" />
+          <HeroField className="hc-full" label="Passagers" icon="👤" value="1 Adulte" />
           <a
             href="#recherche"
+            className="hc-full"
             style={{
               display: "flex",
               alignItems: "center",
+              justifyContent: "center",
               gap: 8,
               background: "#3d1e8a",
               color: "#fff",
@@ -172,13 +175,15 @@ function HeroField({
   label,
   icon,
   value,
+  className,
 }: {
   label: string;
   icon: string;
   value: string;
+  className?: string;
 }) {
   return (
-    <div>
+    <div className={className}>
       <div style={{ fontSize: 12, color: "#5c5c7a", marginBottom: 6 }}>
         {label}
       </div>

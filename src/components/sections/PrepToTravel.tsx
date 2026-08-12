@@ -15,8 +15,9 @@ export default function PrepToTravel({ steps }: { steps: PrepStepDTO[] }) {
           alignItems: "center",
         }}
       >
-        <div>
+        <div className="prep-left">
           <div
+            className="prep-circle"
             style={{
               width: 150,
               height: 150,
@@ -65,6 +66,7 @@ export default function PrepToTravel({ steps }: { steps: PrepStepDTO[] }) {
           {steps.map((step) => (
             <div
               key={step.id}
+              className="prep-step"
               style={{
                 display: "flex",
                 gap: 18,

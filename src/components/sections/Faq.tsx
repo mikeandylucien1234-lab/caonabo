@@ -50,6 +50,7 @@ export default function Faq({ faqs }: { faqs: FaqDTO[] }) {
                       {faq.question}
                     </span>
                     <span
+                      className="faq-arrow"
                       style={{
                         color: "#dc2626",
                         fontSize: 14,
@@ -58,6 +59,17 @@ export default function Faq({ faqs }: { faqs: FaqDTO[] }) {
                       }}
                     >
                       ⌄
+                    </span>
+                    <span
+                      className="faq-plus"
+                      style={{
+                        color: "#dc2626",
+                        fontSize: 22,
+                        fontWeight: 400,
+                        lineHeight: 1,
+                      }}
+                    >
+                      {isOpen ? "−" : "+"}
                     </span>
                   </div>
                   {isOpen && (
@@ -80,7 +92,7 @@ export default function Faq({ faqs }: { faqs: FaqDTO[] }) {
             Consultez plus au : <a href="#">Centre d&apos;Aide ↗</a>
           </div>
         </div>
-        <div style={{ display: "flex", justifyContent: "center" }}>
+        <div className="faq-illus" style={{ display: "flex", justifyContent: "center" }}>
           <div
             style={{
               width: 280,

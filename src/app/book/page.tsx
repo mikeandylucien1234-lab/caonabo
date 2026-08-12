@@ -8,8 +8,16 @@ export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Réserver — Caonabo Airlinje" };
 
-export default async function BookPage() {
-  const [cities, user] = await Promise.all([getCities(), getCurrentUser()]);
+export default async function BookPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ origin?: string; destination?: string; date?: string }>;
+}) {
+  const [cities, user, sp] = await Promise.all([
+    getCities(),
+    getCurrentUser(),
+    searchParams,
+  ]);
   return (
     <div style={{ maxWidth: 1536, margin: "0 auto", background: "#fff" }}>
       <Header variant="solid" active="/book" />
@@ -25,7 +33,13 @@ export default async function BookPage() {
           clics.
         </p>
       </div>
-      <BookingFlow cities={cities} milesBalance={user?.milesBalance ?? null} />
+      <BookingFlow
+        cities={cities}
+        milesBalance={user?.milesBalance ?? null}
+        initialOrigin={sp.origin ?? null}
+        initialDestination={sp.destination ?? null}
+        initialDate={sp.date ?? null}
+      />
       <Footer />
     </div>
   );

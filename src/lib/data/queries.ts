@@ -25,12 +25,15 @@ export async function getDestinations(): Promise<DestinationDTO[]> {
   });
   return rows.map((d) => ({
     id: d.id,
+    slug: d.slug,
     city: d.city,
     country: d.country,
     priceUsdCents: d.priceUsdCents,
     discountPct: d.discountPct,
     imageUrl: d.imageUrl,
     placeholder: d.placeholder,
+    originCode: d.originCode,
+    destinationCode: d.destinationCode,
   }));
 }
 
@@ -52,7 +55,57 @@ export async function getPromotions(): Promise<PromotionDTO[]> {
     oldPriceUsdCents: p.oldPriceUsdCents,
     imageUrl: p.imageUrl,
     placeholder: p.placeholder,
+    originCode: p.originCode,
+    destinationCode: p.destinationCode,
   }));
+}
+
+export interface OfferDTO {
+  kind: "promotion" | "destination";
+  slug: string;
+  title: string;
+  subtitle: string; // route ou pays
+  imageUrl: string;
+  priceUsdCents: number;
+  oldPriceUsdCents: number | null;
+  originCode: string;
+  destinationCode: string;
+  accentColor: string;
+}
+
+/** Résout une offre (promotion ou destination) par son slug. */
+export async function getOfferBySlug(slug: string): Promise<OfferDTO | null> {
+  const promo = await prisma.promotion.findUnique({ where: { slug } });
+  if (promo) {
+    return {
+      kind: "promotion",
+      slug: promo.slug,
+      title: promo.title,
+      subtitle: promo.routeLabel,
+      imageUrl: promo.imageUrl,
+      priceUsdCents: promo.priceUsdCents,
+      oldPriceUsdCents: promo.oldPriceUsdCents,
+      originCode: promo.originCode,
+      destinationCode: promo.destinationCode,
+      accentColor: promo.accentColor,
+    };
+  }
+  const dest = await prisma.destination.findUnique({ where: { slug } });
+  if (dest) {
+    return {
+      kind: "destination",
+      slug: dest.slug,
+      title: dest.city,
+      subtitle: dest.country,
+      imageUrl: dest.imageUrl,
+      priceUsdCents: dest.priceUsdCents,
+      oldPriceUsdCents: null,
+      originCode: dest.originCode,
+      destinationCode: dest.destinationCode,
+      accentColor: "#5b21b6",
+    };
+  }
+  return null;
 }
 
 export async function getFaqs(): Promise<FaqDTO[]> {

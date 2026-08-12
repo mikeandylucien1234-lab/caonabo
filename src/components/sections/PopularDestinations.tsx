@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { DestinationDTO } from "@/lib/data/types";
 import { formatPrice, type RateInfo } from "@/lib/currency";
 
@@ -83,9 +84,11 @@ export default function PopularDestinations({
         }}
       >
         {destinations.map((d) => (
-          <div
+          <Link
             key={d.id}
+            href={`/offre/${d.slug}`}
             style={{
+              display: "block",
               position: "relative",
               borderRadius: 20,
               overflow: "hidden",
@@ -216,7 +219,7 @@ export default function PopularDestinations({
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

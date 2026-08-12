@@ -8,12 +8,15 @@ export interface CityDTO {
 
 export interface DestinationDTO {
   id: string;
+  slug: string;
   city: string;
   country: string;
   priceUsdCents: number;
   discountPct: number;
   imageUrl: string;
   placeholder: string;
+  originCode: string;
+  destinationCode: string;
 }
 
 export interface PromotionDTO {
@@ -30,6 +33,8 @@ export interface PromotionDTO {
   oldPriceUsdCents: number;
   imageUrl: string;
   placeholder: string;
+  originCode: string;
+  destinationCode: string;
 }
 
 export interface FaqDTO {

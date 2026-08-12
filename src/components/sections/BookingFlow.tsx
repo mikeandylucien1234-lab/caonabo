@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CityDTO, FlightResultDTO } from "@/lib/data/types";
 import { formatPrice } from "@/lib/currency";
 
@@ -13,13 +13,19 @@ interface PassengerForm {
 export default function BookingFlow({
   cities,
   milesBalance = null,
+  initialOrigin = null,
+  initialDestination = null,
+  initialDate = null,
 }: {
   cities: CityDTO[];
   milesBalance?: number | null;
+  initialOrigin?: string | null;
+  initialDestination?: string | null;
+  initialDate?: string | null;
 }) {
-  const [origin, setOrigin] = useState("");
-  const [destination, setDestination] = useState("");
-  const [departDate, setDepartDate] = useState("");
+  const [origin, setOrigin] = useState(initialOrigin ?? "");
+  const [destination, setDestination] = useState(initialDestination ?? "");
+  const [departDate, setDepartDate] = useState(initialDate ?? "");
   const [flights, setFlights] = useState<FlightResultDTO[] | null>(null);
   const [selected, setSelected] = useState<FlightResultDTO | null>(null);
   const [passengers, setPassengers] = useState<PassengerForm[]>([
@@ -32,6 +38,17 @@ export default function BookingFlow({
   const [error, setError] = useState<string | null>(null);
   const [reference, setReference] = useState<string | null>(null);
   const [milesEarned, setMilesEarned] = useState<number | null>(null);
+  const autoRef = useRef(false);
+
+  // pré-remplissage depuis une offre : lance la recherche automatiquement
+  useEffect(() => {
+    if (autoRef.current) return;
+    if (initialOrigin && initialDestination) {
+      autoRef.current = true;
+      searchFlights();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const isLoggedIn = milesBalance !== null;
   const grossCents = selected ? selected.priceUsdCents * passengers.length : 0;

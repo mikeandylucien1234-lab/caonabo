@@ -44,21 +44,27 @@ const EXCHANGE_RATES = [
 // Destinations populaires (bloc "Destinations populaires")
 const DESTINATIONS = [
   {
+    slug: "port-au-prince",
     city: "Port-au-Prince",
     country: "Haïti",
     priceUsdCents: 32900,
     discountPct: 49,
     imageUrl: "/images/dest-port-au-prince.webp",
     placeholder: "Citadelle Laferrière vue aérienne",
+    originCode: "SCL",
+    destinationCode: "PAP",
     sortOrder: 0,
   },
   {
+    slug: "toronto",
     city: "Toronto",
     country: "Canada",
     priceUsdCents: 48800,
     discountPct: 42,
     imageUrl: "/images/dest-toronto.webp",
     placeholder: "skyline de Toronto au coucher du soleil",
+    originCode: "PAP",
+    destinationCode: "YYZ",
     sortOrder: 1,
   },
 ];

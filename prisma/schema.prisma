@@ -74,16 +74,19 @@ model Flight {
 
 // Destinations phares affichées sur la home (bloc "Destinations populaires")
 model Destination {
-  id            String   @id @default(cuid())
-  city          String
-  country       String
-  priceUsdCents Int
-  discountPct   Int      @default(0)
-  imageUrl      String
-  placeholder   String   @default("") // description texte d'origine du proto
-  featured      Boolean  @default(true)
-  sortOrder     Int      @default(0)
-  createdAt     DateTime @default(now())
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  city            String
+  country         String
+  priceUsdCents   Int
+  discountPct     Int      @default(0)
+  imageUrl        String
+  placeholder     String   @default("") // description texte d'origine du proto
+  originCode      String   @default("SCL") // IATA origine de la route reliée
+  destinationCode String   @default("PAP") // IATA destination de la route reliée
+  featured        Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
 
   @@index([featured, sortOrder])
 }
@@ -103,6 +106,8 @@ model Promotion {
   oldPriceUsdCents Int
   imageUrl         String
   placeholder      String    @default("")
+  originCode       String    @default("SCL") // IATA origine de la route reliée
+  destinationCode  String    @default("CAP") // IATA destination de la route reliée
   validUntil       DateTime?
   sortOrder        Int       @default(0)
   createdAt        DateTime  @default(now())

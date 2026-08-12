@@ -193,7 +193,7 @@ export default function Promotions({
                 Départs jusqu&apos;au 30 avril
               </div>
               <a
-                href={`/book?promo=${p.slug}`}
+                href={`/offre/${p.slug}`}
                 style={{
                   width: "100%",
                   display: "flex",

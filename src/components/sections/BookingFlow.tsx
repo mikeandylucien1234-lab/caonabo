@@ -9,6 +9,7 @@ import type {
 } from "@/lib/data/types";
 import { formatPrice } from "@/lib/currency";
 import FlightResultCard from "@/components/sections/FlightResultCard";
+import LoadingIndicator from "@/components/LoadingIndicator";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tunnel de réservation en 5 étapes
@@ -446,6 +447,11 @@ export default function BookingFlow({
         {error && <p style={{ color: "#dc2626", fontSize: 13, marginTop: 16 }}>{error}</p>}
       </div>
 
+      {/* indicateur de chargement (recherche des vols / confirmation) */}
+      {loading && (step === 1 || step === 5) && (
+        <LoadingIndicator label={step === 1 ? "Recherche des meilleurs vols…" : "Confirmation de votre réservation…"} />
+      )}
+
       {/* navigation */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
         <button onClick={prev} disabled={step === 1 || loading} style={ghostBtn(step === 1 || loading)}>
@@ -854,7 +860,7 @@ function SeatMap({
   takenByOthers: Set<string>;
   onToggle: (s: SeatDTO) => void;
 }) {
-  if (!seats) return <p style={{ fontSize: 13, color: "#8a8aa0" }}>Chargement du plan de cabine…</p>;
+  if (!seats) return <LoadingIndicator label="Chargement du plan de cabine…" size={120} />;
   // regroupe par rangée
   const rows = new Map<number, SeatDTO[]>();
   for (const s of seats) {

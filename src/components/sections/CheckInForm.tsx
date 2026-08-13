@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import LoadingIndicator from "@/components/LoadingIndicator";
 
 interface BookingInfo {
   reference: string;
@@ -111,6 +112,8 @@ export default function CheckInForm() {
           {loading ? "Recherche…" : "Effectuer le check-in"} 🧳
         </button>
         {error && <p style={{ color: "#dc2626", fontSize: 13, marginTop: 12 }}>{error}</p>}
+
+        {loading && <LoadingIndicator label="Recherche de votre réservation…" />}
 
         {booking && (
           <div

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import LoadingIndicator from "@/components/LoadingIndicator";
 
 export const INK = "#1e1b4b";
 export const PURPLE = "#5b21b6";
@@ -157,7 +158,7 @@ export function Modal({ title, onClose, children }: { title: string; onClose: ()
 }
 
 export function Loading({ label = "Chargement…" }: { label?: string }) {
-  return <div style={{ padding: 40, textAlign: "center", color: "#8a8aa0", fontSize: 14 }}>{label}</div>;
+  return <LoadingIndicator label={label} size={140} style={{ padding: "36px 16px" }} />;
 }
 export function ErrorBox({ message }: { message: string }) {
   return <div style={{ padding: 16, background: "#fde3e3", color: "#b5480f", borderRadius: 12, fontSize: 14 }}>{message}</div>;

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { CityDTO, FlightResultDTO } from "@/lib/data/types";
 import FlightResultCard from "@/components/sections/FlightResultCard";
+import LoadingIndicator from "@/components/LoadingIndicator";
 
 type TripType = "aller-retour" | "aller-simple";
 type Panel = "from" | "to" | "pax" | null;
@@ -379,7 +380,8 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
           <div style={{ fontSize: 13, color: "#dc2626", marginTop: 10 }}>{error}</div>
         )}
 
-        {results && <Results flights={results} onPick={goToBooking} />}
+        {loading && <LoadingIndicator label="Recherche des meilleurs vols…" />}
+        {!loading && results && <Results flights={results} onPick={goToBooking} />}
       </div>
 
       {/* calendrier multi-mois (overlay) */}

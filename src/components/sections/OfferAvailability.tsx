@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/currency";
 import type { FlightResultDTO } from "@/lib/data/types";
 import FlightResultCard from "@/components/sections/FlightResultCard";
+import LoadingIndicator from "@/components/LoadingIndicator";
 
 const MONTHS_FR = [
   "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
@@ -161,9 +162,7 @@ export default function OfferAvailability({
             }}
           >
             {loadingAvail ? (
-              <div style={{ fontSize: 14, color: "#8a8aa0", padding: 12 }}>
-                Chargement des disponibilités…
-              </div>
+              <LoadingIndicator label="Chargement des disponibilités…" size={110} style={{ padding: 16 }} />
             ) : (
               <>
                 <div
@@ -251,7 +250,7 @@ export default function OfferAvailability({
       {selected && (
         <div style={{ marginTop: 22 }}>
           {loadingFlights ? (
-            <div style={{ fontSize: 14, color: "#8a8aa0" }}>Recherche des vols…</div>
+            <LoadingIndicator label="Recherche des meilleurs vols…" />
           ) : flights && flights.length > 0 ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div style={{ fontSize: 14, color: "#5c5c7a", fontWeight: 600 }}>

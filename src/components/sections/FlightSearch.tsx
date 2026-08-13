@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { CityDTO, FlightResultDTO } from "@/lib/data/types";
-import { formatPrice } from "@/lib/currency";
+import FlightResultCard from "@/components/sections/FlightResultCard";
 
 type TripType = "aller-retour" | "aller-simple";
 type Panel = "from" | "to" | "pax" | null;
@@ -43,6 +44,15 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const barRef = useRef<HTMLDivElement | null>(null);
+  const router = useRouter();
+
+  // clic sur un résultat → ouvre le tunnel de réservation pré-rempli
+  function goToBooking() {
+    if (!from || !to) return;
+    const params = new URLSearchParams({ origin: from.code, destination: to.code });
+    if (departDate) params.set("date", departDate);
+    router.push(`/book?${params.toString()}`);
+  }
 
   const bothChosen = !!from && !!to;
 
@@ -369,7 +379,7 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
           <div style={{ fontSize: 13, color: "#dc2626", marginTop: 10 }}>{error}</div>
         )}
 
-        {results && <Results flights={results} />}
+        {results && <Results flights={results} onPick={goToBooking} />}
       </div>
 
       {/* calendrier multi-mois (overlay) */}
@@ -706,7 +716,7 @@ function CalendarOverlay({
   );
 }
 
-function Results({ flights }: { flights: FlightResultDTO[] }) {
+function Results({ flights, onPick }: { flights: FlightResultDTO[]; onPick: () => void }) {
   if (flights.length === 0) {
     return (
       <div
@@ -731,44 +741,8 @@ function Results({ flights }: { flights: FlightResultDTO[] }) {
         {flights.length > 1 ? "s" : ""}
       </div>
       {flights.slice(0, 8).map((f) => (
-        <div
-          key={f.id}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            border: "1px solid #f0eef7",
-            borderRadius: 12,
-            padding: "14px 18px",
-          }}
-        >
-          <div>
-            <div style={{ fontWeight: 700, color: "#0f0f2d", fontSize: 15 }}>
-              {f.origin.city} → {f.destination.city}
-            </div>
-            <div style={{ fontSize: 13, color: "#7a7a92", marginTop: 2 }}>
-              {f.flightNumber} · {formatDateTime(f.departAt)} ·{" "}
-              {f.direct ? "Vol direct" : `${f.stops} escale`}
-            </div>
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontWeight: 800, color: "#3d1e8a", fontSize: 18 }}>
-              {formatPrice(f.priceUsdCents, "USD")}
-            </div>
-            <div style={{ fontSize: 12, color: "#a0a0b4" }}>{f.seatsAvailable} places</div>
-          </div>
-        </div>
+        <FlightResultCard key={f.id} f={f} onSelect={onPick} />
       ))}
     </div>
   );
-}
-
-function formatDateTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleString("fr-FR", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }

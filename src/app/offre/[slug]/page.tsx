@@ -126,6 +126,9 @@ export default async function OfferPage({
             originCode={offer.originCode}
             destinationCode={offer.destinationCode}
             accentColor={offer.accentColor}
+            kind={offer.kind}
+            promoPriceCents={offer.priceUsdCents}
+            oldPriceCents={offer.oldPriceUsdCents}
           />
         </div>
       </div>

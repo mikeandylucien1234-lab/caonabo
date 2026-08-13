@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/currency";
 import type { FlightResultDTO } from "@/lib/data/types";
+import FlightResultCard from "@/components/sections/FlightResultCard";
 
 const MONTHS_FR = [
   "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
@@ -28,11 +29,25 @@ export default function OfferAvailability({
   originCode,
   destinationCode,
   accentColor,
+  kind,
+  promoPriceCents = null,
+  oldPriceCents = null,
 }: {
   originCode: string;
   destinationCode: string;
   accentColor: string;
+  kind: "promotion" | "destination";
+  promoPriceCents?: number | null;
+  oldPriceCents?: number | null;
 }) {
+  const router = useRouter();
+  // badge promo (remplace Recommandé/Le plus économique sur les cartes de promo)
+  const promoBadge =
+    kind === "promotion" && oldPriceCents && promoPriceCents
+      ? `Promo −${Math.round((1 - promoPriceCents / oldPriceCents) * 100)}%`
+      : kind === "promotion"
+        ? "Promotion"
+        : null;
   const [avail, setAvail] = useState<AvailDate[]>([]);
   const [loadingAvail, setLoadingAvail] = useState(true);
   const [open, setOpen] = useState(false);
@@ -243,49 +258,19 @@ export default function OfferAvailability({
                 {flights.length} vol{flights.length > 1 ? "s" : ""} le {frLong(selected)}
               </div>
               {flights.slice(0, 6).map((f) => (
-                <div
+                <FlightResultCard
                   key={f.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    border: "1px solid #f0eef7",
-                    borderRadius: 12,
-                    padding: "14px 16px",
-                    gap: 12,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: 700, color: "#0f0f2d", fontSize: 15 }}>
-                      {f.origin.city} → {f.destination.city}
-                    </div>
-                    <div style={{ fontSize: 13, color: "#7a7a92", marginTop: 2 }}>
-                      {f.flightNumber} · {new Date(f.departAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
-                      {" · "}
-                      {f.direct ? "Vol direct" : `${f.stops} escale`}
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                    <div style={{ fontWeight: 800, color: accentColor, fontSize: 18 }}>
-                      {formatPrice(f.priceUsdCents, "USD")}
-                    </div>
-                    <Link
-                      href={`/book?origin=${originCode}&destination=${destinationCode}&date=${selected}`}
-                      style={{
-                        background: accentColor,
-                        color: "#fff",
-                        fontWeight: 700,
-                        fontSize: 14,
-                        padding: "10px 18px",
-                        borderRadius: 10,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      Réserver →
-                    </Link>
-                  </div>
-                </div>
+                  f={f}
+                  accentColor={accentColor}
+                  priceOverrideCents={kind === "promotion" ? promoPriceCents : null}
+                  oldPriceCents={kind === "promotion" ? oldPriceCents : null}
+                  promoBadge={promoBadge}
+                  onSelect={() =>
+                    router.push(
+                      `/book?origin=${originCode}&destination=${destinationCode}&date=${selected}`,
+                    )
+                  }
+                />
               ))}
             </div>
           ) : (

@@ -79,6 +79,16 @@ html {
   display: none;
 }
 
+/* Hero : la carte « Prochain vol » flotte au-dessus du bas de l'image */
+.hero-card-holder {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  justify-content: center;
+  margin-top: -120px;
+  padding: 0 24px 36px;
+}
+
 /* ─────────────────────────────────────────────────────────────────────────
    Responsive mobile / tablette.
    Le prototype d'origine était desktop-only (largeur fixe). Ces règles
@@ -105,37 +115,22 @@ html {
   .logo-img {
     height: 58px !important;
   }
-  .hero-wrap {
-    min-height: 520px !important;
-  }
   .hero-title {
-    font-size: 34px !important;
-    line-height: 1.25 !important;
+    font-size: 26px !important;
+    line-height: 1.2 !important;
+    margin-top: 14px !important;
   }
-  /* la carte de recherche passe en flux (empilée) sous le titre sur mobile */
-  .hero-wrap {
-    min-height: auto !important;
-    overflow: visible !important;
-    padding-bottom: 26px;
+  .hero-headline {
+    padding-top: 2% !important;
   }
-  .hero-card {
-    position: static !important;
-    inset: auto !important;
-    margin: 22px 16px 0 !important;
-    /* effet verre dépoli (translucide + flou), pas blanc plein */
-    background: rgba(255, 255, 255, 0.72) !important;
-    backdrop-filter: blur(14px) !important;
-    -webkit-backdrop-filter: blur(14px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.5) !important;
-    border-radius: 18px !important;
-    padding: 18px 18px !important;
+  /* image courte sur mobile : la carte se pose juste sous l'image (pas de
+     chevauchement avec le titre) */
+  .hero-card-holder {
+    margin-top: -6px !important;
+    padding: 0 14px 22px !important;
   }
-  .hero-card-grid {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 12px !important;
-  }
-  .hc-full {
-    grid-column: span 2 !important;
+  .hero-flightcard {
+    padding: 16px 16px !important;
   }
   .grid-2 {
     grid-template-columns: 1fr !important;

@@ -35,6 +35,15 @@ const COLUMNS: { title: string; links: string[] }[] = [
   },
 ];
 
+// Cibles des liens qui pointent vers une vraie page (sinon ancre "#").
+const LINK_HREFS: Record<string, string> = {
+  "Notre Histoire": "/notre-histoire",
+  "Contactez-nous": "/contact",
+  "Voyages de Groupe": "/voyages-de-groupe",
+  Destinations: "/destinations",
+  "Informations Check-In": "/check-in",
+};
+
 export default function Footer() {
   return (
     <footer style={{ background: "#1e1b4b" }}>
@@ -112,7 +121,7 @@ function FooterColumn({ title, links }: { title: string; links: string[] }) {
         {links.map((link) => (
           <a
             key={link}
-            href="#"
+            href={LINK_HREFS[link] ?? "#"}
             style={{
               display: "block",
               color: "#e6e4f2",

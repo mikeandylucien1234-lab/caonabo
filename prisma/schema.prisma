@@ -255,3 +255,30 @@ model Passenger {
 
   @@index([bookingId])
 }
+
+// Messages reçus via le formulaire "Contactez-nous"
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String // Réservation | Réclamation | Presse | Autre
+  message   String
+  isRead    Boolean  @default(false) // statut lu / non-lu
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// Demandes de devis pour un voyage de groupe
+model GroupRequest {
+  id          String   @id @default(cuid())
+  travelers   Int // nombre de voyageurs
+  route       String // route souhaitée (ex: "Santiago → Port-au-Prince")
+  approxDates String? // dates approximatives (texte libre)
+  email       String
+  phone       String?
+  status      String   @default("new") // new | processing | done
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+}

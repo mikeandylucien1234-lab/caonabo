@@ -79,6 +79,15 @@ html {
   display: none;
 }
 
+/* Promotions : carrousel réservé au mobile (masqué sur PC) */
+.promo-mobile {
+  display: none;
+}
+/* Bandeau "Moyens de paiement" : masqué sur PC, visible sur mobile */
+.pay-section {
+  display: none;
+}
+
 /* Hero : image en remplissage (cover) + carte « Prochain vol » flottant dessus */
 .hero-wrap {
   min-height: 900px;
@@ -264,6 +273,17 @@ html {
 }
 
 @media (max-width: 820px) {
+  /* bascule promotions : grille PC masquée, carrousel mobile affiché */
+  .promo-desktop {
+    display: none !important;
+  }
+  .promo-mobile {
+    display: block !important;
+  }
+  /* bandeau moyens de paiement : affiché sur mobile */
+  .pay-section {
+    display: block !important;
+  }
   .promo-track {
     padding-left: 20px !important;
     padding-right: 20px !important;

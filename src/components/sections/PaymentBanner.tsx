@@ -4,7 +4,7 @@
 
 export default function PaymentBanner() {
   return (
-    <div className="hz" style={{ padding: "8px 56px 40px" }}>
+    <div className="hz pay-section" style={{ padding: "8px 56px 40px" }}>
       <div
         style={{
           borderRadius: 22,

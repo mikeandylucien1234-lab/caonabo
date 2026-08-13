@@ -2,6 +2,7 @@ import Hero from "@/components/sections/Hero";
 import FlightSearch from "@/components/sections/FlightSearch";
 import PopularDestinations from "@/components/sections/PopularDestinations";
 import Faq from "@/components/sections/Faq";
+import PaymentBanner from "@/components/sections/PaymentBanner";
 import Promotions from "@/components/sections/Promotions";
 import PrepToTravel from "@/components/sections/PrepToTravel";
 import Footer from "@/components/layout/Footer";
@@ -34,6 +35,7 @@ export default async function HomePage() {
       <FlightSearch cities={cities} />
       <PopularDestinations destinations={destinations} rates={rates} />
       <Faq faqs={faqs} />
+      <PaymentBanner />
       <Promotions promotions={promotions} rates={rates} />
       <PrepToTravel steps={prepSteps} />
       <Footer />

@@ -263,6 +263,9 @@ html {
   .promo-img {
     height: 210px !important;
   }
+  .pay-strip {
+    height: 130px !important;
+  }
 }
 
 @media (max-width: 470px) {

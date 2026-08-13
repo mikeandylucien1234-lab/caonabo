@@ -27,23 +27,10 @@ export default function OnboardExperience() {
             minHeight: 380,
             backgroundImage: "url('/images/onboard-meal.jpg'), linear-gradient(135deg,#1c130a 0%,#0b0b10 70%)",
             backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundPosition: "left center",
+            backgroundRepeat: "no-repeat",
           }}
-        >
-          <div style={{ position: "absolute", top: 26, left: 28, display: "flex", alignItems: "center", gap: 16 }}>
-            <TainoHead />
-            <div style={{ fontFamily: "var(--font-heading), serif", color: GOLD, fontWeight: 800, fontSize: 21, lineHeight: 1.05 }}>
-              Caonabo
-              <br />
-              Airlines
-            </div>
-            <div style={{ borderLeft: `1px solid ${GOLD}66`, paddingLeft: 14, color: GOLD, fontSize: 10.5, letterSpacing: 1.2, lineHeight: 1.5 }}>
-              À VOTRE SERVICE,
-              <br />
-              NOTRE FIERTÉ.
-            </div>
-          </div>
-        </div>
+        />
 
         {/* atouts à bord */}
         <div className="onboard-body" style={{ padding: "40px 44px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 22 }}>
@@ -92,15 +79,6 @@ function Feature({ icon, title, text }: { icon: React.ReactNode; title: React.Re
 }
 
 // ── icônes (SVG or, style charte) ────────────────────────────────────────────
-function TainoHead() {
-  return (
-    <svg viewBox="0 0 48 48" width="42" height="42" fill="none" stroke={GOLD} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M24 8c-7 0-12 5-12 12 0 6 4 9 4 14h16c0-5 4-8 4-14 0-7-5-12-12-12z" />
-      <path d="M18 20c2-2 10-2 12 0M20 26h8" />
-      <path d="M14 12c4-3 16-3 20 0" />
-    </svg>
-  );
-}
 function Cloa() {
   return (
     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke={GOLD} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>

@@ -8,10 +8,10 @@ import { useState } from "react";
 
 const COLUMNS: { title: string; links: string[] }[] = [
   { title: "À Propos", links: ["Notre Histoire"] },
-  { title: "Support & Contact", links: ["Contactez-nous", "FAQ"] },
+  { title: "Support & Contact", links: ["Contactez-nous"] },
   {
     title: "Réservation & Voyage",
-    links: ["Vols Nolisés", "Voyages de Groupe", "Destinations"],
+    links: ["Voyages de Groupe", "Destinations"],
   },
   {
     title: "Informations & Services",
@@ -47,6 +47,10 @@ const LINK_HREFS: Record<string, string> = {
   "Informations Aéroport": "/informations-aeroport",
   "Courrier et Cargo": "/cargo",
   "Explorer les Caraïbes": "/explorer-caraibes",
+  "Conditions Générales": "/conditions-generales",
+  "Conditions de Transport": "/conditions-transport",
+  "Moyens de Paiement": "/moyens-de-paiement",
+  "Politique de Confidentialité": "/politique-confidentialite",
 };
 
 export default function Footer() {

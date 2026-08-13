@@ -142,7 +142,8 @@ html {
   .fleet-row,
   .forbidden-grid,
   .cabin-grid,
-  .cargo-grid {
+  .cargo-grid,
+  .legal-toc {
     grid-template-columns: 1fr !important;
   }
   .grid-5 {

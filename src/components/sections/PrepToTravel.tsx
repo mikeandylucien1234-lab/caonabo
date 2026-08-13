@@ -1,8 +1,11 @@
 import type { PrepStepDTO } from "@/lib/data/types";
+import PrepStack from "@/components/sections/PrepStack";
 
 export default function PrepToTravel({ steps }: { steps: PrepStepDTO[] }) {
   return (
-    <div className="hz" style={{ padding: "0 56px 88px" }}>
+    <>
+    {/* DESKTOP : version d'origine, inchangée (masquée sur mobile) */}
+    <div className="hz prep-desktop" style={{ padding: "0 56px 88px" }}>
       <div
         className="grid-2"
         style={{
@@ -130,5 +133,32 @@ export default function PrepToTravel({ steps }: { steps: PrepStepDTO[] }) {
         </div>
       </div>
     </div>
+
+    {/* MOBILE : même en-tête + pile de cartes swipeable (masquée sur desktop) */}
+    <div
+      className="hz prep-mobile"
+      style={{ padding: "8px 20px 72px", textAlign: "center" }}
+    >
+      <h2
+        className="font-heading"
+        style={{ fontWeight: 800, fontSize: 30, color: "#1e1b4b", margin: "0 0 12px" }}
+      >
+        Préparez-vous à voyager.
+      </h2>
+      <p
+        style={{
+          fontSize: 15,
+          color: "#5c5c7a",
+          lineHeight: 1.6,
+          margin: "0 auto 26px",
+          maxWidth: 420,
+        }}
+      >
+        Suivez ces recommandations pour vivre votre prochain vol Caonabo en toute
+        sérénité.
+      </p>
+      <PrepStack />
+    </div>
+    </>
   );
 }

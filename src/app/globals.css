@@ -74,6 +74,11 @@ html {
   display: none;
 }
 
+/* Section "Préparez-vous" : version mobile (pile de cartes) masquée sur desktop */
+.prep-mobile {
+  display: none;
+}
+
 /* ─────────────────────────────────────────────────────────────────────────
    Responsive mobile / tablette.
    Le prototype d'origine était desktop-only (largeur fixe). Ces règles
@@ -222,6 +227,13 @@ html {
     align-items: center !important;
     text-align: center !important;
     gap: 10px !important;
+  }
+  /* bascule Préparez-vous : desktop masqué, pile de cartes affichée */
+  .prep-desktop {
+    display: none !important;
+  }
+  .prep-mobile {
+    display: block !important;
   }
 }
 

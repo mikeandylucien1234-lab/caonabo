@@ -10,6 +10,7 @@ import type {
 import { formatPrice } from "@/lib/currency";
 import FlightResultCard from "@/components/sections/FlightResultCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
+import { withMinDelay } from "@/lib/minDelay";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tunnel de réservation en 5 étapes
@@ -159,17 +160,22 @@ export default function BookingFlow({
     }
     setLoading(true);
     try {
-      const res = await fetch("/api/flights/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          origin,
-          destination,
-          departDate: departDate ? isoToLoose(departDate) : null,
-          tripType,
-        }),
-      });
-      const data = await res.json();
+      const { res, data } = await withMinDelay(
+        (async () => {
+          const res = await fetch("/api/flights/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              origin,
+              destination,
+              departDate: departDate ? isoToLoose(departDate) : null,
+              tripType,
+            }),
+          });
+          const data = await res.json();
+          return { res, data };
+        })(),
+      );
       if (!res.ok) throw new Error(data.error ?? "Erreur de recherche");
       setFlights(data.flights as FlightResultDTO[]);
       setStep(2);
@@ -299,36 +305,41 @@ export default function BookingFlow({
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch("/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          flightId: selected.id,
-          tripType,
-          cabinClass: "Économique",
-          contactEmail: email,
-          contactPhone: phone,
-          useMiles: useMiles && milesBalance ? milesBalance : 0,
-          paymentMethod,
-          cardLast4: cardNumber.replace(/\D/g, "").slice(-4),
-          passengers: passengers.map((p) => ({
-            civility: p.civility,
-            firstName: p.firstName,
-            lastName: p.lastName,
-            type: p.type,
-            birthDate: p.birthDate || null,
-            nationality: p.nationality || null,
-            documentType: p.documentType || null,
-            documentNumber: p.documentNumber || null,
-            documentExpiry: p.documentExpiry || null,
-            documentIssuingCountry: p.documentIssuingCountry || null,
-            phone: p.phone || null,
-            seatId: p.seatId,
-            baggageOptionId: p.baggageOptionId,
-          })),
-        }),
-      });
-      const data = await res.json();
+      const { res, data } = await withMinDelay(
+        (async () => {
+          const res = await fetch("/api/bookings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              flightId: selected.id,
+              tripType,
+              cabinClass: "Économique",
+              contactEmail: email,
+              contactPhone: phone,
+              useMiles: useMiles && milesBalance ? milesBalance : 0,
+              paymentMethod,
+              cardLast4: cardNumber.replace(/\D/g, "").slice(-4),
+              passengers: passengers.map((p) => ({
+                civility: p.civility,
+                firstName: p.firstName,
+                lastName: p.lastName,
+                type: p.type,
+                birthDate: p.birthDate || null,
+                nationality: p.nationality || null,
+                documentType: p.documentType || null,
+                documentNumber: p.documentNumber || null,
+                documentExpiry: p.documentExpiry || null,
+                documentIssuingCountry: p.documentIssuingCountry || null,
+                phone: p.phone || null,
+                seatId: p.seatId,
+                baggageOptionId: p.baggageOptionId,
+              })),
+            }),
+          });
+          const data = await res.json();
+          return { res, data };
+        })(),
+      );
       if (!res.ok) throw new Error(data.error ?? "Erreur de réservation");
       setReference(data.reference as string);
       setConfirmInfo({

@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/currency";
 import type { FlightResultDTO } from "@/lib/data/types";
 import FlightResultCard from "@/components/sections/FlightResultCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
+import { withMinDelay } from "@/lib/minDelay";
 
 const MONTHS_FR = [
   "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
@@ -105,12 +106,17 @@ export default function OfferAvailability({
     setLoadingFlights(true);
     setFlights(null);
     try {
-      const res = await fetch("/api/flights/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ origin: originCode, destination: destinationCode, departDate: dateStr }),
-      });
-      const data = await res.json();
+      const { res, data } = await withMinDelay(
+        (async () => {
+          const res = await fetch("/api/flights/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ origin: originCode, destination: destinationCode, departDate: dateStr }),
+          });
+          const data = await res.json();
+          return { res, data };
+        })(),
+      );
       setFlights(res.ok ? (data.flights as FlightResultDTO[]) : []);
     } catch {
       setFlights([]);

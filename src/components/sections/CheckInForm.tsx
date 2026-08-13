@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import LoadingIndicator from "@/components/LoadingIndicator";
+import { withMinDelay } from "@/lib/minDelay";
 
 interface BookingInfo {
   reference: string;
@@ -40,10 +41,15 @@ export default function CheckInForm() {
     }
     setLoading(true);
     try {
-      const res = await fetch(
-        `/api/bookings/lookup?reference=${encodeURIComponent(reference)}&lastName=${encodeURIComponent(lastName)}`,
+      const { res, data } = await withMinDelay(
+        (async () => {
+          const res = await fetch(
+            `/api/bookings/lookup?reference=${encodeURIComponent(reference)}&lastName=${encodeURIComponent(lastName)}`,
+          );
+          const data = await res.json();
+          return { res, data };
+        })(),
       );
-      const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Introuvable");
       setBooking(data as BookingInfo);
     } catch (e) {

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { CityDTO, FlightResultDTO } from "@/lib/data/types";
 import FlightResultCard from "@/components/sections/FlightResultCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
+import { withMinDelay } from "@/lib/minDelay";
 
 type TripType = "aller-retour" | "aller-simple";
 type Panel = "from" | "to" | "pax" | null;
@@ -121,18 +122,23 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
     setLoading(true);
     setResults(null);
     try {
-      const res = await fetch("/api/flights/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          origin: from.code,
-          destination: to.code,
-          departDate,
-          returnDate: tripType === "aller-retour" ? returnDate : null,
-          tripType,
-        }),
-      });
-      const data = await res.json();
+      const { res, data } = await withMinDelay(
+        (async () => {
+          const res = await fetch("/api/flights/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              origin: from.code,
+              destination: to.code,
+              departDate,
+              returnDate: tripType === "aller-retour" ? returnDate : null,
+              tripType,
+            }),
+          });
+          const data = await res.json();
+          return { res, data };
+        })(),
+      );
       if (!res.ok) throw new Error(data.error ?? "Erreur de recherche");
       setResults(data.flights as FlightResultDTO[]);
     } catch (e) {

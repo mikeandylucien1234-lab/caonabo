@@ -64,10 +64,15 @@ model Flight {
   priceUsdCents  Int // prix de référence en USD (cents)
   seatsTotal     Int      @default(180)
   seatsAvailable Int      @default(180)
+  operatedBy      String  @default("Caonabo Airlinje")
+  durationMinutes Int     @default(0) // durée totale du trajet
+  stopsCount      Int     @default(0) // nombre d'escales
+  stopAirports    String  @default("") // codes IATA des escales, séparés par ","
   createdAt      DateTime @default(now())
 
   route    Route     @relation(fields: [routeId], references: [id])
   bookings Booking[]
+  seats    Seat[]
 
   @@index([routeId, departAt])
 }
@@ -162,20 +167,27 @@ model User {
 
 // Réservations
 model Booking {
-  id            String   @id @default(cuid())
-  reference     String   @unique // ex: CAO-7X4K2
-  flightId      String
-  userId        String? // null = réservation invité (par référence)
-  tripType      String   @default("aller-retour") // aller-retour | aller-simple | multi-destination
-  contactEmail  String
-  contactPhone  String?
-  passengerCount Int     @default(1)
-  totalUsdCents Int // montant réellement payé (après déduction des Miles)
-  currency      String   @default("USD")
-  milesEarned   Int      @default(0) // Miles crédités par cette réservation
-  milesRedeemed Int      @default(0) // Miles utilisés pour payer cette réservation
-  status        String   @default("pending") // pending | confirmed | cancelled
-  createdAt     DateTime @default(now())
+  id             String   @id @default(cuid())
+  reference      String   @unique // PNR court alphanumérique
+  flightId       String
+  userId         String? // null = réservation invité (par référence)
+  tripType       String   @default("aller-retour") // aller-retour | aller-simple
+  cabinClass     String   @default("Économique") // Économique | Premium | Business
+  contactEmail   String
+  contactPhone   String?
+  passengerCount Int      @default(1)
+  // Ventilation complète des coûts (en cents USD)
+  basePriceCents    Int   @default(0) // vol × passagers
+  baggageTotalCents Int   @default(0)
+  seatTotalCents    Int   @default(0)
+  taxesCents        Int   @default(0)
+  milesRedeemed     Int   @default(0) // Miles utilisés (1 Mile = 1 cent de remise)
+  totalUsdCents     Int // montant réellement payé (net)
+  currency          String @default("USD")
+  milesEarned       Int    @default(0) // Miles crédités par cette réservation
+  paymentMethodDisplay String? // cosmétique, ex: "Carte terminant par 4242"
+  status         String   @default("pending") // pending | confirmed | cancelled
+  createdAt      DateTime @default(now())
 
   flight     Flight      @relation(fields: [flightId], references: [id])
   user       User?       @relation(fields: [userId], references: [id])
@@ -185,17 +197,61 @@ model Booking {
   @@index([userId])
 }
 
-// Passagers rattachés à une réservation
+// Options de bagage en soute (table de référence)
+model BaggageOption {
+  id          String @id @default(cuid())
+  label       String // ex: "1 bagage 23 kg"
+  weightKg    Int    @default(0)
+  priceCents  Int    @default(0)
+  flightClass String? // optionnel : réservé à une classe
+  sortOrder   Int    @default(0)
+
+  passengers Passenger[]
+
+  @@index([sortOrder])
+}
+
+// Sièges d'un vol (matérialisés à la demande)
+model Seat {
+  id                 String  @id @default(cuid())
+  flightId           String
+  row                Int
+  column             String // A..F
+  type               String  @default("STANDARD") // STANDARD | WINDOW | AISLE
+  fareClass          String  @default("Économique") // Économique | Premium | Business
+  priceSupplementCents Int   @default(0)
+  isAvailable        Boolean @default(true)
+
+  flight     Flight      @relation(fields: [flightId], references: [id], onDelete: Cascade)
+  passengers Passenger[]
+
+  @@unique([flightId, row, column])
+  @@index([flightId])
+}
+
+// Passagers rattachés à une réservation (avec documents + siège + bagage)
 model Passenger {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   bookingId  String
+  civility   String    @default("M") // M | MME | MLLE
   firstName  String
   lastName   String
-  type       String   @default("adult") // adult | child | infant
+  type       String    @default("adult") // adult | child | infant
   birthDate  DateTime?
-  passportNo String?
+  nationality String?
+  // Document d'identité
+  documentType           String? // PASSPORT | ID_CARD
+  documentNumber         String?
+  documentExpiry         DateTime?
+  documentIssuingCountry String?
+  phone                  String?
+  // Choix optionnels
+  seatId          String?
+  baggageOptionId String?
 
-  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  booking       Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  seat          Seat?          @relation(fields: [seatId], references: [id])
+  baggageOption BaggageOption? @relation(fields: [baggageOptionId], references: [id])
 
   @@index([bookingId])
 }

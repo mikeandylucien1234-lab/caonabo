@@ -34,6 +34,25 @@ const ROUTES: Array<[string, string, boolean, number]> = [
   ["PAP", "LIM", false, 61900],
 ];
 
+// Escales plausibles pour les corridors avec correspondance (code IATA du hub)
+const STOP_HUBS: Record<string, string> = {
+  "SCL-PAP": "LIM",
+  "PAP-SCL": "LIM",
+  "SCL-CAP": "LIM",
+  "CAP-SCL": "LIM",
+  "CAP-YYZ": "PAP",
+  "YYZ-CAP": "PAP",
+  "LIM-PAP": "PTY", // Panama (hub de correspondance)
+  "PAP-LIM": "PTY",
+};
+
+// Options de bagage en soute (jamais liées à une vraie compagnie)
+const BAGGAGE_OPTIONS = [
+  { label: "Aucun bagage en soute", weightKg: 0, priceCents: 0, sortOrder: 0 },
+  { label: "1 bagage · 23 kg", weightKg: 23, priceCents: 3000, sortOrder: 1 },
+  { label: "2 bagages · 23 kg", weightKg: 46, priceCents: 5000, sortOrder: 2 },
+];
+
 const EXCHANGE_RATES = [
   { currency: "USD", symbol: "$", ratePerUsd: 1 },
   { currency: "CLP", symbol: "CLP", ratePerUsd: 950 },
@@ -223,6 +242,8 @@ async function main() {
   // Ordre de suppression : enfants → parents
   await prisma.passenger.deleteMany();
   await prisma.booking.deleteMany();
+  await prisma.seat.deleteMany();
+  await prisma.baggageOption.deleteMany();
   await prisma.user.deleteMany();
   await prisma.flight.deleteMany();
   await prisma.route.deleteMany();
@@ -265,6 +286,7 @@ async function main() {
       // variation de prix ±12% selon le jour
       const wobble = 1 + (((day * 37) % 25) - 12) / 100;
       const priceUsdCents = Math.round((basePrice * wobble) / 100) * 100;
+      const stopAirports = direct ? "" : STOP_HUBS[`${origin}-${dest}`] ?? "";
 
       await prisma.flight.create({
         data: {
@@ -275,12 +297,20 @@ async function main() {
           priceUsdCents,
           seatsTotal: 180,
           seatsAvailable: 120 + ((day * 7) % 60),
+          operatedBy: "Caonabo Airlinje",
+          durationMinutes: durationH * 60,
+          stopsCount: direct ? 0 : 1,
+          stopAirports,
         },
       });
       flightCount++;
     }
   }
   console.log(`  🛫 ${ROUTES.length} routes, ${flightCount} vols`);
+
+  // Options de bagage
+  for (const b of BAGGAGE_OPTIONS) await prisma.baggageOption.create({ data: b });
+  console.log(`  🧳 ${BAGGAGE_OPTIONS.length} options de bagage`);
 
   // Taux de change
   for (const r of EXCHANGE_RATES) await prisma.exchangeRate.create({ data: r });

@@ -59,6 +59,28 @@ export interface FlightResultDTO {
   arriveAt: string; // ISO
   direct: boolean;
   stops: number;
+  stopAirports: string[]; // codes IATA des escales
+  durationMinutes: number;
+  operatedBy: string;
   priceUsdCents: number;
   seatsAvailable: number;
+  fareTags: string[]; // ex: ["Recommandé", "Le plus économique"]
+}
+
+export interface SeatDTO {
+  id: string;
+  row: number;
+  column: string;
+  type: string; // WINDOW | AISLE | STANDARD
+  fareClass: string; // Économique | Premium | Business
+  priceSupplementCents: number;
+  isAvailable: boolean;
+}
+
+export interface BaggageOptionDTO {
+  id: string;
+  label: string;
+  weightKg: number;
+  priceCents: number;
+  sortOrder: number;
 }

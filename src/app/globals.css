@@ -235,10 +235,26 @@ html {
   .prep-mobile {
     display: block !important;
   }
+  /* Tunnel de réservation : colonnes empilées sur mobile */
+  .bk-options {
+    grid-template-columns: 1fr !important;
+  }
+  /* Carte vol : disposition verticale sur mobile */
+  .bk-flight-row {
+    flex-wrap: wrap !important;
+    row-gap: 10px !important;
+  }
+  .bk-flight-card {
+    padding: 14px 16px !important;
+  }
 }
 
 @media (max-width: 470px) {
   .grid-5 {
     grid-template-columns: 1fr !important;
+  }
+  /* Stepper compact : on masque les libellés, on garde les pastilles */
+  .bk-step-label {
+    display: none !important;
   }
 }

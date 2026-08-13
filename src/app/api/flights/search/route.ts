@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { computeFareTags } from "@/lib/booking";
 import type { FlightResultDTO } from "@/lib/data/types";
 
 export const dynamic = "force-dynamic";
@@ -71,6 +72,14 @@ export async function POST(req: Request) {
     take: 40,
   });
 
+  const fareTags = computeFareTags(
+    flights.map((f) => ({
+      id: f.id,
+      priceUsdCents: f.priceUsdCents,
+      durationMinutes: f.durationMinutes,
+    })),
+  );
+
   const results: FlightResultDTO[] = flights.map((f) => ({
     id: f.id,
     flightNumber: f.flightNumber,
@@ -88,8 +97,12 @@ export async function POST(req: Request) {
     arriveAt: f.arriveAt.toISOString(),
     direct: f.route.directFlight,
     stops: f.route.stops,
+    stopAirports: f.stopAirports ? f.stopAirports.split(",").filter(Boolean) : [],
+    durationMinutes: f.durationMinutes,
+    operatedBy: f.operatedBy,
     priceUsdCents: f.priceUsdCents,
     seatsAvailable: f.seatsAvailable,
+    fareTags: fareTags.get(f.id) ?? [],
   }));
 
   return NextResponse.json({

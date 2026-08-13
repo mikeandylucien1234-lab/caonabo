@@ -138,6 +138,13 @@ html {
     grid-template-columns: 1fr !important;
     gap: 22px !important;
   }
+  /* pages contenu : grilles à colonnes → empilées sur mobile */
+  .fleet-row,
+  .forbidden-grid,
+  .cabin-grid,
+  .cargo-grid {
+    grid-template-columns: 1fr !important;
+  }
   .grid-5 {
     grid-template-columns: repeat(2, 1fr) !important;
   }

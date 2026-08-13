@@ -41,7 +41,12 @@ const LINK_HREFS: Record<string, string> = {
   "Contactez-nous": "/contact",
   "Voyages de Groupe": "/voyages-de-groupe",
   Destinations: "/destinations",
-  "Informations Check-In": "/check-in",
+  "Notre Flotte": "/notre-flotte",
+  "Informations Check-In": "/informations-checkin",
+  "Politique de Bagages": "/politique-bagages",
+  "Informations Aéroport": "/informations-aeroport",
+  "Courrier et Cargo": "/cargo",
+  "Explorer les Caraïbes": "/explorer-caraibes",
 };
 
 export default function Footer() {

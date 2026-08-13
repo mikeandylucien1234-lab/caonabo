@@ -8,12 +8,12 @@ const prisma = new PrismaClient();
 
 // Villes / aéroports desservis (extraits du composant `cities` du proto)
 const AIRPORTS = [
-  { code: "SCL", city: "Santiago", country: "Chili" },
-  { code: "PAP", city: "Port-au-Prince", country: "Haïti" },
-  { code: "CAP", city: "Cap-Haïtien", country: "Haïti" },
-  { code: "YYZ", city: "Toronto", country: "Canada" },
-  { code: "YUL", city: "Montréal", country: "Canada" },
-  { code: "LIM", city: "Lima", country: "Pérou" },
+  { code: "SCL", city: "Santiago", country: "Chili", description: "Notre hub principal, avec des connexions vers Port-au-Prince, Toronto et au-delà.", imageUrl: "" },
+  { code: "PAP", city: "Port-au-Prince", country: "Haïti", description: "La capitale d'Haïti. Vols directs et connexions vers Cap-Haïtien.", imageUrl: "/images/dest-port-au-prince.webp" },
+  { code: "CAP", city: "Cap-Haïtien", country: "Haïti", description: "Ville historique du nord, porte vers la Citadelle Laferrière.", imageUrl: "/images/promo-cap-haitien.webp" },
+  { code: "YYZ", city: "Toronto", country: "Canada", description: "Vols directs reliant Haïti et le Chili au Canada, porte d'entrée pour la diaspora.", imageUrl: "/images/dest-toronto.webp" },
+  { code: "YUL", city: "Montréal", country: "Canada", description: "Connexion directe avec un fort lien culturel avec la diaspora haïtienne.", imageUrl: "" },
+  { code: "LIM", city: "Lima", country: "Pérou", description: "Ville majeure avec une escale, idéale pour découvrir les Andes.", imageUrl: "" },
 ];
 
 // Corridors desservis : [origine, destination, direct, prix de base USD cents]

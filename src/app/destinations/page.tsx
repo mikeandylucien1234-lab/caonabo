@@ -1,26 +1,16 @@
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { getCities } from "@/lib/data/queries";
+import { getDestinationCities } from "@/lib/data/queries";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Nos Destinations — Caonabo Airlinje" };
-
-// Détails éditoriaux par code IATA (la LISTE des villes vient de la table Airport).
-const DETAILS: Record<string, { description: string; image?: string }> = {
-  SCL: { description: "Notre hub principal, avec des connexions vers Port-au-Prince, Toronto et au-delà." },
-  PAP: { description: "La capitale d'Haïti. Vols directs et connexions vers Cap-Haïtien.", image: "/images/dest-port-au-prince.webp" },
-  YYZ: { description: "Vols directs reliant Haïti et le Chili au Canada, porte d'entrée pour la diaspora.", image: "/images/dest-toronto.webp" },
-  LIM: { description: "Ville majeure avec une escale, idéale pour découvrir les Andes." },
-  CAP: { description: "Ville historique du nord, porte vers la Citadelle Laferrière.", image: "/images/promo-cap-haitien.webp" },
-  YUL: { description: "Connexion directe avec un fort lien culturel avec la diaspora haïtienne." },
-};
 
 // Ordre d'affichage préféré (les autres villes suivent).
 const ORDER = ["SCL", "PAP", "YYZ", "LIM", "CAP", "YUL"];
 
 export default async function DestinationsPage() {
-  const cities = await getCities();
+  const cities = await getDestinationCities();
   const sorted = [...cities].sort((a, b) => {
     const ia = ORDER.indexOf(a.code);
     const ib = ORDER.indexOf(b.code);
@@ -42,7 +32,8 @@ export default async function DestinationsPage() {
 
         <div className="dest-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 26 }}>
           {sorted.map((c) => {
-            const d = DETAILS[c.code];
+            const image = c.imageUrl?.trim() || null;
+            const description = c.description?.trim() || `Vols Caonabo Airlinje vers ${c.city}.`;
             return (
               <article
                 key={c.code}
@@ -58,9 +49,9 @@ export default async function DestinationsPage() {
               >
                 {/* visuel */}
                 <div style={{ position: "relative", height: 200, background: "#eef0f5" }}>
-                  {d?.image ? (
+                  {image ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={d.image} alt={`${c.city}, ${c.country}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                    <img src={image} alt={`${c.city}, ${c.country}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : (
                     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, background: "linear-gradient(135deg,#efeafc 0%,#e7effa 100%)" }}>
                       <ImageGlyph />
@@ -78,7 +69,7 @@ export default async function DestinationsPage() {
                     <b style={{ color: "#3a3a55" }}>Pays :</b> {c.country}
                   </div>
                   <p style={{ fontSize: 14.5, color: "#6b6b80", lineHeight: 1.6, margin: "2px 0 4px", flex: 1 }}>
-                    {d?.description ?? `Vols Caonabo Airlinje vers ${c.city}.`}
+                    {description}
                   </p>
                   <Link
                     href={`/book?destination=${c.code}`}

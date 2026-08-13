@@ -26,11 +26,13 @@ datasource db {
 
 // Aéroports / villes desservis
 model Airport {
-  id        String   @id @default(cuid())
-  code      String   @unique // IATA, ex: SCL, PAP, CAP, YYZ, YUL, LIM
-  city      String
-  country   String
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  code        String   @unique // IATA, ex: SCL, PAP, CAP, YYZ, YUL, LIM
+  city        String
+  country     String
+  description String   @default("") // texte affiché sur la page "Nos Destinations"
+  imageUrl    String   @default("") // visuel de la carte destination (optionnel)
+  createdAt   DateTime @default(now())
 
   routesFrom Route[] @relation("RouteOrigin")
   routesTo   Route[] @relation("RouteDestination")

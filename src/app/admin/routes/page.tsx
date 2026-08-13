@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRows, useUpsert, useRemove } from "@/lib/admin/api";
 import { PageHead, Card, Btn, Badge, Table, Td, Modal, Field, inputStyle, Loading, ErrorBox } from "@/components/admin/ui";
 
-interface Airport { id?: string; code: string; city: string; country: string }
+interface Airport { id?: string; code: string; city: string; country: string; description?: string; imageUrl?: string }
 interface RouteRow {
   id: string;
   directFlight: boolean;
@@ -23,7 +23,7 @@ export default function AdminRoutes() {
 
   return (
     <div>
-      <PageHead title="Routes & Aéroports" subtitle="Les aéroports desservis et les liaisons entre eux." action={<Btn onClick={() => setForm({ code: "", city: "", country: "" })}>+ Nouvel aéroport</Btn>} />
+      <PageHead title="Routes & Aéroports" subtitle="Les aéroports desservis et les liaisons entre eux." action={<Btn onClick={() => setForm({ code: "", city: "", country: "", description: "", imageUrl: "" })}>+ Nouvel aéroport</Btn>} />
 
       <Card style={{ padding: 0, marginBottom: 24 }}>
         <div style={{ padding: "16px 20px 4px", fontWeight: 800, color: "#1e1b4b", fontSize: 16 }}>Aéroports</div>
@@ -68,6 +68,16 @@ export default function AdminRoutes() {
             <Field label="Code IATA"><input style={inputStyle} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} maxLength={3} /></Field>
             <Field label="Ville"><input style={inputStyle} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
             <Field label="Pays"><input style={inputStyle} value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} /></Field>
+            <div style={{ gridColumn: "1 / -1" }}>
+              <Field label="Description (page « Nos Destinations »)">
+                <textarea style={{ ...inputStyle, minHeight: 84, resize: "vertical", fontFamily: "inherit" }} value={form.description ?? ""} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+              </Field>
+            </div>
+            <div style={{ gridColumn: "1 / -1" }}>
+              <Field label="Image (URL, ex : /images/dest-toronto.webp)">
+                <input style={inputStyle} value={form.imageUrl ?? ""} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} />
+              </Field>
+            </div>
           </div>
           {upsertA.error && <p style={{ color: "#dc2626", fontSize: 13, marginTop: 12 }}>{(upsertA.error as Error).message}</p>}
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 20 }}>

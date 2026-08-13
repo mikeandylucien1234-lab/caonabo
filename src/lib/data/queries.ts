@@ -18,6 +18,23 @@ export async function getCities(): Promise<CityDTO[]> {
   return airports;
 }
 
+export interface DestinationCityDTO {
+  code: string;
+  city: string;
+  country: string;
+  description: string;
+  imageUrl: string;
+}
+
+/** Villes desservies + contenu éditorial (page "Nos Destinations"). */
+export async function getDestinationCities(): Promise<DestinationCityDTO[]> {
+  const rows = await prisma.airport.findMany({
+    orderBy: { code: "asc" },
+    select: { code: true, city: true, country: true, description: true, imageUrl: true },
+  });
+  return rows;
+}
+
 export async function getDestinations(): Promise<DestinationDTO[]> {
   const rows = await prisma.destination.findMany({
     where: { featured: true },

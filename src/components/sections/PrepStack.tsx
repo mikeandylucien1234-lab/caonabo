@@ -20,11 +20,11 @@ export default function PrepStack() {
           className="prep-card-sticky"
           style={{
             position: "sticky",
-            top: `calc(14vh + ${i * 16}px)`,
+            top: `calc(11vh + ${i * 16}px)`,
             zIndex: i + 1,
-            marginTop: i === 0 ? 0 : "42vh",
+            marginTop: i === 0 ? 0 : 28,
             width: "100%",
-            maxWidth: 440,
+            maxWidth: 520,
             marginLeft: "auto",
             marginRight: "auto",
             aspectRatio: "1381 / 1139",
@@ -43,7 +43,7 @@ export default function PrepStack() {
         </div>
       ))}
       {/* espace de fin pour laisser la dernière carte figée un instant */}
-      <div style={{ height: "26vh" }} />
+      <div style={{ height: "12vh" }} />
     </div>
   );
 }

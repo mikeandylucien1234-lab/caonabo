@@ -136,8 +136,8 @@ export default function PrepToTravel({ steps }: { steps: PrepStepDTO[] }) {
 
     {/* MOBILE : même en-tête + pile de cartes swipeable (masquée sur desktop) */}
     <div
-      className="hz prep-mobile"
-      style={{ padding: "8px 20px 72px", textAlign: "center" }}
+      className="prep-mobile"
+      style={{ padding: "8px 12px 60px", textAlign: "center" }}
     >
       <h2
         className="font-heading"

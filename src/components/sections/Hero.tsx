@@ -16,12 +16,18 @@ export default function Hero() {
         background: "#eef0f6",
       }}
     >
-      {/* fond affiché en entier (image bloc, aucune découpe) */}
+      {/* fond : image qui remplit le hero (format précédent, cover) */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/images/hero-bg.png"
         alt="Terre vue de l'espace, villes de la diaspora"
-        style={{ display: "block", width: "100%", height: "auto" }}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
       />
 
       {/* calque superposé : header en haut + titre */}
@@ -32,7 +38,7 @@ export default function Hero() {
           display: "flex",
           flexDirection: "column",
           background:
-            "linear-gradient(to bottom, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 26%)",
+            "radial-gradient(ellipse 700px 420px at center 30%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.15) 55%, rgba(255,255,255,0) 75%)",
         }}
       >
         <Header variant="hero" active="/" />
@@ -75,8 +81,8 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* carte « Prochain vol » compacte, en verre dépoli, flottant sur le bas */}
-      <div className="hero-card-holder">
+      {/* carte « Prochain vol » compacte, en verre dépoli, flottant sur l'image */}
+      <div className="hero-card-float">
         <FlightTeaserCard />
       </div>
     </div>

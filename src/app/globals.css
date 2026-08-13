@@ -79,14 +79,17 @@ html {
   display: none;
 }
 
-/* Hero : la carte « Prochain vol » flotte au-dessus du bas de l'image */
-.hero-card-holder {
-  position: relative;
+/* Hero : image en remplissage (cover) + carte « Prochain vol » flottant dessus */
+.hero-wrap {
+  min-height: 900px;
+}
+.hero-card-float {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 34px;
   z-index: 6;
-  display: flex;
-  justify-content: center;
-  margin-top: -120px;
-  padding: 0 24px 36px;
+  width: min(560px, 92vw);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -115,19 +118,18 @@ html {
   .logo-img {
     height: 58px !important;
   }
+  .hero-wrap {
+    min-height: 680px !important;
+  }
   .hero-title {
     font-size: 26px !important;
     line-height: 1.2 !important;
-    margin-top: 14px !important;
   }
   .hero-headline {
-    padding-top: 2% !important;
+    padding-top: 4% !important;
   }
-  /* image courte sur mobile : la carte se pose juste sous l'image (pas de
-     chevauchement avec le titre) */
-  .hero-card-holder {
-    margin-top: -6px !important;
-    padding: 0 14px 22px !important;
+  .hero-card-float {
+    bottom: 22px !important;
   }
   .hero-flightcard {
     padding: 16px 16px !important;

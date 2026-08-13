@@ -4,7 +4,6 @@ import PopularDestinations from "@/components/sections/PopularDestinations";
 import Faq from "@/components/sections/Faq";
 import PaymentBanner from "@/components/sections/PaymentBanner";
 import Promotions from "@/components/sections/Promotions";
-import OnboardExperience from "@/components/sections/OnboardExperience";
 import PrepToTravel from "@/components/sections/PrepToTravel";
 import Footer from "@/components/layout/Footer";
 import {
@@ -38,7 +37,6 @@ export default async function HomePage() {
       <Faq faqs={faqs} />
       <PaymentBanner />
       <Promotions promotions={promotions} rates={rates} />
-      <OnboardExperience />
       <PrepToTravel steps={prepSteps} />
       <Footer />
     </div>

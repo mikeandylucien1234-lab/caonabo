@@ -154,15 +154,8 @@ html {
   .cargo-grid,
   .legal-toc,
   .adm-cols,
-  .dest-grid,
-  .onboard {
+  .dest-grid {
     grid-template-columns: 1fr !important;
-  }
-  .onboard-img {
-    min-height: 230px !important;
-  }
-  .onboard-body {
-    padding: 28px 24px !important;
   }
   .adm-stats {
     grid-template-columns: repeat(2, 1fr) !important;

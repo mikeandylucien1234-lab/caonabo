@@ -2,10 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { usePrefs, setPrefCookie } from "@/components/PreferencesProvider";
-import { LOCALES, LOCALE_FLAGS, LOCALE_LABELS, type Locale } from "@/lib/i18n";
-import { OFFERED_CURRENCIES } from "@/lib/currency";
+import { usePrefs } from "@/components/PreferencesProvider";
+import LocaleCurrencySwitcher from "@/components/LocaleCurrencySwitcher";
 
 const NAV = [
   { key: "home", href: "/" },
@@ -25,15 +23,13 @@ export default function MobileNav({
   firstName?: string | null;
 }) {
   const [open, setOpen] = useState(false);
-  const { locale, currency, dict } = usePrefs();
-  const router = useRouter();
-  function choose(name: "locale" | "currency", value: string) {
-    setPrefCookie(name, value);
-    router.refresh();
-  }
+  const { dict } = usePrefs();
 
   return (
-    <div className="mobile-nav" style={{ position: "relative", alignItems: "center", gap: 10 }}>
+    <div className="mobile-nav" style={{ position: "relative", alignItems: "center", gap: 8 }}>
+      {/* sélecteur langue + devise (compact) */}
+      <LocaleCurrencySwitcher compact />
+
       {/* bouton « Se connecter » (ou compte) à gauche du menu */}
       <Link
         href={firstName ? "/account" : "/login"}
@@ -44,8 +40,8 @@ export default function MobileNav({
           background: "#3d1e8a",
           color: "#fff",
           fontWeight: 600,
-          fontSize: 14,
-          padding: "10px 16px",
+          fontSize: 13.5,
+          padding: "9px 14px",
           borderRadius: 999,
           whiteSpace: "nowrap",
           flexShrink: 0,
@@ -117,42 +113,6 @@ export default function MobileNav({
                 {dict.nav[item.key]}
               </Link>
             ))}
-
-            {/* Langue + devise */}
-            <div style={{ borderTop: "1px solid #eceafa", margin: "8px 0 6px", paddingTop: 10 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#8a8aa0", padding: "0 4px 6px" }}>LANGUE</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-                {LOCALES.map((l: Locale) => (
-                  <button
-                    key={l}
-                    onClick={() => choose("locale", l)}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 6, padding: "8px 10px", borderRadius: 9,
-                      border: l === locale ? "1.5px solid #5b21b6" : "1.5px solid #ececf4",
-                      background: l === locale ? "#f3effe" : "#fff", color: "#1e1b4b", fontWeight: 600, fontSize: 13,
-                    }}
-                  >
-                    <span>{LOCALE_FLAGS[l]}</span> {LOCALE_LABELS[l]}
-                  </button>
-                ))}
-              </div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#8a8aa0", padding: "10px 4px 6px" }}>DEVISE</div>
-              <div style={{ display: "flex", gap: 6 }}>
-                {OFFERED_CURRENCIES.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => choose("currency", c)}
-                    style={{
-                      flex: 1, padding: "8px 6px", borderRadius: 9,
-                      border: c === currency ? "1.5px solid #5b21b6" : "1.5px solid #ececf4",
-                      background: c === currency ? "#f3effe" : "#fff", color: "#1e1b4b", fontWeight: 700, fontSize: 13,
-                    }}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
-            </div>
 
             <Link
               href={firstName ? "/account" : "/login"}

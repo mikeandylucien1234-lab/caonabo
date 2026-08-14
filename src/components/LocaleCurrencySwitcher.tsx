@@ -10,7 +10,7 @@ import { OFFERED_CURRENCIES, CURRENCY_LABELS } from "@/lib/currency";
  * Sélecteur langue + devise (cookie + rafraîchissement du rendu serveur).
  * `tone` adapte les couleurs pour le hero (transparent) ou l'en-tête blanc.
  */
-export default function LocaleCurrencySwitcher({ tone = "solid" }: { tone?: "hero" | "solid" }) {
+export default function LocaleCurrencySwitcher({ tone = "solid", compact = false }: { tone?: "hero" | "solid"; compact?: boolean }) {
   const { locale, currency } = usePrefs();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -19,8 +19,6 @@ export default function LocaleCurrencySwitcher({ tone = "solid" }: { tone?: "her
     setPrefCookie(name, value);
     router.refresh();
   }
-
-  const triggerColor = tone === "hero" ? "#1e1b4b" : "#1e1b4b";
 
   return (
     <div style={{ position: "relative" }}>
@@ -31,23 +29,24 @@ export default function LocaleCurrencySwitcher({ tone = "solid" }: { tone?: "her
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: 7,
-          background: tone === "hero" ? "rgba(255,255,255,0.6)" : "#f4f2fb",
+          gap: compact ? 5 : 7,
+          background: tone === "hero" ? "rgba(255,255,255,0.72)" : "#f4f2fb",
           border: "1px solid #e0dcf0",
-          color: triggerColor,
+          color: "#1e1b4b",
           fontWeight: 700,
-          fontSize: 13.5,
-          padding: "9px 14px",
+          fontSize: compact ? 12.5 : 13.5,
+          padding: compact ? "8px 11px" : "9px 14px",
           borderRadius: 999,
           cursor: "pointer",
           whiteSpace: "nowrap",
+          flexShrink: 0,
         }}
       >
         <span>{LOCALE_FLAGS[locale]}</span>
-        <span>{locale.toUpperCase()}</span>
-        <span style={{ color: "#8a8aa0" }}>·</span>
+        {!compact && <span>{locale.toUpperCase()}</span>}
+        {!compact && <span style={{ color: "#8a8aa0" }}>·</span>}
         <span>{currency}</span>
-        <span style={{ fontSize: 10, color: "#8a8aa0" }}>▼</span>
+        <span style={{ fontSize: 10, color: "#8a8aa0" }}>▾</span>
       </button>
 
       {open && (
@@ -57,9 +56,11 @@ export default function LocaleCurrencySwitcher({ tone = "solid" }: { tone?: "her
             style={{
               position: "absolute",
               top: "calc(100% + 10px)",
-              right: 0,
+              ...(compact
+                ? { left: "50%", right: "auto", transform: "translateX(-50%)" }
+                : { right: 0 }),
               zIndex: 50,
-              width: 250,
+              width: compact ? "min(250px, 90vw)" : 250,
               background: "#fff",
               border: "1px solid #eceafa",
               borderRadius: 16,

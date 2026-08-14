@@ -142,8 +142,8 @@ html {
     padding-right: 20px !important;
   }
   .site-header {
-    padding-left: 20px !important;
-    padding-right: 20px !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
   }
   /* sur mobile : nav desktop masquée, hamburger affiché */
   .site-nav {
@@ -153,7 +153,7 @@ html {
     display: flex !important;
   }
   .logo-img {
-    height: 58px !important;
+    height: 50px !important;
   }
   .hero-wrap {
     min-height: 680px !important;

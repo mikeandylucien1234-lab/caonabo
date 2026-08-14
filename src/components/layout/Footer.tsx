@@ -1,20 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { usePrefs } from "@/components/PreferencesProvider";
 
 // Pied de page — 5 colonnes (desktop, identique au prototype).
 // Sur mobile : chaque colonne devient un accordéon repliable, + un bloc
 // logo / réseaux sociaux / copyright (mobile uniquement).
+// Les libellés (titres + liens) sont traduits via le dictionnaire i18n ;
+// les liens restent indexés par leur clé française (href + traduction).
 
-const COLUMNS: { title: string; links: string[] }[] = [
-  { title: "À Propos", links: ["Notre Histoire"] },
-  { title: "Support & Contact", links: ["Contactez-nous"] },
+const COLUMNS: { key: string; links: string[] }[] = [
+  { key: "about", links: ["Notre Histoire"] },
+  { key: "support", links: ["Contactez-nous"] },
+  { key: "booking", links: ["Voyages de Groupe", "Destinations"] },
   {
-    title: "Réservation & Voyage",
-    links: ["Voyages de Groupe", "Destinations"],
-  },
-  {
-    title: "Informations & Services",
+    key: "info",
     links: [
       "Notre Flotte",
       "Informations Check-In",
@@ -25,7 +25,7 @@ const COLUMNS: { title: string; links: string[] }[] = [
     ],
   },
   {
-    title: "Informations Légales",
+    key: "legal",
     links: [
       "Conditions Générales",
       "Conditions de Transport",
@@ -54,6 +54,7 @@ const LINK_HREFS: Record<string, string> = {
 };
 
 export default function Footer() {
+  const { dict } = usePrefs();
   return (
     <footer style={{ background: "#1e1b4b" }}>
       <div
@@ -66,7 +67,12 @@ export default function Footer() {
         }}
       >
         {COLUMNS.map((col) => (
-          <FooterColumn key={col.title} title={col.title} links={col.links} />
+          <FooterColumn
+            key={col.key}
+            title={dict.footer.columns[col.key] ?? col.key}
+            links={col.links}
+            labels={dict.footer.links}
+          />
         ))}
       </div>
 
@@ -90,14 +96,14 @@ export default function Footer() {
           </Social>
         </div>
         <div style={{ color: "#a9a6c8", fontSize: 13, lineHeight: 1.6 }}>
-          © 2025 Caonabo Airlines. Tous droits réservés.
+          © 2025 Caonabo Airlines. {dict.footer.rights}
         </div>
       </div>
     </footer>
   );
 }
 
-function FooterColumn({ title, links }: { title: string; links: string[] }) {
+function FooterColumn({ title, links, labels }: { title: string; links: string[]; labels: Record<string, string> }) {
   const [open, setOpen] = useState(true);
   return (
     <div className="footer-col">
@@ -138,7 +144,7 @@ function FooterColumn({ title, links }: { title: string; links: string[] }) {
               marginBottom: 12,
             }}
           >
-            {link}
+            {labels[link] ?? link}
           </a>
         ))}
       </div>

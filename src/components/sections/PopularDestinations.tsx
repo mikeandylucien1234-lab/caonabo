@@ -1,18 +1,22 @@
 import Link from "next/link";
 import type { DestinationDTO } from "@/lib/data/types";
 import { formatPrice, type RateInfo } from "@/lib/currency";
+import { getPrefs } from "@/lib/prefs";
+import { getDictionary } from "@/lib/i18n";
 
 /**
  * "Destinations populaires" — les prix du proto étaient affichés en CLP
  * (marché chilien). On les affiche donc en CLP par conversion depuis l'USD.
  */
-export default function PopularDestinations({
+export default async function PopularDestinations({
   destinations,
   rates,
 }: {
   destinations: DestinationDTO[];
   rates: Record<string, RateInfo>;
 }) {
+  const { locale, currency } = await getPrefs();
+  const t = getDictionary(locale);
   return (
     <div className="hz" style={{ position: "relative", padding: "72px 56px", overflow: "hidden" }}>
       <div className="section-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -31,7 +35,7 @@ export default function PopularDestinations({
               borderRadius: 999,
             }}
           >
-            ✈ NOS DESTINATIONS PHARES
+            {t.dest.badge}
           </div>
           <h2
             className="font-heading"
@@ -43,13 +47,11 @@ export default function PopularDestinations({
               lineHeight: 1.15,
             }}
           >
-            Explorez nos destinations
-            <br />
-            les plus <span style={{ color: "#5b21b6" }}>populaires</span>
+            {t.dest.titleA}{" "}
+            <span style={{ color: "#5b21b6" }}>{t.dest.hi}</span>
           </h2>
           <p style={{ fontSize: 16, color: "#5c5c7a", lineHeight: 1.6, margin: 0 }}>
-            Des villes vibrantes aux lieux chargés d&apos;histoire, voyagez en
-            toute sérénité avec <a href="#">Caonabo Airlinje</a>.
+            {t.dest.subtitle}
           </p>
         </div>
         <a
@@ -69,7 +71,7 @@ export default function PopularDestinations({
             whiteSpace: "nowrap",
           }}
         >
-          📍 Voir toutes les destinations →
+          {t.dest.cta}
         </a>
       </div>
 
@@ -167,7 +169,7 @@ export default function PopularDestinations({
                     marginBottom: 4,
                   }}
                 >
-                  ✈ Vol direct
+                  ✈ {t.dest.direct}
                 </div>
                 <div style={{ fontWeight: 800, fontSize: 18, color: "#0f0f2d" }}>
                   {d.city}
@@ -175,7 +177,7 @@ export default function PopularDestinations({
                 <div style={{ fontSize: 13, color: "#7a7a92" }}>{d.country}</div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 12, color: "#7a7a92" }}>À partir de</div>
+                <div style={{ fontSize: 12, color: "#7a7a92" }}>{t.dest.from}</div>
                 <div
                   style={{
                     display: "flex",
@@ -185,7 +187,7 @@ export default function PopularDestinations({
                   }}
                 >
                   <span style={{ fontWeight: 800, fontSize: 17, color: "#0f0f2d" }}>
-                    {formatPrice(d.priceUsdCents, "CLP", rates)}
+                    {formatPrice(d.priceUsdCents, currency, rates)}
                   </span>
                   <span
                     style={{

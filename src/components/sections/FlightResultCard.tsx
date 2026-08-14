@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { FlightResultDTO } from "@/lib/data/types";
 import { formatPrice, type RateInfo } from "@/lib/currency";
+import { usePrefs } from "@/components/PreferencesProvider";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Carte de résultat de vol — COMPOSANT UNIQUE réutilisé partout :
@@ -44,6 +45,9 @@ export default function FlightResultCard({
   priceLabel = "par personne dès",
 }: FlightResultCardProps) {
   const [showStops, setShowStops] = useState(false);
+  const prefs = usePrefs();
+  const cur = prefs.currency;
+  const rateMap = rates ?? prefs.rates;
   const dep = new Date(f.departAt);
   const arr = new Date(f.arriveAt);
   const nextDay = dayNumber(arr) - dayNumber(dep);
@@ -146,11 +150,11 @@ export default function FlightResultCard({
         {/* prix */}
         <div style={{ textAlign: "right", minWidth: 92 }}>
           <div style={{ fontWeight: 800, color: PURPLE, fontSize: 20 }}>
-            {formatPrice(price, "USD", rates)}
+            {formatPrice(price, cur, rateMap)}
           </div>
           {oldPriceCents ? (
             <div style={{ fontSize: 12, color: "#b4b2c4", textDecoration: "line-through" }}>
-              {formatPrice(oldPriceCents, "USD", rates)}
+              {formatPrice(oldPriceCents, cur, rateMap)}
             </div>
           ) : null}
           <div style={{ fontSize: 11, color: "#9a94b5" }}>{priceLabel}</div>

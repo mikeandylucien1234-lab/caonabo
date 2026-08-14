@@ -1,11 +1,15 @@
 import Header from "@/components/layout/Header";
+import { getPrefs } from "@/lib/prefs";
+import { getDictionary } from "@/lib/i18n";
 
 /**
  * Section Hero : l'image de fond est affichée EN ENTIER (jamais rognée), le
  * header et le titre sont superposés, et une carte « Prochain vol » compacte en
  * verre dépoli flotte au-dessus du bas de l'image.
  */
-export default function Hero() {
+export default async function Hero() {
+  const { locale } = await getPrefs();
+  const t = getDictionary(locale);
   return (
     <div
       className="hero-wrap"
@@ -62,7 +66,7 @@ export default function Hero() {
               borderRadius: 999,
             }}
           >
-            <span>✈</span> VOLS DIRECTS &amp; AVEC ESCALE
+            {t.hero.badge}
           </div>
           <h1
             className="font-heading hero-title"
@@ -75,8 +79,10 @@ export default function Hero() {
               maxWidth: 820,
             }}
           >
-            Voyagez <span style={{ color: "#5b21b6" }}>Plus Loin</span>,<br />
-            Vivez <span style={{ color: "#dc2626" }}>Plus Fort</span>.
+            {t.hero.title1}
+            <span style={{ color: "#5b21b6" }}>{t.hero.hi1}</span>
+            {t.hero.title2}
+            <span style={{ color: "#dc2626" }}>{t.hero.hi2}</span>.
           </h1>
         </div>
       </div>

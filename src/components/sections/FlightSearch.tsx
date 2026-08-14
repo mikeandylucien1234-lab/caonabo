@@ -6,6 +6,7 @@ import type { CityDTO, FlightResultDTO } from "@/lib/data/types";
 import FlightResultCard from "@/components/sections/FlightResultCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { withMinDelay } from "@/lib/minDelay";
+import { usePrefs } from "@/components/PreferencesProvider";
 
 type TripType = "aller-retour" | "aller-simple";
 type Panel = "from" | "to" | "pax" | null;
@@ -47,6 +48,7 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
   const [error, setError] = useState<string | null>(null);
   const barRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
+  const { dict } = usePrefs();
 
   // clic sur un résultat → ouvre le tunnel de réservation pré-rempli
   function goToBooking() {
@@ -154,7 +156,7 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
         className="font-heading"
         style={{ fontWeight: 700, fontSize: 32, color: "#1e1b4b", margin: "0 0 24px" }}
       >
-        Trouvez un vol à votre mesure
+        {dict.flightSearch.title}
       </h2>
 
       <div
@@ -380,7 +382,7 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
             opacity: loading ? 0.7 : 1,
           }}
         >
-          {loading ? "Recherche…" : "Rechercher"} <span>🔍</span>
+          {loading ? "…" : dict.flightSearch.search} <span>🔍</span>
         </button>
         {error && (
           <div style={{ fontSize: 13, color: "#dc2626", marginTop: 10 }}>{error}</div>

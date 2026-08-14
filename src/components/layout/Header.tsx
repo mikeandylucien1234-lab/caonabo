@@ -1,14 +1,17 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import MobileNav from "@/components/layout/MobileNav";
+import LocaleCurrencySwitcher from "@/components/LocaleCurrencySwitcher";
+import { getPrefs } from "@/lib/prefs";
+import { getDictionary } from "@/lib/i18n";
 
 const NAV = [
-  { label: "Accueil", href: "/" },
-  { label: "Destinations", href: "/destinations" },
-  { label: "Check In", href: "/check-in" },
-  { label: "Book", href: "/book" },
-  { label: "Contact", href: "/contact" },
-];
+  { key: "home", href: "/" },
+  { key: "destinations", href: "/destinations" },
+  { key: "checkin", href: "/check-in" },
+  { key: "book", href: "/book" },
+  { key: "contact", href: "/contact" },
+] as const;
 
 /**
  * En-tête. `variant="hero"` => transparent, posé au-dessus de l'image du hero
@@ -24,6 +27,8 @@ export default async function Header({
 }) {
   const isHero = variant === "hero";
   const user = await getCurrentUser();
+  const { locale } = await getPrefs();
+  const t = getDictionary(locale);
   return (
     <header
       className="site-header relative z-[5] flex items-center justify-between"
@@ -57,10 +62,11 @@ export default async function Header({
                 paddingBottom: isActive ? 6 : 0,
               }}
             >
-              {item.label}
+              {t.nav[item.key]}
             </Link>
           );
         })}
+        <LocaleCurrencySwitcher tone={isHero ? "hero" : "solid"} />
         {user ? (
           <Link
             href="/account"
@@ -93,7 +99,7 @@ export default async function Header({
               borderRadius: 12,
             }}
           >
-            Connexion
+            {t.login}
           </Link>
         )}
       </nav>

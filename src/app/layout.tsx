@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
+import { getPrefs } from "@/lib/prefs";
+import { getDictionary } from "@/lib/i18n";
+import { getRates } from "@/lib/data/queries";
+import { PreferencesProvider } from "@/components/PreferencesProvider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -32,14 +36,26 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { locale, currency } = await getPrefs();
+  const dict = getDictionary(locale);
+  let rates = {};
+  try {
+    rates = await getRates();
+  } catch {
+    rates = {};
+  }
   return (
-    <html lang="fr" className={`${poppins.variable} ${inter.variable}`}>
-      <body>{children}</body>
+    <html lang={locale} className={`${poppins.variable} ${inter.variable}`}>
+      <body>
+        <PreferencesProvider value={{ locale, currency, dict, rates }}>
+          {children}
+        </PreferencesProvider>
+      </body>
     </html>
   );
 }

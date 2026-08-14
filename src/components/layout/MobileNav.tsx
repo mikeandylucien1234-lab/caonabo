@@ -2,14 +2,18 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { usePrefs, setPrefCookie } from "@/components/PreferencesProvider";
+import { LOCALES, LOCALE_FLAGS, LOCALE_LABELS, type Locale } from "@/lib/i18n";
+import { OFFERED_CURRENCIES } from "@/lib/prefs";
 
 const NAV = [
-  { label: "Accueil", href: "/" },
-  { label: "Destinations", href: "/destinations" },
-  { label: "Check In", href: "/check-in" },
-  { label: "Book", href: "/book" },
-  { label: "Contact", href: "/#contact" },
-];
+  { key: "home", href: "/" },
+  { key: "destinations", href: "/destinations" },
+  { key: "checkin", href: "/check-in" },
+  { key: "book", href: "/book" },
+  { key: "contact", href: "/#contact" },
+] as const;
 
 /**
  * Navigation mobile : bouton hamburger (rond violet) + menu déroulant.
@@ -21,6 +25,12 @@ export default function MobileNav({
   firstName?: string | null;
 }) {
   const [open, setOpen] = useState(false);
+  const { locale, currency, dict } = usePrefs();
+  const router = useRouter();
+  function choose(name: "locale" | "currency", value: string) {
+    setPrefCookie(name, value);
+    router.refresh();
+  }
 
   return (
     <div className="mobile-nav" style={{ position: "relative", alignItems: "center", gap: 10 }}>
@@ -41,7 +51,7 @@ export default function MobileNav({
           flexShrink: 0,
         }}
       >
-        {firstName ? `👤 ${firstName}` : "Se connecter"}
+        {firstName ? `👤 ${firstName}` : dict.login}
       </Link>
 
       <button
@@ -104,9 +114,46 @@ export default function MobileNav({
                   fontSize: 16,
                 }}
               >
-                {item.label}
+                {dict.nav[item.key]}
               </Link>
             ))}
+
+            {/* Langue + devise */}
+            <div style={{ borderTop: "1px solid #eceafa", margin: "8px 0 6px", paddingTop: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#8a8aa0", padding: "0 4px 6px" }}>LANGUE</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                {LOCALES.map((l: Locale) => (
+                  <button
+                    key={l}
+                    onClick={() => choose("locale", l)}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 6, padding: "8px 10px", borderRadius: 9,
+                      border: l === locale ? "1.5px solid #5b21b6" : "1.5px solid #ececf4",
+                      background: l === locale ? "#f3effe" : "#fff", color: "#1e1b4b", fontWeight: 600, fontSize: 13,
+                    }}
+                  >
+                    <span>{LOCALE_FLAGS[l]}</span> {LOCALE_LABELS[l]}
+                  </button>
+                ))}
+              </div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#8a8aa0", padding: "10px 4px 6px" }}>DEVISE</div>
+              <div style={{ display: "flex", gap: 6 }}>
+                {OFFERED_CURRENCIES.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => choose("currency", c)}
+                    style={{
+                      flex: 1, padding: "8px 6px", borderRadius: 9,
+                      border: c === currency ? "1.5px solid #5b21b6" : "1.5px solid #ececf4",
+                      background: c === currency ? "#f3effe" : "#fff", color: "#1e1b4b", fontWeight: 700, fontSize: 13,
+                    }}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <Link
               href={firstName ? "/account" : "/login"}
               onClick={() => setOpen(false)}
@@ -121,7 +168,7 @@ export default function MobileNav({
                 textAlign: "center",
               }}
             >
-              {firstName ? `👤 ${firstName}` : "Connexion"}
+              {firstName ? `👤 ${firstName}` : dict.login}
             </Link>
           </nav>
         </>

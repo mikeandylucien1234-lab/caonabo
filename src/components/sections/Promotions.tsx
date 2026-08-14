@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { PromotionDTO } from "@/lib/data/types";
 import { formatPrice, type RateInfo } from "@/lib/currency";
+import { usePrefs } from "@/components/PreferencesProvider";
 
 /**
  * "Promotions Caonabo".
@@ -19,6 +20,7 @@ export default function Promotions({
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
+  const { currency } = usePrefs();
 
   useEffect(() => {
     const el = trackRef.current;
@@ -94,8 +96,8 @@ export default function Promotions({
               <div style={{ fontWeight: 800, fontSize: 16, color: "#0f0f2d", marginBottom: 4 }}>{p.title}</div>
               <div style={{ fontSize: 12.5, color: "#8a8aa0", marginBottom: 10 }}>{p.routeLabel}</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 14 }}>
-                <span style={{ fontWeight: 800, fontSize: 19, color: p.accentColor }}>{formatPrice(p.priceUsdCents, "USD", rates)}</span>
-                <span style={{ fontSize: 13, color: "#b4b2c4", textDecoration: "line-through" }}>{formatPrice(p.oldPriceUsdCents, "USD", rates)}</span>
+                <span style={{ fontWeight: 800, fontSize: 19, color: p.accentColor }}>{formatPrice(p.priceUsdCents, currency, rates)}</span>
+                <span style={{ fontSize: 13, color: "#b4b2c4", textDecoration: "line-through" }}>{formatPrice(p.oldPriceUsdCents, currency, rates)}</span>
               </div>
               <div style={{ fontSize: 11.5, color: "#a0a0b4", marginBottom: 14 }}>Départs jusqu&apos;au 30 avril</div>
               <a href={`/offre/${p.slug}`} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: p.accentColor, color: "#fff", fontWeight: 700, fontSize: 13.5, padding: 11, borderRadius: 10, border: "none", cursor: "pointer" }}>
@@ -139,11 +141,11 @@ export default function Promotions({
                   </div>
                   <div style={{ fontSize: 14, color: "#5c5c7a", marginBottom: 4 }}>Prix dès</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                    <span style={{ fontWeight: 800, fontSize: 30, color: "#0f0f2d" }}>{formatPrice(p.priceUsdCents, "USD", rates)}</span>
+                    <span style={{ fontWeight: 800, fontSize: 30, color: "#0f0f2d" }}>{formatPrice(p.priceUsdCents, currency, rates)}</span>
                     {discount > 0 && (
                       <span style={{ background: "#e11d5b", color: "#fff", fontWeight: 800, fontSize: 15, padding: "5px 14px", borderRadius: 999 }}>● −{discount}%</span>
                     )}
-                    <span style={{ fontSize: 16, color: "#b4b2c4", textDecoration: "line-through" }}>{formatPrice(p.oldPriceUsdCents, "USD", rates)}</span>
+                    <span style={{ fontSize: 16, color: "#b4b2c4", textDecoration: "line-through" }}>{formatPrice(p.oldPriceUsdCents, currency, rates)}</span>
                   </div>
                   <div style={{ fontSize: 13, color: "#a0a0b4" }}>Taxes incluses</div>
                 </div>

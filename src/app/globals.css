@@ -285,6 +285,10 @@ html {
   .pay-section {
     display: block !important;
   }
+  /* section « bienfaits Anacaona » : réservée au PC */
+  .benefits-desktop {
+    display: none !important;
+  }
   .promo-track {
     padding-left: 20px !important;
     padding-right: 20px !important;

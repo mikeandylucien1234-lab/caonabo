@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { usePrefs, setPrefCookie } from "@/components/PreferencesProvider";
 import { LOCALES, LOCALE_FLAGS, LOCALE_LABELS, type Locale } from "@/lib/i18n";
-import { OFFERED_CURRENCIES } from "@/lib/prefs";
+import { OFFERED_CURRENCIES } from "@/lib/currency";
 
 const NAV = [
   { key: "home", href: "/" },

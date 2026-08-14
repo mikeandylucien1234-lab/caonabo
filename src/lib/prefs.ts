@@ -1,16 +1,9 @@
 import { cookies } from "next/headers";
 import { isLocale, DEFAULT_LOCALE, type Locale } from "./i18n";
-import type { CurrencyCode } from "./currency";
+import { OFFERED_CURRENCIES, DEFAULT_CURRENCY, type CurrencyCode } from "./currency";
 
-// Devises proposées dans le sélecteur et devise par défaut.
-export const OFFERED_CURRENCIES: CurrencyCode[] = ["USD", "CLP", "CAD"];
-export const DEFAULT_CURRENCY: CurrencyCode = "CLP";
-
-export const CURRENCY_LABELS: Record<string, string> = {
-  USD: "USD — $ (dollar)",
-  CLP: "CLP — peso chilien",
-  CAD: "CAD — dollar canadien",
-};
+// ⚠️ Ce module est SERVEUR uniquement (il importe next/headers).
+// Les constantes de devise partagées sont dans lib/currency.ts (client-safe).
 
 // Lit les préférences (langue + devise) depuis les cookies, côté serveur.
 export async function getPrefs(): Promise<{ locale: Locale; currency: CurrencyCode }> {

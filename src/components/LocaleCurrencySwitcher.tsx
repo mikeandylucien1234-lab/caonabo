@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePrefs, setPrefCookie } from "@/components/PreferencesProvider";
 import { LOCALES, LOCALE_LABELS, LOCALE_FLAGS, type Locale } from "@/lib/i18n";
-import { OFFERED_CURRENCIES, CURRENCY_LABELS } from "@/lib/prefs";
+import { OFFERED_CURRENCIES, CURRENCY_LABELS } from "@/lib/currency";
 
 /**
  * Sélecteur langue + devise (cookie + rafraîchissement du rendu serveur).

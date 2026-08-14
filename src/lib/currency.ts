@@ -9,6 +9,15 @@
 
 export type CurrencyCode = "USD" | "CLP" | "CAD" | "PEN";
 
+// Devises proposées dans le sélecteur (client-safe : aucun import serveur ici).
+export const OFFERED_CURRENCIES: CurrencyCode[] = ["USD", "CLP", "CAD"];
+export const DEFAULT_CURRENCY: CurrencyCode = "CLP";
+export const CURRENCY_LABELS: Record<string, string> = {
+  USD: "USD — $ (dollar)",
+  CLP: "CLP — peso chilien",
+  CAD: "CAD — dollar canadien",
+};
+
 export interface RateInfo {
   currency: CurrencyCode;
   symbol: string;

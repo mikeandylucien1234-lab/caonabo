@@ -7,6 +7,7 @@ import Promotions from "@/components/sections/Promotions";
 import Benefits from "@/components/sections/Benefits";
 import ContactWhatsapp from "@/components/sections/ContactWhatsapp";
 import OnboardBanner from "@/components/sections/OnboardBanner";
+import TrustDisclaimer from "@/components/sections/TrustDisclaimer";
 import PrepToTravel from "@/components/sections/PrepToTravel";
 import Footer from "@/components/layout/Footer";
 import {
@@ -44,6 +45,7 @@ export default async function HomePage() {
       <PrepToTravel steps={prepSteps} />
       <OnboardBanner />
       <ContactWhatsapp />
+      <TrustDisclaimer />
       <Footer />
     </div>
   );

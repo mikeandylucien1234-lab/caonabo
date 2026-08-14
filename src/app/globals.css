@@ -87,6 +87,10 @@ html {
 .pay-section {
   display: none;
 }
+/* Section confiance/disclaimer : masquée sur PC, visible sur mobile */
+.trust-mobile {
+  display: none;
+}
 
 /* Hero : image en remplissage (cover) + carte « Prochain vol » flottant dessus */
 .hero-wrap {
@@ -302,6 +306,10 @@ html {
   }
   /* bandeau moyens de paiement : affiché sur mobile */
   .pay-section {
+    display: block !important;
+  }
+  /* section confiance/disclaimer : affichée sur mobile */
+  .trust-mobile {
     display: block !important;
   }
   /* section « bienfaits Anacaona » : réservée au PC */

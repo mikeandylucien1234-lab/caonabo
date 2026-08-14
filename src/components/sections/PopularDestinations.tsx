@@ -13,7 +13,8 @@ export default function PopularDestinations({
   destinations: DestinationDTO[];
   rates: Record<string, RateInfo>;
 }) {
-  const dots = [10, 7, 7, 7, 7, 7];
+  // Les points de pagination n'apparaissent qu'à partir de 3 destinations.
+  const showDots = destinations.length >= 3;
   return (
     <div className="hz" style={{ position: "relative", padding: "72px 56px", overflow: "hidden" }}>
       <div className="section-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -223,26 +224,28 @@ export default function PopularDestinations({
         ))}
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: 8,
-          marginTop: 28,
-        }}
-      >
-        {dots.map((size, i) => (
-          <div
-            key={i}
-            style={{
-              width: size,
-              height: size,
-              borderRadius: 999,
-              background: i === 0 ? "#5b21b6" : "#ded9ee",
-            }}
-          />
-        ))}
-      </div>
+      {showDots && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 8,
+            marginTop: 28,
+          }}
+        >
+          {destinations.map((d, i) => (
+            <div
+              key={d.id}
+              style={{
+                width: i === 0 ? 10 : 7,
+                height: i === 0 ? 10 : 7,
+                borderRadius: 999,
+                background: i === 0 ? "#5b21b6" : "#ded9ee",
+              }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

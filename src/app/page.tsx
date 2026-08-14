@@ -5,6 +5,7 @@ import Faq from "@/components/sections/Faq";
 import PaymentBanner from "@/components/sections/PaymentBanner";
 import Promotions from "@/components/sections/Promotions";
 import Benefits from "@/components/sections/Benefits";
+import ContactWhatsapp from "@/components/sections/ContactWhatsapp";
 import PrepToTravel from "@/components/sections/PrepToTravel";
 import Footer from "@/components/layout/Footer";
 import {
@@ -40,6 +41,7 @@ export default async function HomePage() {
       <Promotions promotions={promotions} rates={rates} />
       <Benefits />
       <PrepToTravel steps={prepSteps} />
+      <ContactWhatsapp />
       <Footer />
     </div>
   );

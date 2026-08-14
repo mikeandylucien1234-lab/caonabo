@@ -289,6 +289,10 @@ html {
   .benefits-desktop {
     display: none !important;
   }
+  /* section « accompagnement WhatsApp » : réservée au PC */
+  .wa-desktop {
+    display: none !important;
+  }
   .promo-track {
     padding-left: 20px !important;
     padding-right: 20px !important;

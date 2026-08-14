@@ -41,9 +41,9 @@ export default async function HomePage() {
       <Faq faqs={faqs} />
       <PaymentBanner />
       <Promotions promotions={promotions} rates={rates} />
+      <OnboardBanner />
       <Benefits />
       <PrepToTravel steps={prepSteps} />
-      <OnboardBanner />
       <ContactWhatsapp />
       <TrustDisclaimer />
       <Footer />

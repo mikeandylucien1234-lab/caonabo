@@ -91,6 +91,10 @@ html {
 .trust-mobile {
   display: none;
 }
+/* Bandeau « À bord Haïti » : retiré sur PC, visible sur mobile (après Promotions) */
+.onboard-mobile {
+  display: none;
+}
 
 /* Hero : image en remplissage (cover) + carte « Prochain vol » flottant dessus */
 .hero-wrap {
@@ -310,6 +314,10 @@ html {
   }
   /* section confiance/disclaimer : affichée sur mobile */
   .trust-mobile {
+    display: block !important;
+  }
+  /* bandeau « À bord Haïti » : affiché sur mobile, après Promotions */
+  .onboard-mobile {
     display: block !important;
   }
   /* section « bienfaits Anacaona » : réservée au PC */

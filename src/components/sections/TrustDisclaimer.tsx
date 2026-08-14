@@ -35,7 +35,8 @@ export default function TrustDisclaimer() {
           display: "inline-block",
           marginTop: 12,
           fontSize: 13.5,
-          color: "#5c5c7a",
+          color: "#5b21b6",
+          fontWeight: 600,
           textDecoration: "underline",
         }}
       >

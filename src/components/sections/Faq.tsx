@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import type { FaqDTO } from "@/lib/data/types";
+import { usePrefs } from "@/components/PreferencesProvider";
 
 export default function Faq({ faqs }: { faqs: FaqDTO[] }) {
   const [open, setOpen] = useState<number>(0);
+  const { dict } = usePrefs();
 
   return (
     <div className="hz" style={{ padding: "72px 56px", background: "#faf9fc" }}>
@@ -27,7 +29,7 @@ export default function Faq({ faqs }: { faqs: FaqDTO[] }) {
               margin: "0 0 22px",
             }}
           >
-            Questions fréquentes
+            {dict.faq.title}
           </h2>
           <div>
             {faqs.map((faq, i) => {
@@ -89,7 +91,7 @@ export default function Faq({ faqs }: { faqs: FaqDTO[] }) {
             })}
           </div>
           <div style={{ marginTop: 20, fontSize: 14, color: "#4b4b6b" }}>
-            Consultez plus au : <a href="#">Centre d&apos;Aide ↗</a>
+            {dict.faq.more} <a href="#">{dict.faq.helpCenter}</a>
           </div>
         </div>
         <div className="faq-illus" style={{ display: "flex", justifyContent: "center" }}>

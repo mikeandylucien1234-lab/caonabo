@@ -4,6 +4,9 @@
 // Réservée au PC (masquée sur mobile via la classe .wa-desktop).
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { getPrefs } from "@/lib/prefs";
+import { getDictionary } from "@/lib/i18n";
+
 const INK = "#1e1b4b";
 const RED = "#dc2626";
 const PURPLE = "#5b21b6";
@@ -11,7 +14,9 @@ const PURPLE = "#5b21b6";
 // Numéro WhatsApp — À DÉFINIR (format international sans « + » ni espaces).
 const WHATSAPP_NUMBER = "50937123456";
 
-export default function ContactWhatsapp() {
+export default async function ContactWhatsapp() {
+  const { locale } = await getPrefs();
+  const t = getDictionary(locale);
   return (
     <section className="wa-desktop hz" style={{ padding: "30px 56px 70px" }}>
       <div
@@ -28,9 +33,9 @@ export default function ContactWhatsapp() {
           className="font-heading"
           style={{ fontSize: 42, fontWeight: 800, lineHeight: 1.14, margin: 0, color: INK }}
         >
-          Réservez votre vol avec
+          {t.whatsapp.titleA}
           <br />
-          <span style={{ color: RED }}>l&rsquo;accompagnement d&rsquo;experts</span>
+          <span style={{ color: RED }}>{t.whatsapp.titleHi}</span>
         </h2>
 
         {/* DROITE : carte WhatsApp */}
@@ -63,10 +68,10 @@ export default function ContactWhatsapp() {
           </div>
 
           <div className="font-heading" style={{ fontSize: 22, fontWeight: 800, color: INK, marginBottom: 10 }}>
-            Écrivez-nous sur WhatsApp
+            {t.whatsapp.cardTitle}
           </div>
           <p style={{ fontSize: 15.5, lineHeight: 1.55, color: "#5c5c7a", margin: 0, maxWidth: 420 }}>
-            Notre équipe vous accompagne dans la planification et l&rsquo;achat de vos vols.
+            {t.whatsapp.text}
           </p>
 
           {/* horaires */}
@@ -75,7 +80,7 @@ export default function ContactWhatsapp() {
               <circle cx="12" cy="12" r="9" />
               <path d="M12 7v5l3.5 2" />
             </svg>
-            <span style={{ fontWeight: 600 }}>Lundi à dimanche de 8h00 à 20h00</span>
+            <span style={{ fontWeight: 600 }}>{t.whatsapp.hours}</span>
           </div>
 
           {/* bouton bordé */}
@@ -100,7 +105,7 @@ export default function ContactWhatsapp() {
               textDecoration: "none",
             }}
           >
-            Aller sur WhatsApp
+            {t.whatsapp.cta}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PURPLE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M14 4h6v6" />
               <path d="M20 4l-9 9" />

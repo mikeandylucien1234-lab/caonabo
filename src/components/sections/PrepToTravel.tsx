@@ -1,7 +1,11 @@
 import type { PrepStepDTO } from "@/lib/data/types";
 import PrepStack from "@/components/sections/PrepStack";
+import { getPrefs } from "@/lib/prefs";
+import { getDictionary } from "@/lib/i18n";
 
-export default function PrepToTravel({ steps }: { steps: PrepStepDTO[] }) {
+export default async function PrepToTravel({ steps }: { steps: PrepStepDTO[] }) {
+  const { locale } = await getPrefs();
+  const t = getDictionary(locale);
   return (
     <>
     {/* DESKTOP : version d'origine, inchangée (masquée sur mobile) */}
@@ -50,7 +54,7 @@ export default function PrepToTravel({ steps }: { steps: PrepStepDTO[] }) {
               margin: "0 0 14px",
             }}
           >
-            Préparez-vous à voyager.
+            {t.prep.title}
           </h2>
           <p
             style={{
@@ -61,8 +65,7 @@ export default function PrepToTravel({ steps }: { steps: PrepStepDTO[] }) {
               maxWidth: 380,
             }}
           >
-            Suivez ces recommandations pour vivre votre prochain vol Caonabo en
-            toute sérénité.
+            {t.prep.subtitle}
           </p>
         </div>
         <div>
@@ -128,7 +131,7 @@ export default function PrepToTravel({ steps }: { steps: PrepStepDTO[] }) {
               cursor: "pointer",
             }}
           >
-            Voir les exigences de voyage <span>→</span>
+            {t.prep.requirements} <span>→</span>
           </button>
         </div>
       </div>
@@ -143,7 +146,7 @@ export default function PrepToTravel({ steps }: { steps: PrepStepDTO[] }) {
         className="font-heading"
         style={{ fontWeight: 800, fontSize: 30, color: "#1e1b4b", margin: "0 0 12px" }}
       >
-        Préparez-vous à voyager.
+        {t.prep.title}
       </h2>
       <p
         style={{
@@ -154,8 +157,7 @@ export default function PrepToTravel({ steps }: { steps: PrepStepDTO[] }) {
           maxWidth: 420,
         }}
       >
-        Suivez ces recommandations pour vivre votre prochain vol Caonabo en toute
-        sérénité.
+        {t.prep.subtitle}
       </p>
       <PrepStack />
     </div>

@@ -1,10 +1,14 @@
 import Link from "next/link";
+import { getPrefs } from "@/lib/prefs";
+import { getDictionary } from "@/lib/i18n";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Section discrète de confiance / disclaimer, juste avant le footer.
 // Réservée au mobile (classe .trust-mobile). Texte petit, gris atténué.
 // ─────────────────────────────────────────────────────────────────────────────
-export default function TrustDisclaimer() {
+export default async function TrustDisclaimer() {
+  const { locale } = await getPrefs();
+  const t = getDictionary(locale);
   return (
     <section
       className="trust-mobile hz"
@@ -23,11 +27,7 @@ export default function TrustDisclaimer() {
           maxWidth: 760,
         }}
       >
-        Caonabo Airlinje propose des vols directs et avec escale entre le Chili,
-        Haïti, le Canada et le Pérou. Les prix, disponibilités, taxes et délais
-        peuvent varier selon la période et sont toujours confirmés au moment du
-        paiement. Les paiements sont traités de façon sécurisée — Caonabo ne
-        stocke jamais vos données de carte complètes.
+        {t.trust.text}
       </p>
       <Link
         href="/conditions-generales"
@@ -40,7 +40,7 @@ export default function TrustDisclaimer() {
           textDecoration: "underline",
         }}
       >
-        Conditions Générales
+        {t.trust.cgv}
       </Link>
     </section>
   );

@@ -179,7 +179,7 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
           }}
         >
           <div style={{ fontSize: 16, color: "#1e1b4b", fontWeight: 600 }}>
-            Où souhaitez-vous aller ?
+            {dict.search.prompt}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             {TRIP_DEFS.map((t) => {
@@ -206,7 +206,7 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
                   }}
                 >
                   {active ? "✓ " : ""}
-                  {t.label}
+                  {t.key === "aller-retour" ? dict.search.round : dict.search.oneway}
                 </button>
               );
             })}
@@ -226,7 +226,7 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
           }}
         >
           <FieldSelect
-            label="Depuis"
+            label={dict.search.from}
             value={from ? `${from.city}, ${from.country}` : "Saisir une origine"}
             placeholderColor={from ? "#1e1b4b" : "#8a8aa0"}
             open={panel === "from"}
@@ -262,7 +262,7 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
             ⇄
           </button>
           <FieldSelect
-            label="Vers"
+            label={dict.search.to}
             className="ft-vers"
             value={to ? `${to.city}, ${to.country}` : "Saisir une destination"}
             placeholderColor={to ? "#1e1b4b" : "#8a8aa0"}
@@ -314,9 +314,9 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
                   cursor: "pointer",
                 }}
               >
-                <div style={{ fontSize: 12, color: "#8a8aa0" }}>Passagers</div>
+                <div style={{ fontSize: 12, color: "#8a8aa0" }}>{dict.search.passengers}</div>
                 <div style={{ fontWeight: 600, color: "#1e1b4b", fontSize: 15 }}>
-                  👤 {adults} {adults > 1 ? "Adultes" : "Adulte"}
+                  👤 {adults} {adults > 1 ? dict.search.adults : dict.search.adult}
                 </div>
               </div>
               {panel === "pax" && (
@@ -340,7 +340,7 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
                   }}
                 >
                   <span style={{ fontSize: 14, color: "#1e1b4b", fontWeight: 600 }}>
-                    Adultes
+                    {dict.search.adults}
                   </span>
                   <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                     <Stepper
@@ -558,6 +558,7 @@ function CalendarOverlay({
   onDayClick: (d: string) => void;
   onClose: () => void;
 }) {
+  const { dict } = usePrefs();
   // 6 mois glissants à partir du mois courant
   const base = new Date();
   base.setDate(1);
@@ -610,14 +611,14 @@ function CalendarOverlay({
         >
           <div style={{ display: "flex", gap: 22 }}>
             <div>
-              <div style={{ fontSize: 12, color: "#8a8aa0" }}>Aller</div>
+              <div style={{ fontSize: 12, color: "#8a8aa0" }}>{dict.search.depart}</div>
               <div style={{ fontWeight: 700, color: "#1e1b4b", fontSize: 15 }}>
                 {departDate ? frDate(departDate) : "Sélectionner"}
               </div>
             </div>
             {tripType === "aller-retour" && (
               <div>
-                <div style={{ fontSize: 12, color: "#8a8aa0" }}>Retour</div>
+                <div style={{ fontSize: 12, color: "#8a8aa0" }}>{dict.search.ret}</div>
                 <div style={{ fontWeight: 700, color: "#1e1b4b", fontSize: 15 }}>
                   {returnDate ? frDate(returnDate) : "Sélectionner"}
                 </div>

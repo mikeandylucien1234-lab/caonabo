@@ -334,9 +334,14 @@ html {
     display: none !important;
   }
   /* section « processus de réservation » : visible sur mobile, mais en version
-     compacte — les 2 blocs restent CÔTE À CÔTE (pas d'empilement). */
+     compacte — les 2 blocs restent CÔTE À CÔTE (pas d'empilement). On réduit les
+     marges pour libérer de la largeur et agrandir texte + carrousel (lisibilité). */
+  .bookflow.hz {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
   .bf-card {
-    grid-template-columns: 36% 1fr !important;
+    grid-template-columns: 32% 1fr !important;
     gap: 8px !important;
     padding: 8px !important;
     border-radius: 14px !important;
@@ -347,35 +352,35 @@ html {
   .bf-left-text {
     display: flex !important;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     padding: 10px 10px;
     text-align: left;
     align-self: stretch;
     justify-content: center;
   }
   .bf-left-title {
-    font-size: 15px !important;
+    font-size: 18px !important;
   }
   .bf-left-sub {
-    font-size: 11px !important;
+    font-size: 12.5px !important;
   }
   .bf-bar {
-    gap: 4px !important;
-    margin-bottom: 8px !important;
+    gap: 5px !important;
+    margin-bottom: 10px !important;
   }
   .bf-controls {
-    margin-top: 8px !important;
+    margin-top: 10px !important;
   }
   .bf-nav {
-    gap: 8px !important;
+    gap: 12px !important;
   }
   .bf-ctrl {
-    width: 30px !important;
-    height: 30px !important;
+    width: 36px !important;
+    height: 36px !important;
   }
   .bf-idx {
-    font-size: 11px !important;
-    min-width: 24px !important;
+    font-size: 13px !important;
+    min-width: 28px !important;
   }
   .promo-track {
     padding-left: 20px !important;

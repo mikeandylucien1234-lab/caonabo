@@ -107,8 +107,8 @@ export default function Faq({ faqs }: { faqs: FaqDTO[] }) {
             <div style={{ width: 180, height: 180 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/faq-illustration.webp"
-                alt="Illustration bagages / aéroport"
+                src="/images/faq-web.gif"
+                alt="Illustration questions fréquentes"
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />
             </div>

@@ -5,6 +5,7 @@ import Faq from "@/components/sections/Faq";
 import PaymentBanner from "@/components/sections/PaymentBanner";
 import Promotions from "@/components/sections/Promotions";
 import Benefits from "@/components/sections/Benefits";
+import BookingStepsShowcase from "@/components/sections/BookingStepsShowcase";
 import ContactWhatsapp from "@/components/sections/ContactWhatsapp";
 import OnboardBanner from "@/components/sections/OnboardBanner";
 import TrustDisclaimer from "@/components/sections/TrustDisclaimer";
@@ -41,6 +42,7 @@ export default async function HomePage() {
       <Faq faqs={faqs} />
       <PaymentBanner />
       <Promotions promotions={promotions} rates={rates} />
+      <BookingStepsShowcase />
       <OnboardBanner />
       <Benefits />
       <PrepToTravel steps={prepSteps} />

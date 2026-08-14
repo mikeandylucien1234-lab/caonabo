@@ -51,8 +51,9 @@ export default function BookingStepsShowcase() {
   }
 
   return (
-    <section className="bookflow-desktop hz" style={{ padding: "20px 56px 60px" }}>
+    <section className="bookflow hz" style={{ padding: "20px 56px 60px" }}>
       <div
+        className="bf-card"
         style={{
           display: "grid",
           gridTemplateColumns: "36% 1fr",
@@ -65,7 +66,7 @@ export default function BookingStepsShowcase() {
           boxShadow: "0 10px 34px rgba(30,27,75,0.08)",
         }}
       >
-        {/* GAUCHE : visuel fixe */}
+        {/* GAUCHE : visuel fixe (desktop) OU texte équivalent (mobile) */}
         <div
           style={{
             borderRadius: 18,
@@ -78,16 +79,25 @@ export default function BookingStepsShowcase() {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
+            className="bf-left-img"
             src="/images/booking-steps/security-trust.jpg"
             alt="Vos bagages, notre priorité"
             style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
           />
+          <div className="bf-left-text">
+            <div className="font-heading bf-left-title" style={{ color: PURPLE_DK, fontWeight: 800, lineHeight: 1.15 }}>
+              Vos bagages, <span style={{ color: PURPLE }}>notre priorité</span>
+            </div>
+            <p className="bf-left-sub" style={{ color: "#5c5c7a", lineHeight: 1.45, margin: 0 }}>
+              Vos bagages voyagent en toute sécurité, du départ à l&rsquo;arrivée. Personne ne les ouvre, rien ne disparaît.
+            </p>
+          </div>
         </div>
 
         {/* DROITE : carrousel des 4 étapes */}
         <div style={{ display: "flex", flexDirection: "column" }}>
           {/* barre de progression segmentée */}
-          <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+          <div className="bf-bar" style={{ display: "flex", gap: 6, marginBottom: 14 }}>
             {STEPS.map((_, i) => {
               const fill = i < index ? 100 : i === index ? Math.min(progress, 100) : 0;
               return (
@@ -120,10 +130,11 @@ export default function BookingStepsShowcase() {
           </div>
 
           {/* contrôles : pause/lecture · flèches · indicateur */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14 }}>
+          <div className="bf-controls" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14 }}>
             <button
               onClick={() => setPaused((p) => !p)}
               aria-label={paused ? "Lecture" : "Pause"}
+              className="bf-ctrl"
               style={ctrlStyle}
             >
               {paused ? (
@@ -133,14 +144,14 @@ export default function BookingStepsShowcase() {
               )}
             </button>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <button onClick={() => go(index - 1)} aria-label="Étape précédente" style={ctrlStyle}>
+            <div className="bf-nav" style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <button onClick={() => go(index - 1)} aria-label="Étape précédente" className="bf-ctrl" style={ctrlStyle}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PURPLE_DK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M15 6l-6 6 6 6" /></svg>
               </button>
-              <span style={{ fontWeight: 800, fontSize: 14, color: "#1e1b4b", minWidth: 34, textAlign: "center" }}>
+              <span className="bf-idx" style={{ fontWeight: 800, fontSize: 14, color: "#1e1b4b", minWidth: 34, textAlign: "center" }}>
                 {index + 1}/{N}
               </span>
-              <button onClick={() => go(index + 1)} aria-label="Étape suivante" style={ctrlStyle}>
+              <button onClick={() => go(index + 1)} aria-label="Étape suivante" className="bf-ctrl" style={ctrlStyle}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PURPLE_DK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M9 6l6 6-6 6" /></svg>
               </button>
             </div>

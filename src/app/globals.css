@@ -96,6 +96,10 @@ html {
 .onboard-mobile {
   display: none;
 }
+/* Section réservation : le bloc texte de gauche n'existe que sur mobile */
+.bf-left-text {
+  display: none;
+}
 
 /* Hero : image en remplissage (cover) + carte « Prochain vol » flottant dessus */
 .hero-wrap {
@@ -329,9 +333,49 @@ html {
   .wa-desktop {
     display: none !important;
   }
-  /* section « processus de réservation » : réservée au PC */
-  .bookflow-desktop {
+  /* section « processus de réservation » : visible sur mobile, mais en version
+     compacte — les 2 blocs restent CÔTE À CÔTE (pas d'empilement). */
+  .bf-card {
+    grid-template-columns: 36% 1fr !important;
+    gap: 8px !important;
+    padding: 8px !important;
+    border-radius: 14px !important;
+  }
+  .bf-left-img {
     display: none !important;
+  }
+  .bf-left-text {
+    display: flex !important;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 10px;
+    text-align: left;
+    align-self: stretch;
+    justify-content: center;
+  }
+  .bf-left-title {
+    font-size: 15px !important;
+  }
+  .bf-left-sub {
+    font-size: 11px !important;
+  }
+  .bf-bar {
+    gap: 4px !important;
+    margin-bottom: 8px !important;
+  }
+  .bf-controls {
+    margin-top: 8px !important;
+  }
+  .bf-nav {
+    gap: 8px !important;
+  }
+  .bf-ctrl {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  .bf-idx {
+    font-size: 11px !important;
+    min-width: 24px !important;
   }
   .promo-track {
     padding-left: 20px !important;

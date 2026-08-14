@@ -101,6 +101,25 @@ html {
   width: min(560px, 92vw);
 }
 
+/* Desktop uniquement (>820px) : hero raccourci pour laisser apercevoir la
+   section suivante dès le 1er chargement (1080p), et carte de recherche en
+   pleine largeur du conteneur du hero. Le rendu mobile (≤820px) reste inchangé.
+   Les !important surchargent les styles inline hérités du composant Hero. */
+@media (min-width: 821px) {
+  .hero-wrap {
+    min-height: max(700px, 78vh);
+  }
+  .hero-headline {
+    padding-top: 2.5% !important;
+  }
+  .hero-card-float {
+    width: calc(100% - 112px);
+  }
+  .hero-flightcard {
+    width: 100% !important;
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────────────────
    Responsive mobile / tablette.
    Le prototype d'origine était desktop-only (largeur fixe). Ces règles

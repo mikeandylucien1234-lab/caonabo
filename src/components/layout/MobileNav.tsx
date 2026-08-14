@@ -23,7 +23,27 @@ export default function MobileNav({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="mobile-nav" style={{ position: "relative" }}>
+    <div className="mobile-nav" style={{ position: "relative", alignItems: "center", gap: 10 }}>
+      {/* bouton « Se connecter » (ou compte) à gauche du menu */}
+      <Link
+        href={firstName ? "/account" : "/login"}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          background: "#3d1e8a",
+          color: "#fff",
+          fontWeight: 600,
+          fontSize: 14,
+          padding: "10px 16px",
+          borderRadius: 999,
+          whiteSpace: "nowrap",
+          flexShrink: 0,
+        }}
+      >
+        {firstName ? `👤 ${firstName}` : "Se connecter"}
+      </Link>
+
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label="Menu"

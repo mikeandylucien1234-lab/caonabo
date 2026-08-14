@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRows, useUpsert, useRemove } from "@/lib/admin/api";
 import { PageHead, Card, Btn, Badge, Table, Td, Modal, Field, inputStyle, Loading, ErrorBox } from "@/components/admin/ui";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 interface Airport { id?: string; code: string; city: string; country: string; description?: string; imageUrl?: string }
 interface RouteRow {
@@ -74,9 +75,7 @@ export default function AdminRoutes() {
               </Field>
             </div>
             <div style={{ gridColumn: "1 / -1" }}>
-              <Field label="Image (URL, ex : /images/dest-toronto.webp)">
-                <input style={inputStyle} value={form.imageUrl ?? ""} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} />
-              </Field>
+              <ImageUpload label="Image de l'aéroport / destination" value={form.imageUrl ?? ""} onChange={(url) => setForm({ ...form, imageUrl: url })} />
             </div>
           </div>
           {upsertA.error && <p style={{ color: "#dc2626", fontSize: 13, marginTop: 12 }}>{(upsertA.error as Error).message}</p>}

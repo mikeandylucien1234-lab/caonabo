@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRows, useUpsert, useRemove, fmtUsd } from "@/lib/admin/api";
 import { PageHead, Card, Btn, Badge, Table, Td, Modal, Field, inputStyle, Loading, ErrorBox } from "@/components/admin/ui";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 interface Dest {
   id?: string;
@@ -69,7 +70,9 @@ export default function AdminDestinations() {
             <Field label="Ville"><input style={inputStyle} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
             <Field label="Pays"><input style={inputStyle} value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} /></Field>
             <Field label="Slug (URL)"><input style={inputStyle} value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} /></Field>
-            <Field label="Image (URL)"><input style={inputStyle} value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} /></Field>
+            <div style={{ gridColumn: "1 / -1" }}>
+              <ImageUpload label="Image de la destination" value={form.imageUrl} onChange={(url) => setForm({ ...form, imageUrl: url })} />
+            </div>
             <Field label="Code origine"><input style={inputStyle} value={form.originCode} onChange={(e) => setForm({ ...form, originCode: e.target.value.toUpperCase() })} /></Field>
             <Field label="Code destination"><input style={inputStyle} value={form.destinationCode} onChange={(e) => setForm({ ...form, destinationCode: e.target.value.toUpperCase() })} /></Field>
             <Field label="Prix (USD cents)"><input type="number" style={inputStyle} value={form.priceUsdCents} onChange={(e) => setForm({ ...form, priceUsdCents: Number(e.target.value) })} /></Field>

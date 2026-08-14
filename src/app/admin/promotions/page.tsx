@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRows, useUpsert, useRemove, fmtUsd } from "@/lib/admin/api";
 import { PageHead, Card, Btn, Table, Td, Modal, Field, inputStyle, Loading, ErrorBox } from "@/components/admin/ui";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 interface Promo {
   id?: string;
@@ -73,8 +74,10 @@ export default function AdminPromotions() {
             <Field label="Code destination"><input style={inputStyle} value={form.destinationCode} onChange={(e) => setForm({ ...form, destinationCode: e.target.value.toUpperCase() })} /></Field>
             <Field label="Prix promo (USD cents)"><input type="number" style={inputStyle} value={form.priceUsdCents} onChange={(e) => setForm({ ...form, priceUsdCents: Number(e.target.value) })} /></Field>
             <Field label="Ancien prix (USD cents)"><input type="number" style={inputStyle} value={form.oldPriceUsdCents} onChange={(e) => setForm({ ...form, oldPriceUsdCents: Number(e.target.value) })} /></Field>
-            <Field label="Image (URL)"><input style={inputStyle} value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} /></Field>
             <Field label="Ordre d'affichage"><input type="number" style={inputStyle} value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: Number(e.target.value) })} /></Field>
+            <div style={{ gridColumn: "1 / -1" }}>
+              <ImageUpload label="Image de la promotion" value={form.imageUrl} onChange={(url) => setForm({ ...form, imageUrl: url })} />
+            </div>
           </div>
           {upsert.error && <p style={{ color: "#dc2626", fontSize: 13, marginTop: 12 }}>{(upsert.error as Error).message}</p>}
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 20 }}>

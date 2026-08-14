@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useRows, useUpsert, useRemove, fmtUsd, fmtDateTime } from "@/lib/admin/api";
+import { getSupabase } from "@/lib/supabase/client";
 import { PageHead, Card, Btn, Badge, Table, Td, Modal, Field, inputStyle, Loading, ErrorBox } from "@/components/admin/ui";
 
 interface Airport { code: string; city: string }
@@ -40,8 +42,8 @@ export default function AdminFlights() {
   const { data, isLoading, error } = useRows<Flight>("Flight", FLIGHT_SEL, { order: { column: "departAt" }, limit: 100 });
   const routes = useRows<RouteRow>("Route", ROUTE_SEL);
   const upsert = useUpsert("Flight", ["Flight"]);
-  const remove = useRemove("Flight", ["Flight"]);
   const [form, setForm] = useState<Flight | null>(null);
+  const [del, setDel] = useState<Flight | null>(null);
 
   function save() {
     if (!form) return;
@@ -79,7 +81,7 @@ export default function AdminFlights() {
                 <Td style={{ whiteSpace: "nowrap", textAlign: "right" }}>
                   <span style={{ display: "inline-flex", gap: 8 }}>
                     <Btn variant="ghost" onClick={() => setForm({ ...f, departAt: toLocalInput(f.departAt), arriveAt: toLocalInput(f.arriveAt) })}>Modifier</Btn>
-                    <Btn variant="danger" onClick={() => confirm(`Supprimer le vol ${f.flightNumber} ?`) && remove.mutate(f.id!)}>Suppr.</Btn>
+                    <Btn variant="danger" onClick={() => setDel(f)}>Suppr.</Btn>
                   </span>
                 </Td>
               </tr>
@@ -116,6 +118,59 @@ export default function AdminFlights() {
           </div>
         </Modal>
       )}
+
+      {del && <DeleteFlightModal flight={del} onClose={() => setDel(null)} />}
     </div>
+  );
+}
+
+// Modale de suppression d'un vol : vérifie d'abord les réservations liées.
+// Choix : on BLOQUE la suppression si des réservations existent (intégrité
+// des données + FK), et on invite à les annuler d'abord.
+function DeleteFlightModal({ flight, onClose }: { flight: Flight; onClose: () => void }) {
+  const remove = useRemove("Flight", ["Flight"]);
+  const { data: count, isLoading } = useQuery<number>({
+    queryKey: ["Booking", "count-by-flight", flight.id],
+    queryFn: async () => {
+      const { count, error } = await getSupabase()
+        .from("Booking")
+        .select("id", { count: "exact", head: true })
+        .eq("flightId", flight.id!);
+      if (error) throw new Error(error.message);
+      return count ?? 0;
+    },
+  });
+  const hasBookings = (count ?? 0) > 0;
+  return (
+    <Modal title="Supprimer le vol" onClose={onClose}>
+      <p style={{ fontSize: 14, color: "#3a3a55", lineHeight: 1.6 }}>
+        Vous êtes sur le point de supprimer le vol <b>{flight.flightNumber}</b>. Cette action est
+        <b> irréversible</b>.
+      </p>
+      {isLoading ? (
+        <Loading label="Vérification des réservations liées…" />
+      ) : hasBookings ? (
+        <div style={{ marginTop: 14, padding: 14, background: "#fdf0d9", color: "#8a5a12", borderRadius: 12, fontSize: 13.5, lineHeight: 1.55 }}>
+          ⚠️ Ce vol a <b>{count} réservation(s)</b> liée(s). La suppression est bloquée pour préserver
+          ces réservations. Annulez ou déplacez d’abord les réservations concernées (écran «&nbsp;Réservations&nbsp;»),
+          puis réessayez.
+        </div>
+      ) : (
+        <div style={{ marginTop: 14, padding: 14, background: "#e3f7ea", color: "#1f7a45", borderRadius: 12, fontSize: 13.5 }}>
+          Aucune réservation liée — la suppression est sûre.
+        </div>
+      )}
+      {remove.error && <p style={{ color: "#dc2626", fontSize: 13, marginTop: 12 }}>{(remove.error as Error).message}</p>}
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 20 }}>
+        <Btn variant="ghost" onClick={onClose}>Annuler</Btn>
+        <Btn
+          variant="danger"
+          disabled={isLoading || hasBookings || remove.isPending}
+          onClick={() => remove.mutate(flight.id!, { onSuccess: onClose })}
+        >
+          {remove.isPending ? "Suppression…" : "Supprimer définitivement"}
+        </Btn>
+      </div>
+    </Modal>
   );
 }

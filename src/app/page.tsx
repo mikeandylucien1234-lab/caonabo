@@ -4,11 +4,9 @@ import PopularDestinations from "@/components/sections/PopularDestinations";
 import Faq from "@/components/sections/Faq";
 import PaymentBanner from "@/components/sections/PaymentBanner";
 import Promotions from "@/components/sections/Promotions";
-import Benefits from "@/components/sections/Benefits";
 import BookingStepsShowcase from "@/components/sections/BookingStepsShowcase";
 import CargoCarousel from "@/components/sections/CargoCarousel";
 import ContactWhatsapp from "@/components/sections/ContactWhatsapp";
-import OnboardBanner from "@/components/sections/OnboardBanner";
 import TrustDisclaimer from "@/components/sections/TrustDisclaimer";
 import NewsletterSignup from "@/components/sections/NewsletterSignup";
 import PrepToTravel from "@/components/sections/PrepToTravel";
@@ -46,12 +44,10 @@ export default async function HomePage() {
       <Promotions promotions={promotions} rates={rates} />
       <BookingStepsShowcase />
       <CargoCarousel />
-      <OnboardBanner />
-      <Benefits />
       <PrepToTravel steps={prepSteps} />
+      <NewsletterSignup />
       <ContactWhatsapp />
       <TrustDisclaimer />
-      <NewsletterSignup />
       <Footer />
     </div>
   );

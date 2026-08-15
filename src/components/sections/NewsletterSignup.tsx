@@ -44,15 +44,24 @@ export default function NewsletterSignup() {
   return (
     <section className="newsletter-desktop" style={{ padding: "10px 0 64px" }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: 460, borderRadius: 28, overflow: "hidden", boxShadow: "0 18px 50px rgba(20,10,60,0.18)" }}>
-        {/* GAUCHE : visuel */}
+        {/* GAUCHE : visuel + dégradé de fondu vers le bloc indigo (jonction douce) */}
         <div
           style={{
+            position: "relative",
             backgroundImage: "url('/images/newsletter-hero.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
           aria-hidden="true"
-        />
+        >
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "linear-gradient(to right, rgba(30,27,75,0) 52%, rgba(30,27,75,0.55) 80%, rgba(30,27,75,0.92) 96%, #1e1b4b 100%)",
+            }}
+          />
+        </div>
 
         {/* DROITE : formulaire */}
         <div style={{ background: INK, padding: "54px 56px", display: "flex", flexDirection: "column", justifyContent: "center" }}>

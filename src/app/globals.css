@@ -321,20 +321,12 @@ html {
   .trust-mobile {
     display: block !important;
   }
-  /* bandeau « À bord Haïti » : retiré sur mobile (reste visible sur PC) */
-  .onboard-desktop {
-    display: none !important;
-  }
   /* carrousel Cargo : affiché sur mobile uniquement */
   .cargo-mobile {
     display: block !important;
   }
   /* section newsletter : réservée au PC (masquée sur mobile) */
   .newsletter-desktop {
-    display: none !important;
-  }
-  /* section « bienfaits Anacaona » : réservée au PC */
-  .benefits-desktop {
     display: none !important;
   }
   /* section « accompagnement WhatsApp » : réservée au PC */

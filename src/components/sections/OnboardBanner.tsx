@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 export default function OnboardBanner() {
   return (
-    <section className="onboard-mobile hz" style={{ padding: "10px 56px 50px" }}>
+    <section className="onboard-desktop hz" style={{ padding: "10px 56px 50px" }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/images/a-bord.webp"

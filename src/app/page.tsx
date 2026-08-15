@@ -6,6 +6,7 @@ import PaymentBanner from "@/components/sections/PaymentBanner";
 import Promotions from "@/components/sections/Promotions";
 import Benefits from "@/components/sections/Benefits";
 import BookingStepsShowcase from "@/components/sections/BookingStepsShowcase";
+import CargoCarousel from "@/components/sections/CargoCarousel";
 import ContactWhatsapp from "@/components/sections/ContactWhatsapp";
 import OnboardBanner from "@/components/sections/OnboardBanner";
 import TrustDisclaimer from "@/components/sections/TrustDisclaimer";
@@ -43,6 +44,7 @@ export default async function HomePage() {
       <PaymentBanner />
       <Promotions promotions={promotions} rates={rates} />
       <BookingStepsShowcase />
+      <CargoCarousel />
       <OnboardBanner />
       <Benefits />
       <PrepToTravel steps={prepSteps} />

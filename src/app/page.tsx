@@ -9,6 +9,7 @@ import CargoCarousel from "@/components/sections/CargoCarousel";
 import ContactWhatsapp from "@/components/sections/ContactWhatsapp";
 import TrustDisclaimer from "@/components/sections/TrustDisclaimer";
 import NewsletterSignup from "@/components/sections/NewsletterSignup";
+import VideoBanner from "@/components/sections/VideoBanner";
 import PrepToTravel from "@/components/sections/PrepToTravel";
 import Footer from "@/components/layout/Footer";
 import {
@@ -44,6 +45,7 @@ export default async function HomePage() {
       <Promotions promotions={promotions} rates={rates} />
       <BookingStepsShowcase />
       <CargoCarousel />
+      <VideoBanner />
       <PrepToTravel steps={prepSteps} />
       <NewsletterSignup />
       <ContactWhatsapp />

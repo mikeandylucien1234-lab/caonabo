@@ -4,6 +4,12 @@ import { formatPrice, type RateInfo } from "@/lib/currency";
 import { getPrefs } from "@/lib/prefs";
 import { getDictionary } from "@/lib/i18n";
 
+// Cartes avec vidéo en boucle (le poster reste l'image de la carte).
+const VIDEO_BY_CITY: Record<string, string> = {
+  Toronto: "/videos/toronto.mp4",
+  "Port-au-Prince": "/videos/port-au-prince.mp4",
+};
+
 /**
  * "Destinations populaires" — les prix du proto étaient affichés en CLP
  * (marché chilien). On les affiche donc en CLP par conversion depuis l'USD.
@@ -97,18 +103,33 @@ export default async function PopularDestinations({
               boxShadow: "0 8px 30px rgba(20,10,60,0.12)",
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={d.imageUrl}
-              alt={d.placeholder}
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
-            />
+            {VIDEO_BY_CITY[d.city] ? (
+              // eslint-disable-next-line jsx-a11y/media-has-caption
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                poster={d.imageUrl}
+                aria-label={d.placeholder}
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+              >
+                <source src={VIDEO_BY_CITY[d.city]} type="video/mp4" />
+              </video>
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={d.imageUrl}
+                alt={d.placeholder}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            )}
             <div
               style={{
                 position: "absolute",

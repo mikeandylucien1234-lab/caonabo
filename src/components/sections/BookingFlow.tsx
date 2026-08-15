@@ -11,6 +11,13 @@ import { formatPrice } from "@/lib/currency";
 import FlightResultCard from "@/components/sections/FlightResultCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { withMinDelay } from "@/lib/minDelay";
+import { getSupabase } from "@/lib/supabase/client";
+
+// Visa e- : requis uniquement pour un départ d'Haïti (PAP/CAP) vers le Chili (SCL).
+const HAITI_CODES = ["PAP", "CAP"];
+function isHaitiToChile(f: FlightResultDTO | null): boolean {
+  return !!f && HAITI_CODES.includes(f.origin.code) && f.destination.code === "SCL";
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tunnel de réservation en 5 étapes
@@ -31,6 +38,7 @@ interface PaxForm {
   documentExpiry: string;
   documentIssuingCountry: string;
   phone: string;
+  evisaFileUrl: string | null;
   seatId: string | null;
   baggageOptionId: string | null;
 }
@@ -63,6 +71,7 @@ function emptyPax(): PaxForm {
     documentExpiry: "",
     documentIssuingCountry: "",
     phone: "",
+    evisaFileUrl: null,
     seatId: null,
     baggageOptionId: null,
   };
@@ -331,6 +340,7 @@ export default function BookingFlow({
                 documentExpiry: p.documentExpiry || null,
                 documentIssuingCountry: p.documentIssuingCountry || null,
                 phone: p.phone || null,
+                evisaFileUrl: p.evisaFileUrl || null,
                 seatId: p.seatId,
                 baggageOptionId: p.baggageOptionId,
               })),
@@ -418,6 +428,7 @@ export default function BookingFlow({
             setEmail={setEmail}
             phone={phone}
             setPhone={setPhone}
+            showEvisa={isHaitiToChile(selected)}
           />
         )}
 
@@ -654,6 +665,7 @@ function Step3({
   setEmail,
   phone,
   setPhone,
+  showEvisa,
 }: {
   passengers: PaxForm[];
   updatePax: (i: number, patch: Partial<PaxForm>) => void;
@@ -661,6 +673,7 @@ function Step3({
   setEmail: (v: string) => void;
   phone: string;
   setPhone: (v: string) => void;
+  showEvisa: boolean;
 }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
@@ -722,6 +735,18 @@ function Step3({
               <input style={inputStyle} value={p.phone} onChange={(e) => updatePax(i, { phone: e.target.value })} />
             </Field>
           </div>
+
+          {showEvisa && (
+            <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px dashed #e6e4f0" }}>
+              <Field label="Visa électronique (optionnel)">
+                <EvisaUpload value={p.evisaFileUrl} onChange={(path) => updatePax(i, { evisaFileUrl: path })} />
+              </Field>
+              <div style={{ fontSize: 12, color: "#8a8aa0", marginTop: 6, lineHeight: 1.5 }}>
+                Si vous disposez déjà de votre visa électronique pour le Chili, vous pouvez le joindre ici.
+                Ce document n&rsquo;est pas obligatoire pour finaliser votre réservation.
+              </div>
+            </div>
+          )}
         </div>
       ))}
 
@@ -736,6 +761,63 @@ function Step3({
           </Field>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Upload du visa électronique vers le bucket privé "passenger-documents".
+// On stocke le CHEMIN de l'objet (pas d'URL publique — document sensible).
+function EvisaUpload({ value, onChange }: { value: string | null; onChange: (path: string | null) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const OK = ["application/pdf", "image/jpeg", "image/png"];
+
+  async function handleFile(file: File | undefined | null) {
+    if (!file) return;
+    setError(null);
+    if (!OK.includes(file.type)) return setError("Format non supporté (PDF, JPG ou PNG).");
+    if (file.size > 5 * 1024 * 1024) return setError("Fichier trop volumineux (5 Mo max).");
+    setUploading(true);
+    try {
+      const ext = (file.name.split(".").pop() || "pdf").toLowerCase();
+      const path = `evisa/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await getSupabase()
+        .storage.from("passenger-documents")
+        .upload(path, file, { contentType: file.type, upsert: false });
+      if (upErr) throw upErr;
+      setFileName(file.name);
+      onChange(path);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Échec de l'envoi du fichier.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  if (value) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", border: "1.5px solid #cbe8d3", background: "#f2fbf5", borderRadius: 12 }}>
+        <span style={{ color: "#1f9d55", fontWeight: 700, fontSize: 14 }}>✓ Document joint</span>
+        <span style={{ fontSize: 13, color: "#5c5c7a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fileName ?? "visa électronique"}</span>
+        <button type="button" onClick={() => { onChange(null); setFileName(null); }} style={{ marginLeft: "auto", border: "none", background: "transparent", color: "#dc2626", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>Retirer</button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={uploading}
+        style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "11px 18px", borderRadius: 12, border: "1.5px dashed #cfc9ea", background: "#faf9fd", color: "#5b21b6", fontWeight: 700, fontSize: 14, cursor: uploading ? "wait" : "pointer" }}
+      >
+        {uploading ? "Envoi en cours…" : "📎 Joindre un fichier (PDF, JPG, PNG)"}
+      </button>
+      <input ref={inputRef} type="file" accept="application/pdf,image/jpeg,image/png" style={{ display: "none" }} onChange={(e) => handleFile(e.target.files?.[0])} />
+      {error && <p style={{ color: "#dc2626", fontSize: 12.5, marginTop: 6 }}>{error}</p>}
     </div>
   );
 }

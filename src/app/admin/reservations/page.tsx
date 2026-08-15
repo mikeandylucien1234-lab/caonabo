@@ -79,6 +79,7 @@ interface Passenger {
   documentExpiry: string | null;
   documentIssuingCountry: string | null;
   phone: string | null;
+  evisaFileUrl: string | null;
   seat: { row: number; column: string; type: string; fareClass: string; priceSupplementCents: number } | null;
   baggageOption: { label: string; weightKg: number; priceCents: number } | null;
 }
@@ -197,6 +198,11 @@ function BookingDetail({ id, onClose, onStatus, statusPending }: { id: string; o
                         <KV k="Siège" v={p.seat ? `${p.seat.row}${p.seat.column} · ${p.seat.fareClass}` : "Non choisi"} small />
                         <KV k="Bagage" v={p.baggageOption ? `${p.baggageOption.label} (${p.baggageOption.weightKg} kg)` : "Aucun"} small />
                       </div>
+                      {p.evisaFileUrl && (
+                        <div style={{ marginTop: 10 }}>
+                          <EvisaLink path={p.evisaFileUrl} />
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -240,6 +246,37 @@ function KV({ k, v, small }: { k: string; v: string; small?: boolean }) {
     </div>
   );
 }
+// Lien vers le visa électronique via URL signée temporaire (bucket privé).
+function EvisaLink({ path }: { path: string }) {
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  async function open() {
+    setErr(null);
+    setLoading(true);
+    try {
+      const { data, error } = await getSupabase().storage.from("passenger-documents").createSignedUrl(path, 3600);
+      if (error || !data?.signedUrl) throw new Error(error?.message ?? "Lien indisponible.");
+      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Erreur.");
+    } finally {
+      setLoading(false);
+    }
+  }
+  return (
+    <div>
+      <button
+        onClick={open}
+        disabled={loading}
+        style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 14px", borderRadius: 10, border: "1.5px solid #dcd7f0", background: "#f7f5fd", color: "#5b21b6", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+      >
+        📎 {loading ? "Ouverture…" : "Consulter le visa électronique"}
+      </button>
+      {err && <span style={{ color: "#dc2626", fontSize: 12.5, marginLeft: 10 }}>{err}</span>}
+    </div>
+  );
+}
+
 function PriceRow({ k, v, bold, accent }: { k: string; v: string; bold?: boolean; accent?: string }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0", fontSize: bold ? 16 : 14 }}>

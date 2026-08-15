@@ -17,6 +17,7 @@ interface PassengerInput {
   documentExpiry?: string | null;
   documentIssuingCountry?: string | null;
   phone?: string | null;
+  evisaFileUrl?: string | null;
   seatId?: string | null;
   baggageOptionId?: string | null;
 }
@@ -199,6 +200,7 @@ export async function POST(req: Request) {
               documentExpiry: parseDate(p.documentExpiry),
               documentIssuingCountry: p.documentIssuingCountry ?? null,
               phone: p.phone ?? null,
+              evisaFileUrl: p.evisaFileUrl ?? null,
               seatId: p.seatId ?? null,
               baggageOptionId: p.baggageOptionId ?? null,
             })),

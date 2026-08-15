@@ -247,6 +247,9 @@ model Passenger {
   documentExpiry         DateTime?
   documentIssuingCountry String?
   phone                  String?
+  // Visa électronique (optionnel) — chemin de l'objet dans le bucket privé
+  // "passenger-documents" (document personnel sensible, accès restreint admin).
+  evisaFileUrl           String?
   // Choix optionnels
   seatId          String?
   baggageOptionId String?

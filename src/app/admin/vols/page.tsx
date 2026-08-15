@@ -44,9 +44,16 @@ export default function AdminFlights() {
   const upsert = useUpsert("Flight", ["Flight"]);
   const [form, setForm] = useState<Flight | null>(null);
   const [del, setDel] = useState<Flight | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   function save() {
     if (!form) return;
+    // Validation explicite (au lieu de désactiver le bouton) → message clair.
+    if (!form.flightNumber.trim()) return setFormError("Renseignez le numéro de vol.");
+    if (!form.routeId) return setFormError("Choisissez une route.");
+    if (!form.departAt) return setFormError("Renseignez la date et l'heure de départ (jour ET heure).");
+    if (!form.arriveAt) return setFormError("Renseignez la date et l'heure d'arrivée (jour ET heure).");
+    setFormError(null);
     const { route, ...payload } = form;
     void route;
     upsert.mutate(
@@ -111,10 +118,10 @@ export default function AdminFlights() {
             <Field label="Escales (nombre)"><input type="number" style={inputStyle} value={form.stopsCount} onChange={(e) => setForm({ ...form, stopsCount: Number(e.target.value) })} /></Field>
             <Field label="Escales (codes, ex: LIM)"><input style={inputStyle} value={form.stopAirports} onChange={(e) => setForm({ ...form, stopAirports: e.target.value.toUpperCase() })} /></Field>
           </div>
-          {upsert.error && <p style={{ color: "#dc2626", fontSize: 13, marginTop: 12 }}>{(upsert.error as Error).message}</p>}
+          {(formError || upsert.error) && <p style={{ color: "#dc2626", fontSize: 13, marginTop: 12 }}>{formError ?? (upsert.error as Error).message}</p>}
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 20 }}>
             <Btn variant="ghost" onClick={() => setForm(null)}>Annuler</Btn>
-            <Btn onClick={save} disabled={upsert.isPending || !form.routeId || !form.departAt || !form.arriveAt}>{upsert.isPending ? "Enregistrement…" : "Enregistrer"}</Btn>
+            <Btn onClick={save} disabled={upsert.isPending}>{upsert.isPending ? "Enregistrement…" : "Enregistrer"}</Btn>
           </div>
         </Modal>
       )}

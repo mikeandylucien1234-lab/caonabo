@@ -284,3 +284,13 @@ model GroupRequest {
 
   @@index([createdAt])
 }
+
+// Abonnés à la newsletter (section « Ne manquez jamais une offre »)
+model NewsletterSubscriber {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  consentGiven Boolean  @default(true)
+  subscribedAt DateTime @default(now())
+
+  @@index([subscribedAt])
+}

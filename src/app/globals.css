@@ -329,6 +329,10 @@ html {
   .cargo-mobile {
     display: block !important;
   }
+  /* section newsletter : réservée au PC (masquée sur mobile) */
+  .newsletter-desktop {
+    display: none !important;
+  }
   /* section « bienfaits Anacaona » : réservée au PC */
   .benefits-desktop {
     display: none !important;

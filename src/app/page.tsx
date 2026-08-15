@@ -10,6 +10,7 @@ import CargoCarousel from "@/components/sections/CargoCarousel";
 import ContactWhatsapp from "@/components/sections/ContactWhatsapp";
 import OnboardBanner from "@/components/sections/OnboardBanner";
 import TrustDisclaimer from "@/components/sections/TrustDisclaimer";
+import NewsletterSignup from "@/components/sections/NewsletterSignup";
 import PrepToTravel from "@/components/sections/PrepToTravel";
 import Footer from "@/components/layout/Footer";
 import {
@@ -50,6 +51,7 @@ export default async function HomePage() {
       <PrepToTravel steps={prepSteps} />
       <ContactWhatsapp />
       <TrustDisclaimer />
+      <NewsletterSignup />
       <Footer />
     </div>
   );

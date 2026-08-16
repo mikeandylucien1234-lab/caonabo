@@ -16,6 +16,7 @@ const NAV = [
   { href: "/admin/utilisateurs", label: "Utilisateurs", icon: "👤" },
   { href: "/admin/newsletter", label: "Newsletter", icon: "✉️" },
   { href: "/admin/medias", label: "Médias du site", icon: "🖼️" },
+  { href: "/admin/paiement", label: "Paiement — Flow", icon: "💳" },
   { href: "/admin/taux-de-change", label: "Taux de change", icon: "💱" },
   { href: "/admin/parametres", label: "Paramètres", icon: "⚙️" },
 ];

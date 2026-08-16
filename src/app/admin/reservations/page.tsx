@@ -112,6 +112,9 @@ interface BookingFull {
   milesEarned: number;
   currency: string;
   paymentMethodDisplay: string | null;
+  paymentStatus: string;
+  receiptNumber: string | null;
+  receiptUrl: string | null;
   flight: {
     flightNumber: string;
     departAt: string;
@@ -183,11 +186,42 @@ function BookingDetail({ id, onClose, onStatus, statusPending }: { id: string; o
                 </Section>
               )}
 
+              {/* Paiement */}
+              <Section title="Paiement">
+                <KV
+                  k="Statut du paiement"
+                  v={
+                    b.paymentStatus === "PAID"
+                      ? "Payé ✓"
+                      : b.paymentStatus === "PENDING"
+                        ? "En attente"
+                        : b.paymentStatus === "EXPIRED"
+                          ? "Expiré"
+                          : b.paymentStatus === "FAILED"
+                            ? "Échoué"
+                            : b.paymentStatus
+                  }
+                />
+                {b.paymentMethodDisplay && <KV k="Moyen" v={b.paymentMethodDisplay} />}
+                {b.receiptNumber && <KV k="N° comprobante" v={b.receiptNumber} />}
+                {b.receiptUrl && (
+                  <div style={{ marginTop: 10 }}>
+                    <a
+                      href={`/api/receipts?ref=${encodeURIComponent(b.reference)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ fontSize: 13, fontWeight: 700, color: "#5b21b6", textDecoration: "none" }}
+                    >
+                      📄 Télécharger le comprobante
+                    </a>
+                  </div>
+                )}
+              </Section>
+
               {/* Contact */}
               <Section title="Contact">
                 <KV k="Email" v={b.contactEmail} />
                 <KV k="Téléphone" v={b.contactPhone ?? "—"} />
-                {b.paymentMethodDisplay && <KV k="Paiement" v={b.paymentMethodDisplay} />}
               </Section>
 
               {/* Passagers */}

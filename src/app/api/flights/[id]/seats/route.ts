@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateSeats } from "@/lib/booking";
+import { expireStalePendingBookings } from "@/lib/bookingCreate";
 import type { SeatDTO } from "@/lib/data/types";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +21,10 @@ export async function GET(
   if (!flight) {
     return NextResponse.json({ error: "Vol introuvable." }, { status: 404 });
   }
+
+  // Libère paresseusement les sièges des réservations impayées expirées (30 min)
+  // pour qu'aucune place ne reste bloquée sans confirmation de paiement.
+  await expireStalePendingBookings(id).catch(() => {});
 
   const seats = await getOrCreateSeats(id);
   const now = Date.now();

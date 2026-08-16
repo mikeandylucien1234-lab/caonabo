@@ -187,7 +187,16 @@ model Booking {
   totalUsdCents     Int // montant réellement payé (net)
   currency          String @default("USD")
   milesEarned       Int    @default(0) // Miles crédités par cette réservation
-  paymentMethodDisplay String? // cosmétique, ex: "Carte terminant par 4242"
+  paymentMethodDisplay String? // moyen de paiement (ex: retourné par Flow, ou démo)
+  // ── Paiement Flow (flow.cl) — distinct du statut de réservation ────────────
+  // status  = la réservation est-elle validée (pending | confirmed | cancelled)
+  // payment = la réservation est-elle payée (PENDING | PAID | FAILED | EXPIRED)
+  paymentStatus    String    @default("PENDING")
+  flowPaymentToken String? // identifiant du paiement côté Flow
+  flowPaymentUrl   String? // URL de paiement Flow générée
+  paidAt           DateTime? // horodatage de confirmation du paiement (webhook)
+  receiptUrl       String? // chemin du comprobante PDF (Supabase Storage)
+  receiptNumber    String?   @unique // numéro lisible, ex: CAO-2026-000123
   status         String   @default("pending") // pending | confirmed | cancelled
   createdAt      DateTime @default(now())
 
@@ -308,6 +317,22 @@ model SiteMedia {
   url           String // URL publique du média (Supabase Storage)
   fileSizeBytes Int      @default(0)
   updatedAt     DateTime @updatedAt
+}
+
+// Configuration du prestataire de paiement Flow (flow.cl).
+// Table SINGLETON (une seule ligne). Les clés API/Secret sont stockées
+// CHIFFRÉES (AES-256-GCM, clé dans CREDENTIALS_ENCRYPTION_KEY côté serveur) et
+// ne sont jamais renvoyées au frontend, même chiffrées. Entièrement pilotable
+// depuis l'admin, sans redéploiement.
+model PaymentSettings {
+  id                 String    @id @default(cuid())
+  apiKeyEncrypted    String? // clé API Flow, chiffrée
+  secretKeyEncrypted String? // clé secrète Flow, chiffrée
+  mode               String    @default("SANDBOX") // SANDBOX | PRODUCTION
+  isConfigured       Boolean   @default(false) // vrai dès que les 2 clés sont posées
+  lastTestedAt       DateTime?
+  lastTestResult     String? // SUCCESS | FAILURE
+  updatedAt          DateTime  @updatedAt
 }
 
 // Abonnés à la newsletter (section « Ne manquez jamais une offre »)

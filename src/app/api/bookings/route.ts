@@ -1,285 +1,78 @@
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
-import { computePrice } from "@/lib/booking";
+import { prepareBooking, type BookingBody } from "@/lib/bookingRequest";
+import { runBookingTransaction, makeReference } from "@/lib/bookingCreate";
 
 export const dynamic = "force-dynamic";
 
-interface PassengerInput {
-  civility?: string; // M | MME | MLLE
-  firstName?: string;
-  lastName?: string;
-  type?: string; // adult | child | infant
-  birthDate?: string | null;
-  nationality?: string | null;
-  documentType?: string | null; // PASSPORT | ID_CARD
-  documentNumber?: string | null;
-  documentExpiry?: string | null;
-  documentIssuingCountry?: string | null;
-  phone?: string | null;
-  evisaFileUrl?: string | null;
-  seatId?: string | null;
-  extraBaggageKg?: number | null; // kg au-delà de la franchise soute (23 kg)
-  extraFullBags?: number | null; // valises entières supplémentaires
-}
-
-interface BookingBody {
-  flightId?: string;
-  tripType?: string;
-  cabinClass?: string;
-  contactEmail?: string;
-  contactPhone?: string;
-  passengers?: PassengerInput[];
-  useMiles?: number;
-  holdToken?: string; // jeton du tunnel (verrous temporaires de sièges)
-  paymentMethod?: string; // cosmétique : "card" | "miles-only" | "paypal"…
+interface DemoBody extends BookingBody {
+  paymentMethod?: string; // cosmétique (mode démo) : "card" | "miles-only" | "paypal"
   cardLast4?: string; // cosmétique uniquement, jamais un vrai numéro
 }
 
-const CIVILITIES = new Set(["M", "MME", "MLLE"]);
-const DOC_TYPES = new Set(["PASSPORT", "ID_CARD"]);
-const CABIN_CLASSES = new Set(["Économique", "Première classe"]);
-
-function makeReference(): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let s = "";
-  for (let i = 0; i < 5; i++)
-    s += chars[Math.floor(Math.random() * chars.length)];
-  return `CAO-${s}`;
-}
-
-function parseDate(v?: string | null): Date | null {
-  if (!v) return null;
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? null : d;
-}
-
-// Libellé cosmétique du mode de paiement (aucune vraie transaction).
-function paymentDisplay(method?: string, last4?: string): string {
+// Libellé du mode de paiement de DÉMONSTRATION (aucune vraie transaction).
+function demoPaymentDisplay(method?: string, last4?: string): string {
   switch (method) {
     case "miles-only":
-      return "Réglé en Miles Caonabo";
+      return "Réglé en Miles Caonabo (démo)";
     case "paypal":
-      return "PayPal (simulé)";
+      return "PayPal (démo)";
     case "card":
     default: {
       const l4 = (last4 ?? "").replace(/\D/g, "").slice(-4);
-      return l4 ? `Carte •••• ${l4}` : "Carte (simulée)";
+      return l4 ? `Carte •••• ${l4} (démo)` : "Carte (démo)";
     }
   }
 }
 
-// POST /api/bookings → crée une réservation complète (documents, sièges, bagages).
+// POST /api/bookings → réservation en PAIEMENT DÉMO (utilisé quand Flow n'est
+// pas configuré). Crée une réservation confirmée + payée immédiatement.
 export async function POST(req: Request) {
-  let body: BookingBody;
+  let body: DemoBody;
   try {
-    body = (await req.json()) as BookingBody;
+    body = (await req.json()) as DemoBody;
   } catch {
     return NextResponse.json({ error: "Corps JSON invalide." }, { status: 400 });
   }
 
-  const { flightId, contactEmail } = body;
-  const passengers = (body.passengers ?? []).filter(
-    (p) => p.firstName && p.lastName,
-  );
-
-  if (!flightId) {
-    return NextResponse.json({ error: "flightId requis." }, { status: 400 });
-  }
-  if (!contactEmail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contactEmail)) {
-    return NextResponse.json(
-      { error: "Email de contact valide requis." },
-      { status: 400 },
-    );
-  }
-  if (passengers.length === 0) {
-    return NextResponse.json(
-      { error: "Au moins un passager (prénom + nom) requis." },
-      { status: 400 },
-    );
-  }
-  // Validation des valeurs contrôlées
-  for (const p of passengers) {
-    if (p.civility && !CIVILITIES.has(p.civility)) {
-      return NextResponse.json(
-        { error: "Civilité invalide." },
-        { status: 400 },
-      );
-    }
-    if (p.documentType && !DOC_TYPES.has(p.documentType)) {
-      return NextResponse.json(
-        { error: "Type de document invalide." },
-        { status: 400 },
-      );
-    }
-  }
-
-  if (body.cabinClass && !CABIN_CLASSES.has(body.cabinClass)) {
-    return NextResponse.json({ error: "Classe invalide." }, { status: 400 });
-  }
-
-  const flight = await prisma.flight.findUnique({ where: { id: flightId } });
-  if (!flight) {
-    return NextResponse.json({ error: "Vol introuvable." }, { status: 404 });
-  }
-  if (flight.seatsAvailable < passengers.length) {
-    return NextResponse.json(
-      { error: "Pas assez de places disponibles sur ce vol." },
-      { status: 409 },
-    );
-  }
-
-  // Sièges demandés : uniques, appartenant à ce vol
-  const requestedSeatIds = passengers
-    .map((p) => p.seatId)
-    .filter((s): s is string => Boolean(s));
-  if (new Set(requestedSeatIds).size !== requestedSeatIds.length) {
-    return NextResponse.json(
-      { error: "Un même siège a été choisi pour plusieurs passagers." },
-      { status: 400 },
-    );
-  }
-
-  const user = await getCurrentUser();
-
-  // Prix recalculé côté serveur (jamais confiance au client)
-  const breakdown = await computePrice({
-    flight,
-    passengers,
-    useMiles: body.useMiles,
-    userMilesBalance: user?.milesBalance ?? null,
-  });
-
-  const holdToken = body.holdToken ?? null;
+  const prep = await prepareBooking(body);
+  if (!prep.ok) return NextResponse.json({ error: prep.error }, { status: prep.status });
+  const { data } = prep;
 
   try {
-    const booking = await prisma.$transaction(async (tx) => {
-      // ── Verrouillage réel des sièges (anti double-réservation) ──────────────
-      // On VERROUILLE les lignes des sièges demandés avec SELECT … FOR UPDATE :
-      // deux confirmations concurrentes sur le même siège se sérialisent (la 2e
-      // attend la validation de la 1re, puis voit isAvailable = false → conflit).
-      // La contrainte @@unique([flightId,row,column]) garantit en plus l'unicité
-      // d'identité des sièges. On revérifie ici l'état FRAIS de chaque siège.
-      if (requestedSeatIds.length > 0) {
-        const locked = await tx.$queryRaw<
-          Array<{
-            id: string;
-            isAvailable: boolean;
-            heldBy: string | null;
-            heldUntil: Date | null;
-          }>
-        >(
-          Prisma.sql`SELECT id, "isAvailable", "heldBy", "heldUntil"
-                     FROM "Seat"
-                     WHERE "flightId" = ${flightId}
-                       AND id IN (${Prisma.join(requestedSeatIds)})
-                     FOR UPDATE`,
-        );
-        if (locked.length !== requestedSeatIds.length) {
-          throw new Error("SEAT_TAKEN");
-        }
-        const now = Date.now();
-        for (const s of locked) {
-          // siège déjà réservé, ou tenu temporairement par un AUTRE tunnel
-          const heldByOther =
-            s.heldUntil != null &&
-            s.heldUntil.getTime() > now &&
-            s.heldBy !== holdToken;
-          if (!s.isAvailable || heldByOther) {
-            throw new Error("SEAT_TAKEN");
-          }
-        }
-        // Marque occupés + purge les verrous temporaires (dans la transaction)
-        await tx.$executeRaw(
-          Prisma.sql`UPDATE "Seat"
-                     SET "isAvailable" = false, "heldBy" = NULL, "heldUntil" = NULL
-                     WHERE "flightId" = ${flightId}
-                       AND id IN (${Prisma.join(requestedSeatIds)})`,
-        );
-      }
-
-      // Contrôle de concurrence sur le nombre de places
-      const fresh = await tx.flight.findUnique({ where: { id: flightId } });
-      if (!fresh || fresh.seatsAvailable < passengers.length) {
-        throw new Error("NO_SEATS");
-      }
-
-      const created = await tx.booking.create({
-        data: {
-          reference: makeReference(),
-          flightId,
-          userId: user?.id ?? null,
-          tripType: body.tripType ?? "aller-retour",
-          cabinClass: CABIN_CLASSES.has(body.cabinClass ?? "")
-            ? body.cabinClass!
-            : "Économique",
-          contactEmail,
-          contactPhone: body.contactPhone ?? null,
-          passengerCount: passengers.length,
-          basePriceCents: breakdown.basePriceCents,
-          baggageTotalCents: breakdown.baggageTotalCents,
-          seatTotalCents: breakdown.seatTotalCents,
-          taxesCents: breakdown.taxesCents,
-          milesRedeemed: breakdown.milesRedeemed,
-          totalUsdCents: breakdown.totalUsdCents,
-          currency: "USD",
-          milesEarned: breakdown.milesEarned,
-          paymentMethodDisplay: paymentDisplay(body.paymentMethod, body.cardLast4),
-          status: "confirmed",
-          passengers: {
-            create: passengers.map((p) => ({
-              civility: p.civility ?? "M",
-              firstName: p.firstName!,
-              lastName: p.lastName!,
-              type: p.type ?? "adult",
-              birthDate: parseDate(p.birthDate),
-              nationality: p.nationality ?? null,
-              documentType: p.documentType ?? null,
-              documentNumber: p.documentNumber ?? null,
-              documentExpiry: parseDate(p.documentExpiry),
-              documentIssuingCountry: p.documentIssuingCountry ?? null,
-              phone: p.phone ?? null,
-              evisaFileUrl: p.evisaFileUrl ?? null,
-              seatId: p.seatId ?? null,
-              extraBaggageKg: Math.max(0, Math.floor(p.extraBaggageKg ?? 0)),
-              extraFullBags: Math.max(0, Math.floor(p.extraFullBags ?? 0)),
-            })),
-          },
-        },
-      });
-
-      await tx.flight.update({
-        where: { id: flightId },
-        data: { seatsAvailable: fresh.seatsAvailable - passengers.length },
-      });
-
-      if (user) {
-        await tx.user.update({
-          where: { id: user.id },
-          data: {
-            milesBalance:
-              user.milesBalance - breakdown.milesRedeemed + breakdown.milesEarned,
-          },
-        });
-      }
-
-      return created;
+    const booking = await runBookingTransaction({
+      flightId: data.flight.id,
+      reference: makeReference(),
+      userId: data.user?.id ?? null,
+      tripType: data.tripType,
+      cabinClass: data.cabinClass,
+      contactEmail: data.contactEmail,
+      contactPhone: data.contactPhone,
+      passengers: data.passengers,
+      requestedSeatIds: data.requestedSeatIds,
+      holdToken: data.holdToken,
+      breakdown: data.breakdown,
+      paymentMethodDisplay: demoPaymentDisplay(body.paymentMethod, body.cardLast4),
+      status: "confirmed",
+      paymentStatus: "PAID",
+      user: data.user,
+      creditMilesNow: true,
     });
 
     return NextResponse.json(
       {
         reference: booking.reference,
         status: booking.status,
+        paymentStatus: booking.paymentStatus,
         totalUsdCents: booking.totalUsdCents,
         passengerCount: booking.passengerCount,
-        breakdown,
+        breakdown: data.breakdown,
         paymentMethodDisplay: booking.paymentMethodDisplay,
-        milesEarned: breakdown.milesEarned,
-        milesRedeemed: breakdown.milesRedeemed,
-        newMilesBalance: user
-          ? user.milesBalance - breakdown.milesRedeemed + breakdown.milesEarned
+        milesEarned: data.breakdown.milesEarned,
+        milesRedeemed: data.breakdown.milesRedeemed,
+        newMilesBalance: data.user
+          ? data.user.milesBalance - data.breakdown.milesRedeemed + data.breakdown.milesEarned
           : null,
+        demo: true,
       },
       { status: 201 },
     );
@@ -301,9 +94,6 @@ export async function POST(req: Request) {
         { status: 409 },
       );
     }
-    return NextResponse.json(
-      { error: "La réservation a échoué. Réessayez." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "La réservation a échoué. Réessayez." }, { status: 500 });
   }
 }

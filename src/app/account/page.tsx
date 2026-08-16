@@ -132,6 +132,34 @@ export default async function AccountPage() {
                     +{b.milesEarned} Miles gagnés
                     {b.milesRedeemed > 0 ? ` · ${b.milesRedeemed} Miles utilisés` : ""}
                   </div>
+                  <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        padding: "3px 10px",
+                        borderRadius: 999,
+                        background: b.paymentStatus === "PAID" ? "#e6f6ec" : b.paymentStatus === "PENDING" ? "#fff7e6" : "#fdecec",
+                        color: b.paymentStatus === "PAID" ? "#1f9d55" : b.paymentStatus === "PENDING" ? "#a9820f" : "#b23333",
+                      }}
+                    >
+                      {b.paymentStatus === "PAID"
+                        ? "Payé"
+                        : b.paymentStatus === "PENDING"
+                          ? "Paiement en attente"
+                          : b.paymentStatus === "EXPIRED"
+                            ? "Paiement expiré"
+                            : "Paiement échoué"}
+                    </span>
+                    {b.hasReceipt && (
+                      <a
+                        href={`/api/receipts?ref=${encodeURIComponent(b.reference)}`}
+                        style={{ fontSize: 12.5, fontWeight: 700, color: "#5b21b6", textDecoration: "none" }}
+                      >
+                        📄 Télécharger le comprobante
+                      </a>
+                    )}
+                  </div>
                 </div>
                 <div style={{ fontWeight: 800, color: "#3d1e8a", fontSize: 20 }}>
                   {formatPrice(b.totalUsdCents, "USD")}

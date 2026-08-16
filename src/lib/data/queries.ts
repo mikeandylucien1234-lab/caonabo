@@ -182,6 +182,8 @@ export interface UserBookingDTO {
   id: string;
   reference: string;
   status: string;
+  paymentStatus: string;
+  hasReceipt: boolean;
   tripType: string;
   totalUsdCents: number;
   milesEarned: number;
@@ -211,6 +213,8 @@ export async function getUserBookings(userId: string): Promise<UserBookingDTO[]>
     id: b.id,
     reference: b.reference,
     status: b.status,
+    paymentStatus: b.paymentStatus,
+    hasReceipt: Boolean(b.receiptUrl),
     tripType: b.tripType,
     totalUsdCents: b.totalUsdCents,
     milesEarned: b.milesEarned,

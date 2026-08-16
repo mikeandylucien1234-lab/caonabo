@@ -140,6 +140,9 @@ export default function BookingFlow({
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [cardName, setCardName] = useState("");
   const [cardNumber, setCardNumber] = useState("");
+  // paiement Flow : configuré ? mode ? (sinon paiement démo dégradé)
+  const [flowConfigured, setFlowConfigured] = useState<boolean | null>(null);
+  const [flowMode, setFlowMode] = useState<"SANDBOX" | "PRODUCTION">("SANDBOX");
 
   // transverse
   const [breakdown, setBreakdown] = useState<Breakdown | null>(null);
@@ -160,6 +163,17 @@ export default function BookingFlow({
       .then((r) => r.json())
       .then((d) => d?.policy && setPolicy(d.policy as BaggagePolicyDTO))
       .catch(() => {});
+  }, []);
+
+  // ── état du paiement Flow (configuré ou mode démo) ──────────────────────────
+  useEffect(() => {
+    fetch("/api/payments/status")
+      .then((r) => r.json())
+      .then((d) => {
+        setFlowConfigured(Boolean(d.configured));
+        setFlowMode(d.mode === "PRODUCTION" ? "PRODUCTION" : "SANDBOX");
+      })
+      .catch(() => setFlowConfigured(false));
   }, []);
 
   // ── ajuste le nombre de fiches passagers au compteur de l'étape 1 ───────────
@@ -375,78 +389,113 @@ export default function BookingFlow({
     setStep((s) => Math.max(1, s - 1));
   }
 
+  // Champs communs envoyés à la création de réservation (démo ou Flow).
+  function bookingPayload() {
+    return {
+      flightId: selected!.id,
+      tripType,
+      cabinClass,
+      contactEmail: email,
+      contactPhone: phone,
+      useMiles: useMiles && milesBalance ? milesBalance : 0,
+      holdToken: holdTokenRef.current,
+      passengers: passengers.map((p) => ({
+        civility: p.civility,
+        firstName: p.firstName,
+        lastName: p.lastName,
+        type: p.type,
+        birthDate: p.birthDate || null,
+        nationality: p.nationality || null,
+        documentType: p.documentType || null,
+        documentNumber: p.documentNumber || null,
+        documentExpiry: p.documentExpiry || null,
+        documentIssuingCountry: p.documentIssuingCountry || null,
+        phone: p.phone || null,
+        evisaFileUrl: p.evisaFileUrl || null,
+        seatId: p.seatId,
+        extraBaggageKg: p.extraBaggageKg,
+        extraFullBags: p.extraFullBags,
+      })),
+    };
+  }
+
+  // Siège pris entre la sélection et la confirmation : rafraîchit le plan,
+  // retire les sièges indisponibles et renvoie à l'étape 4.
+  async function handleSeatConflict(data: { error?: string }) {
+    const fresh = await loadSeats(selected!.id);
+    const stillFree = new Set(
+      fresh.filter((s) => s.isAvailable && !s.heldByOther).map((s) => s.id),
+    );
+    setPassengers((prev) =>
+      prev.map((p) => (p.seatId && !stillFree.has(p.seatId) ? { ...p, seatId: null } : p)),
+    );
+    setSeatNotice(data.error ?? "Un siège n'est plus disponible.");
+    setStep(4);
+  }
+
+  // Paiement de DÉMONSTRATION (Flow non configuré) → réservation confirmée.
+  async function demoConfirm() {
+    const { res, data } = await withMinDelay(
+      (async () => {
+        const res = await fetch("/api/bookings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...bookingPayload(),
+            paymentMethod,
+            cardLast4: cardNumber.replace(/\D/g, "").slice(-4),
+          }),
+        });
+        return { res, data: await res.json() };
+      })(),
+    );
+    if (!res.ok) {
+      if (res.status === 409 && data.code === "SEAT_TAKEN") return handleSeatConflict(data);
+      throw new Error(data.error ?? "Erreur de réservation");
+    }
+    setReference(data.reference as string);
+    setConfirmInfo({
+      milesEarned: typeof data.milesEarned === "number" ? data.milesEarned : null,
+      payment: data.paymentMethodDisplay ?? null,
+    });
+  }
+
   async function confirmBooking() {
     if (!selected) return;
     setError(null);
     setLoading(true);
+    let redirecting = false;
     try {
-      const { res, data } = await withMinDelay(
-        (async () => {
-          const res = await fetch("/api/bookings", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              flightId: selected.id,
-              tripType,
-              cabinClass,
-              contactEmail: email,
-              contactPhone: phone,
-              useMiles: useMiles && milesBalance ? milesBalance : 0,
-              holdToken: holdTokenRef.current,
-              paymentMethod,
-              cardLast4: cardNumber.replace(/\D/g, "").slice(-4),
-              passengers: passengers.map((p) => ({
-                civility: p.civility,
-                firstName: p.firstName,
-                lastName: p.lastName,
-                type: p.type,
-                birthDate: p.birthDate || null,
-                nationality: p.nationality || null,
-                documentType: p.documentType || null,
-                documentNumber: p.documentNumber || null,
-                documentExpiry: p.documentExpiry || null,
-                documentIssuingCountry: p.documentIssuingCountry || null,
-                phone: p.phone || null,
-                evisaFileUrl: p.evisaFileUrl || null,
-                seatId: p.seatId,
-                extraBaggageKg: p.extraBaggageKg,
-                extraFullBags: p.extraFullBags,
-              })),
-            }),
-          });
-          const data = await res.json();
-          return { res, data };
-        })(),
-      );
-      if (!res.ok) {
-        // Siège pris entre la sélection et la confirmation : on rafraîchit le
-        // plan, on retire les sièges devenus indisponibles et on renvoie à
-        // l'étape 4 pour reprendre la sélection.
-        if (res.status === 409 && data.code === "SEAT_TAKEN") {
-          const fresh = await loadSeats(selected.id);
-          const stillFree = new Set(
-            fresh.filter((s) => s.isAvailable && !s.heldByOther).map((s) => s.id),
-          );
-          setPassengers((prev) =>
-            prev.map((p) =>
-              p.seatId && !stillFree.has(p.seatId) ? { ...p, seatId: null } : p,
-            ),
-          );
-          setSeatNotice(data.error as string);
-          setStep(4);
-          return;
+      if (flowConfigured) {
+        // Paiement RÉEL via Flow → création PENDING puis redirection.
+        const res = await fetch("/api/payments/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bookingPayload()),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          if (res.status === 409 && data.code === "SEAT_TAKEN") {
+            await handleSeatConflict(data);
+            return;
+          }
+          if (data.code === "FLOW_NOT_CONFIGURED") {
+            setFlowConfigured(false);
+            await demoConfirm();
+            return;
+          }
+          throw new Error(data.error ?? "Erreur de paiement.");
         }
-        throw new Error(data.error ?? "Erreur de réservation");
+        // Redirection vers la page de paiement Flow (on garde le spinner).
+        redirecting = true;
+        window.location.href = data.redirectUrl as string;
+        return;
       }
-      setReference(data.reference as string);
-      setConfirmInfo({
-        milesEarned: typeof data.milesEarned === "number" ? data.milesEarned : null,
-        payment: data.paymentMethodDisplay ?? null,
-      });
+      await demoConfirm();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur");
     } finally {
-      setLoading(false);
+      if (!redirecting) setLoading(false);
     }
   }
 
@@ -554,6 +603,8 @@ export default function BookingFlow({
             setCardName={setCardName}
             cardNumber={cardNumber}
             setCardNumber={setCardNumber}
+            flowConfigured={flowConfigured}
+            flowMode={flowMode}
           />
         )}
 
@@ -576,7 +627,14 @@ export default function BookingFlow({
           </button>
         ) : (
           <button onClick={confirmBooking} disabled={loading} style={primaryBtn(loading)}>
-            {loading ? "Confirmation…" : "Payer et confirmer"} →
+            {loading
+              ? flowConfigured
+                ? "Redirection vers Flow…"
+                : "Confirmation…"
+              : flowConfigured
+                ? "Payer avec Flow"
+                : "Payer et confirmer"}{" "}
+            →
           </button>
         )}
       </div>
@@ -1277,6 +1335,8 @@ function Step5(props: {
   setCardName: (v: string) => void;
   cardNumber: string;
   setCardNumber: (v: string) => void;
+  flowConfigured: boolean | null;
+  flowMode: "SANDBOX" | "PRODUCTION";
 }) {
   const { selected: f, passengers, seats, cabinClass, breakdown: b } = props;
   const dep = new Date(f.departAt);
@@ -1345,11 +1405,20 @@ function Step5(props: {
           </div>
         </div>
 
-        {/* paiement simulé */}
+        {/* paiement (Flow ou démonstration) */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={{ background: "#fff7e6", border: "1px solid #f0d79a", borderRadius: 12, padding: "12px 14px", fontSize: 12.5, color: "#a9820f" }}>
-            🔒 Paiement <b>simulé</b> à des fins de démonstration — aucune vraie transaction, aucune carte réelle.
-          </div>
+          {props.flowConfigured ? (
+            <div style={{ background: "#eefaf0", border: "1px solid #bfe3c6", borderRadius: 12, padding: "12px 14px", fontSize: 12.5, color: "#1f7a3d" }}>
+              🔒 Paiement <b>sécurisé via Flow</b>. Vous serez redirigé vers la plateforme Flow pour régler votre réservation.
+              {props.flowMode === "SANDBOX" && (
+                <span style={{ color: "#a9820f" }}> (mode test)</span>
+              )}
+            </div>
+          ) : (
+            <div style={{ background: "#fff7e6", border: "1px solid #f0d79a", borderRadius: 12, padding: "12px 14px", fontSize: 12.5, color: "#a9820f" }}>
+              🔒 Paiement en <b>mode démonstration</b> — Flow n&apos;est pas encore configuré. Aucune vraie transaction.
+            </div>
+          )}
 
           {props.isLoggedIn && (
             <label
@@ -1378,6 +1447,19 @@ function Step5(props: {
             </label>
           )}
 
+          {props.flowConfigured ? (
+            <div style={{ border: "1.5px solid #eceafa", borderRadius: 12, padding: "16px 18px", background: "#faf9fd" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, fontWeight: 700, color: "#1e1b4b", fontSize: 14, marginBottom: 6 }}>
+                <span style={{ fontSize: 20 }}>💳</span> Paiement via Flow
+              </div>
+              <p style={{ fontSize: 13, color: "#5c5c7a", margin: 0, lineHeight: 1.55 }}>
+                En cliquant sur <b>« Payer avec Flow »</b>, vous serez redirigé vers Flow pour choisir votre
+                moyen de paiement (carte, virement, etc.) en toute sécurité. Votre réservation sera confirmée
+                dès la validation du paiement.
+              </p>
+            </div>
+          ) : (
+          <>
           <div style={{ fontWeight: 700, color: "#1e1b4b", fontSize: 14 }}>Mode de paiement</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {[
@@ -1437,6 +1519,8 @@ function Step5(props: {
                 </Field>
               </div>
             </div>
+          )}
+          </>
           )}
         </div>
       </div>

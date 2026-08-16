@@ -3,6 +3,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getSupabase } from "@/lib/supabase/client";
 
+/**
+ * fetch() vers une route API admin en joignant le jeton d'accès Supabase
+ * (Authorization: Bearer), pour que le serveur puisse vérifier is_admin().
+ */
+export async function adminFetch(input: string, init: RequestInit = {}): Promise<Response> {
+  const { data } = await getSupabase().auth.getSession();
+  const token = data.session?.access_token;
+  return fetch(input, {
+    ...init,
+    headers: {
+      ...(init.headers ?? {}),
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+}
+
 // Lecture d'une table (ou d'une requête sélective) via TanStack Query.
 export function useRows<T = Record<string, unknown>>(
   key: string,

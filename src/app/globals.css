@@ -404,3 +404,17 @@ html {
     display: none !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Réduction globale des proportions sur MOBILE uniquement (≤820px).
+   Le prototype est en styles inline (px) : plutôt que de réécrire des
+   centaines de valeurs, on applique un facteur d'échelle unique au contenu
+   de la page. Résultat : polices, marges/paddings et dimensions fixes sont
+   toutes réduites d'environ 34 % — équivaut à un zoom navigateur ~66 %.
+   Le rendu desktop (>820px) n'est PAS concerné (hors de ce media query).
+   ───────────────────────────────────────────────────────────────────────── */
+@media (max-width: 820px) {
+  body {
+    zoom: 0.66;
+  }
+}

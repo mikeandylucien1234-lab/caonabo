@@ -27,6 +27,15 @@ function toneFor(status: string): "green" | "red" | "grey" {
   return status === "confirmed" ? "green" : status === "cancelled" ? "red" : "grey";
 }
 
+// Résumé bagages : franchise (1 soute 23 kg + 1 cabine 8 kg) incluse pour tous,
+// on n'affiche que les suppléments choisis.
+function baggageLabel(extraKg: number, extraBags: number): string {
+  const extras: string[] = [];
+  if (extraKg > 0) extras.push(`+${extraKg} kg`);
+  if (extraBags > 0) extras.push(`+${extraBags} valise${extraBags > 1 ? "s" : ""}`);
+  return extras.length ? `Inclus · ${extras.join(" · ")}` : "Inclus (23 kg + 8 kg)";
+}
+
 export default function AdminReservations() {
   const { data, isLoading, error } = useRows<Booking>("Booking", SEL, { order: { column: "createdAt", ascending: false }, limit: 200 });
   const upsert = useUpsert("Booking", ["Booking"]);
@@ -81,7 +90,8 @@ interface Passenger {
   phone: string | null;
   evisaFileUrl: string | null;
   seat: { row: number; column: string; type: string; fareClass: string; priceSupplementCents: number } | null;
-  baggageOption: { label: string; weightKg: number; priceCents: number } | null;
+  extraBaggageKg: number;
+  extraFullBags: number;
 }
 interface BookingFull {
   id: string;
@@ -115,7 +125,7 @@ interface BookingFull {
 const DETAIL_SEL =
   "*," +
   "flight:Flight(flightNumber,departAt,arriveAt,route:Route(origin:Airport!Route_originId_fkey(code,city,country),destination:Airport!Route_destinationId_fkey(code,city,country)))," +
-  "passengers:Passenger(*,seat:Seat(row,column,type,fareClass,priceSupplementCents),baggageOption:BaggageOption(label,weightKg,priceCents))";
+  "passengers:Passenger(*,seat:Seat(row,column,type,fareClass,priceSupplementCents))";
 
 function BookingDetail({ id, onClose, onStatus, statusPending }: { id: string; onClose: () => void; onStatus: (s: string) => void; statusPending: boolean }) {
   const { data: b, isLoading, error } = useQuery<BookingFull>({
@@ -196,7 +206,7 @@ function BookingDetail({ id, onClose, onStatus, statusPending }: { id: string; o
                         {p.documentIssuingCountry && <KV k="Pays d'émission" v={p.documentIssuingCountry} small />}
                         {p.phone && <KV k="Téléphone" v={p.phone} small />}
                         <KV k="Siège" v={p.seat ? `${p.seat.row}${p.seat.column} · ${p.seat.fareClass}` : "Non choisi"} small />
-                        <KV k="Bagage" v={p.baggageOption ? `${p.baggageOption.label} (${p.baggageOption.weightKg} kg)` : "Aucun"} small />
+                        <KV k="Bagages" v={baggageLabel(p.extraBaggageKg, p.extraFullBags)} small />
                       </div>
                       {p.evisaFileUrl && (
                         <div style={{ marginTop: 10 }}>

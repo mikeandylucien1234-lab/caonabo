@@ -72,15 +72,16 @@ export interface SeatDTO {
   row: number;
   column: string;
   type: string; // WINDOW | AISLE | STANDARD
-  fareClass: string; // Économique | Premium | Business
+  fareClass: string; // Économique | Première classe
   priceSupplementCents: number;
   isAvailable: boolean;
+  heldByOther: boolean; // tenu temporairement par un autre tunnel
 }
 
-export interface BaggageOptionDTO {
-  id: string;
-  label: string;
-  weightKg: number;
-  priceCents: number;
-  sortOrder: number;
+// Politique de bagages (franchise incluse + tarifs des suppléments).
+export interface BaggagePolicyDTO {
+  includedCheckedKg: number;
+  includedCabinKg: number;
+  extraKgPriceCents: number;
+  extraBagPriceCents: number;
 }

@@ -64,8 +64,8 @@ model Flight {
   departAt       DateTime
   arriveAt       DateTime
   priceUsdCents  Int // prix de référence en USD (cents)
-  seatsTotal     Int      @default(180)
-  seatsAvailable Int      @default(180)
+  seatsTotal     Int      @default(150) // Boeing 737-400 : 12 Première + 138 Économique
+  seatsAvailable Int      @default(150)
   operatedBy      String  @default("Caonabo Airlinje")
   durationMinutes Int     @default(0) // durée totale du trajet
   stopsCount      Int     @default(0) // nombre d'escales
@@ -174,7 +174,7 @@ model Booking {
   flightId       String
   userId         String? // null = réservation invité (par référence)
   tripType       String   @default("aller-retour") // aller-retour | aller-simple
-  cabinClass     String   @default("Économique") // Économique | Premium | Business
+  cabinClass     String   @default("Économique") // Économique | Première classe
   contactEmail   String
   contactPhone   String?
   passengerCount Int      @default(1)
@@ -199,18 +199,19 @@ model Booking {
   @@index([userId])
 }
 
-// Options de bagage en soute (table de référence)
-model BaggageOption {
-  id          String @id @default(cuid())
-  label       String // ex: "1 bagage 23 kg"
-  weightKg    Int    @default(0)
-  priceCents  Int    @default(0)
-  flightClass String? // optionnel : réservé à une classe
-  sortOrder   Int    @default(0)
-
-  passengers Passenger[]
-
-  @@index([sortOrder])
+// Politique de bagages (Boeing 737-400, affrètement complet).
+// Table de CONFIGURATION à une seule ligne = source de vérité des franchises
+// incluses et des tarifs de supplément. Éditable sans redéploiement.
+//   Inclus / passager : 1 bagage soute (max 23 kg) + 1 bagage cabine (max 8 kg)
+//   Supplément poids   : 5 USD par kg au-delà de la franchise soute
+//   Valise entière sup.: 68 USD (forfait par bagage supplémentaire)
+model BaggagePolicy {
+  id                 String   @id @default(cuid())
+  includedCheckedKg  Int      @default(23) // 1 bagage soute inclus (max 23 kg)
+  includedCabinKg    Int      @default(8) // 1 bagage cabine inclus (max 8 kg)
+  extraKgPriceCents  Int      @default(500) // 5 USD / kg supplémentaire
+  extraBagPriceCents Int      @default(6800) // 68 USD / valise entière supplémentaire
+  updatedAt          DateTime @updatedAt
 }
 
 // Sièges d'un vol (matérialisés à la demande)
@@ -220,9 +221,13 @@ model Seat {
   row                Int
   column             String // A..F
   type               String  @default("STANDARD") // STANDARD | WINDOW | AISLE
-  fareClass          String  @default("Économique") // Économique | Premium | Business
+  fareClass          String  @default("Économique") // Économique | Première classe
   priceSupplementCents Int   @default(0)
   isAvailable        Boolean @default(true)
+  // Verrou temporaire « en cours de sélection » : un siège tenu par un tunnel
+  // n'est plus proposable aux autres jusqu'à heldUntil (auto-libéré à expiration).
+  heldUntil          DateTime? // null = pas de réservation temporaire en cours
+  heldBy             String? // jeton opaque du tunnel qui détient le siège
 
   flight     Flight      @relation(fields: [flightId], references: [id], onDelete: Cascade)
   passengers Passenger[]
@@ -252,11 +257,13 @@ model Passenger {
   evisaFileUrl           String?
   // Choix optionnels
   seatId          String?
-  baggageOptionId String?
+  // Bagages : la franchise (1 soute 23 kg + 1 cabine 8 kg) est incluse pour
+  // tous. On ne stocke que les SUPPLÉMENTS choisis par le passager.
+  extraBaggageKg  Int    @default(0) // kg au-delà de la franchise soute (5 USD/kg)
+  extraFullBags   Int    @default(0) // valises entières supplémentaires (68 USD pièce)
 
-  booking       Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  seat          Seat?          @relation(fields: [seatId], references: [id])
-  baggageOption BaggageOption? @relation(fields: [baggageOptionId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  seat    Seat?   @relation(fields: [seatId], references: [id])
 
   @@index([bookingId])
 }

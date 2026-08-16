@@ -46,12 +46,15 @@ const STOP_HUBS: Record<string, string> = {
   "PAP-LIM": "PTY",
 };
 
-// Options de bagage en soute (jamais liées à une vraie compagnie)
-const BAGGAGE_OPTIONS = [
-  { label: "Aucun bagage en soute", weightKg: 0, priceCents: 0, sortOrder: 0 },
-  { label: "1 bagage · 23 kg", weightKg: 23, priceCents: 3000, sortOrder: 1 },
-  { label: "2 bagages · 23 kg", weightKg: 46, priceCents: 5000, sortOrder: 2 },
-];
+// Politique de bagages réelle (Boeing 737-400, affrètement complet).
+//   Inclus / passager : 1 soute (23 kg) + 1 cabine (8 kg)
+//   Supplément poids : 5 USD/kg · valise entière supplémentaire : 68 USD
+const BAGGAGE_POLICY = {
+  includedCheckedKg: 23,
+  includedCabinKg: 8,
+  extraKgPriceCents: 500,
+  extraBagPriceCents: 6800,
+};
 
 const EXCHANGE_RATES = [
   { currency: "USD", symbol: "$", ratePerUsd: 1 },
@@ -243,7 +246,7 @@ async function main() {
   await prisma.passenger.deleteMany();
   await prisma.booking.deleteMany();
   await prisma.seat.deleteMany();
-  await prisma.baggageOption.deleteMany();
+  await prisma.baggagePolicy.deleteMany();
   await prisma.user.deleteMany();
   await prisma.flight.deleteMany();
   await prisma.route.deleteMany();
@@ -295,8 +298,8 @@ async function main() {
           departAt,
           arriveAt,
           priceUsdCents,
-          seatsTotal: 180,
-          seatsAvailable: 120 + ((day * 7) % 60),
+          seatsTotal: 150,
+          seatsAvailable: 120 + ((day * 7) % 30),
           operatedBy: "Caonabo Airlinje",
           durationMinutes: durationH * 60,
           stopsCount: direct ? 0 : 1,
@@ -308,9 +311,9 @@ async function main() {
   }
   console.log(`  🛫 ${ROUTES.length} routes, ${flightCount} vols`);
 
-  // Options de bagage
-  for (const b of BAGGAGE_OPTIONS) await prisma.baggageOption.create({ data: b });
-  console.log(`  🧳 ${BAGGAGE_OPTIONS.length} options de bagage`);
+  // Politique de bagages (ligne de configuration unique)
+  await prisma.baggagePolicy.create({ data: BAGGAGE_POLICY });
+  console.log(`  🧳 politique de bagages (23 kg + 8 kg inclus, 5$/kg, 68$/valise)`);
 
   // Taux de change
   for (const r of EXCHANGE_RATES) await prisma.exchangeRate.create({ data: r });

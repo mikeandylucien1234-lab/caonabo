@@ -1,18 +1,11 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { getBaggageOptions } from "@/lib/data/queries";
+import { getBaggagePolicy } from "@/lib/data/queries";
 import { formatPrice } from "@/lib/currency";
 import { pageBadge, pageCard, pageH2 } from "@/lib/pageStyles";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Politique de Bagages — Caonabo Airlinje" };
-
-// Franchises incluses par classe (le PRIX des suppléments vient de la base).
-const CLASSES = [
-  { name: "Économique", color: "#5b21b6", cabin: "1 × 8 kg (55 × 40 × 20 cm)", hold: "Non inclus" },
-  { name: "Premium", color: "#7c4dd6", cabin: "1 × 10 kg (55 × 40 × 20 cm)", hold: "1 × 23 kg inclus" },
-  { name: "Business", color: "#dc2626", cabin: "2 × 10 kg (55 × 40 × 20 cm)", hold: "2 × 23 kg inclus" },
-];
 
 const FORBIDDEN = [
   "Batteries au lithium et power banks en soute (autorisées en cabine uniquement)",
@@ -24,11 +17,7 @@ const FORBIDDEN = [
 ];
 
 export default async function BaggagePolicyPage() {
-  const options = await getBaggageOptions();
-  const paidOptions = options.filter((o) => o.priceCents > 0);
-
-  const th: React.CSSProperties = { textAlign: "left", padding: "14px 18px", fontSize: 13, color: "#8a8aa0", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4 };
-  const td: React.CSSProperties = { padding: "16px 18px", fontSize: 14.5, color: "#3a3a55", borderTop: "1px solid #f0eef7", verticalAlign: "top" };
+  const policy = await getBaggagePolicy();
 
   return (
     <div style={{ maxWidth: 1536, margin: "0 auto", background: "#fff" }}>
@@ -40,58 +29,52 @@ export default async function BaggagePolicyPage() {
           Politique de <span style={{ color: "#5b21b6" }}>Bagages</span>
         </h1>
         <p style={{ color: "#5c5c7a", fontSize: 16, marginTop: 10, maxWidth: 680 }}>
-          Ce qui est inclus selon votre classe, et le tarif des bagages supplémentaires —
-          les mêmes que ceux proposés lors de la réservation.
+          Les mêmes conditions pour tous les passagers de notre Boeing 737-400 —
+          identiques à celles proposées lors de la réservation.
         </p>
       </div>
 
       <div className="hz" style={{ padding: "36px 56px 90px", display: "flex", flexDirection: "column", gap: 24 }}>
-        {/* Tableau par classe */}
-        <section style={{ ...pageCard, padding: "10px 10px" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
-              <thead>
-                <tr>
-                  <th style={th}>Classe</th>
-                  <th style={th}>Bagage cabine inclus</th>
-                  <th style={th}>Bagage soute inclus</th>
-                </tr>
-              </thead>
-              <tbody>
-                {CLASSES.map((c) => (
-                  <tr key={c.name}>
-                    <td style={td}>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 800, color: "#1e1b4b" }}>
-                        <span style={{ width: 12, height: 12, borderRadius: 4, background: c.color }} />
-                        {c.name}
-                      </span>
-                    </td>
-                    <td style={td}>🧳 {c.cabin}</td>
-                    <td style={td}>{c.hold === "Non inclus" ? <span style={{ color: "#8a8aa0" }}>— {c.hold}</span> : `🧳 ${c.hold}`}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Franchise incluse pour tous */}
+        <section style={pageCard}>
+          <h2 className="font-heading" style={pageH2}>Inclus pour chaque passager</h2>
+          <p style={{ fontSize: 14.5, color: "#5c5c7a", margin: "6px 0 18px" }}>
+            Chaque billet comprend, sans supplément :
+          </p>
+          <div className="grid-2 bag-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <IncludedCard
+              icon="🧳"
+              title="1 bagage en soute"
+              value={`Jusqu'à ${policy.includedCheckedKg} kg`}
+            />
+            <IncludedCard
+              icon="🎒"
+              title="1 bagage cabine"
+              value={`Jusqu'à ${policy.includedCabinKg} kg`}
+            />
           </div>
         </section>
 
-        {/* Bagages supplémentaires (tarifs = BaggageOption) */}
+        {/* Suppléments */}
         <section style={pageCard}>
-          <h2 className="font-heading" style={pageH2}>Bagages en soute supplémentaires</h2>
-          <p style={{ fontSize: 14.5, color: "#5c5c7a", margin: "0 0 18px" }}>
-            Ajoutez des bagages en soute à tout moment, au même prix que dans le tunnel de
+          <h2 className="font-heading" style={pageH2}>Bagages supplémentaires</h2>
+          <p style={{ fontSize: 14.5, color: "#5c5c7a", margin: "6px 0 18px" }}>
+            Au-delà de la franchise incluse, aux mêmes tarifs que dans le tunnel de
             réservation :
           </p>
           <div className="grid-2 bag-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            {paidOptions.map((o) => (
-              <div key={o.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", border: "1px solid #eceafa", borderRadius: 14, padding: "16px 20px" }}>
-                <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <span style={{ width: 42, height: 42, borderRadius: 12, background: "#f0ecfb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19 }}>🧳</span>
-                  <span style={{ fontWeight: 700, color: "#1e1b4b", fontSize: 15 }}>{o.label}</span>
-                </span>
-                <span style={{ fontWeight: 800, color: "#3d1e8a", fontSize: 18 }}>+ {formatPrice(o.priceCents, "USD")}</span>
-              </div>
-            ))}
+            <SupplementCard
+              icon="⚖️"
+              title="Poids supplémentaire"
+              desc={`Au-delà des ${policy.includedCheckedKg} kg inclus en soute`}
+              price={`${formatPrice(policy.extraKgPriceCents, "USD")} / kg`}
+            />
+            <SupplementCard
+              icon="🧳"
+              title="Valise entière supplémentaire"
+              desc="Un second bagage en soute complet"
+              price={`${formatPrice(policy.extraBagPriceCents, "USD")} / valise`}
+            />
           </div>
         </section>
 
@@ -112,6 +95,33 @@ export default async function BaggagePolicyPage() {
       </div>
 
       <Footer />
+    </div>
+  );
+}
+
+function IncludedCard({ icon, title, value }: { icon: string; title: string; value: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 14, border: "1.5px solid #cbe8d3", background: "#f2fbf5", borderRadius: 14, padding: "18px 20px" }}>
+      <span style={{ width: 46, height: 46, borderRadius: 12, background: "#dbf3e3", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 21 }}>{icon}</span>
+      <div>
+        <div style={{ fontWeight: 800, color: "#1e1b4b", fontSize: 15.5 }}>{title}</div>
+        <div style={{ fontSize: 13.5, color: "#2f6b46", fontWeight: 600, marginTop: 2 }}>✓ {value} · inclus</div>
+      </div>
+    </div>
+  );
+}
+
+function SupplementCard({ icon, title, desc, price }: { icon: string; title: string; desc: string; price: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, border: "1px solid #eceafa", borderRadius: 14, padding: "16px 20px" }}>
+      <span style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <span style={{ width: 46, height: 46, borderRadius: 12, background: "#f0ecfb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{icon}</span>
+        <span>
+          <span style={{ display: "block", fontWeight: 700, color: "#1e1b4b", fontSize: 15 }}>{title}</span>
+          <span style={{ display: "block", fontSize: 12.5, color: "#8a8aa0", marginTop: 2 }}>{desc}</span>
+        </span>
+      </span>
+      <span style={{ fontWeight: 800, color: "#3d1e8a", fontSize: 16, whiteSpace: "nowrap" }}>+ {price}</span>
     </div>
   );
 }

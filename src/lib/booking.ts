@@ -9,30 +9,37 @@ import type { Flight, Seat } from "@prisma/client";
 //   - étiquettes tarifaires dynamiques ("Recommandé", "Le plus économique")
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const SEAT_ROWS = 30;
-export const SEAT_COLUMNS = ["A", "B", "C", "D", "E", "F"] as const;
+// ─── Configuration cabine Boeing 737-400 (affrètement complet, 150 places) ────
+//   Première classe : 12 sièges, disposition 2-2, à l'avant (rangées 1 à 3)
+//   Économique      : 138 sièges, disposition 3-3, rangées 10 à 32 (23 rangées)
+export const FIRST_ROWS = [1, 2, 3] as const; // 3 × 4 = 12
+export const FIRST_COLUMNS = ["A", "B", "C", "D"] as const; // 2-2 (couloir B|C)
+export const ECON_ROW_START = 10;
+export const ECON_ROW_COUNT = 23; // rangées 10 à 32
+export const ECON_COLUMNS = ["A", "B", "C", "D", "E", "F"] as const; // 3-3 (couloir C|D)
+export const FIRST_SEAT_SUPPLEMENT_CENTS = 15000; // supplément « Première classe »
 
-// Type d'un siège selon sa colonne (hublot / couloir / standard)
-function columnType(col: string): "WINDOW" | "AISLE" | "STANDARD" {
-  if (col === "A" || col === "F") return "WINDOW";
-  if (col === "C" || col === "D") return "AISLE";
+export type FareClass = "Première classe" | "Économique";
+
+// Type d'un siège selon sa position dans la rangée (hublot / couloir / standard).
+// Le couloir est au milieu : sièges couloir = 2 du centre, hublots = extrémités.
+function columnType(
+  col: string,
+  cols: readonly string[],
+): "WINDOW" | "AISLE" | "STANDARD" {
+  const i = cols.indexOf(col);
+  const mid = cols.length / 2;
+  if (i === 0 || i === cols.length - 1) return "WINDOW";
+  if (i === mid - 1 || i === mid) return "AISLE";
   return "STANDARD";
 }
 
-// Classe tarifaire selon la rangée : Business en tête, puis Premium, puis Éco
-function rowFareClass(row: number): "Business" | "Premium" | "Économique" {
-  if (row <= 3) return "Business";
-  if (row <= 8) return "Premium";
-  return "Économique";
-}
-
 // Supplément (cents) d'un siège = supplément de classe + supplément de position
-function seatSupplementCents(row: number, col: string): number {
-  const fare = rowFareClass(row);
-  let base = 0;
-  if (fare === "Business") base = 12000;
-  else if (fare === "Premium") base = 5000;
-  const type = columnType(col);
+function seatSupplementCents(
+  fare: FareClass,
+  type: "WINDOW" | "AISLE" | "STANDARD",
+): number {
+  const base = fare === "Première classe" ? FIRST_SEAT_SUPPLEMENT_CENTS : 0;
   const pos = type === "WINDOW" ? 800 : type === "AISLE" ? 500 : 0;
   return base + pos;
 }
@@ -57,8 +64,45 @@ function mulberry32(seed: number): () => number {
   };
 }
 
+// Construit le plan de cabine complet du 737-400 (150 sièges) pour un vol.
+function buildCabinPlan(flightId: string, rng: () => number, occupancy: number) {
+  const data: Array<{
+    flightId: string;
+    row: number;
+    column: string;
+    type: string;
+    fareClass: FareClass;
+    priceSupplementCents: number;
+    isAvailable: boolean;
+  }> = [];
+
+  const addRow = (row: number, cols: readonly string[], fare: FareClass) => {
+    for (const col of cols) {
+      const type = columnType(col, cols);
+      data.push({
+        flightId,
+        row,
+        column: col,
+        type,
+        fareClass: fare,
+        priceSupplementCents: seatSupplementCents(fare, type),
+        isAvailable: rng() > occupancy,
+      });
+    }
+  };
+
+  // Première classe (avant, 2-2)
+  for (const row of FIRST_ROWS) addRow(row, FIRST_COLUMNS, "Première classe");
+  // Économique (3-3)
+  for (let i = 0; i < ECON_ROW_COUNT; i++)
+    addRow(ECON_ROW_START + i, ECON_COLUMNS, "Économique");
+
+  return data;
+}
+
 /**
  * Retourne les sièges d'un vol, en les matérialisant lors du premier accès.
+ * Plan réel Boeing 737-400 : 12 Première (2-2) + 138 Économique (3-3) = 150.
  * Taux d'occupation figé à la création (10–30%), déterministe par vol.
  */
 export async function getOrCreateSeats(flightId: string): Promise<Seat[]> {
@@ -71,21 +115,7 @@ export async function getOrCreateSeats(flightId: string): Promise<Seat[]> {
   const rng = mulberry32(hashSeed(flightId));
   // taux d'occupation propre au vol, entre 10% et 30%
   const occupancy = 0.1 + rng() * 0.2;
-
-  const data = [];
-  for (let row = 1; row <= SEAT_ROWS; row++) {
-    for (const col of SEAT_COLUMNS) {
-      data.push({
-        flightId,
-        row,
-        column: col,
-        type: columnType(col),
-        fareClass: rowFareClass(row),
-        priceSupplementCents: seatSupplementCents(row, col),
-        isAvailable: rng() > occupancy,
-      });
-    }
-  }
+  const data = buildCabinPlan(flightId, rng, occupancy);
 
   // createMany puis relecture (createMany ne retourne pas les lignes)
   try {
@@ -111,7 +141,35 @@ export interface PriceBreakdown {
 
 export interface PricePassenger {
   seatId?: string | null;
-  baggageOptionId?: string | null;
+  extraBaggageKg?: number | null; // kg au-delà de la franchise soute (23 kg)
+  extraFullBags?: number | null; // valises entières supplémentaires
+}
+
+export interface BaggagePolicyInfo {
+  includedCheckedKg: number;
+  includedCabinKg: number;
+  extraKgPriceCents: number;
+  extraBagPriceCents: number;
+}
+
+// Valeurs par défaut si la table de configuration est vide (jamais en prod).
+const DEFAULT_BAGGAGE_POLICY: BaggagePolicyInfo = {
+  includedCheckedKg: 23,
+  includedCabinKg: 8,
+  extraKgPriceCents: 500,
+  extraBagPriceCents: 6800,
+};
+
+/** Politique de bagages (ligne de configuration unique). */
+export async function getBaggagePolicy(): Promise<BaggagePolicyInfo> {
+  const row = await prisma.baggagePolicy.findFirst();
+  if (!row) return DEFAULT_BAGGAGE_POLICY;
+  return {
+    includedCheckedKg: row.includedCheckedKg,
+    includedCabinKg: row.includedCabinKg,
+    extraKgPriceCents: row.extraKgPriceCents,
+    extraBagPriceCents: row.extraBagPriceCents,
+  };
 }
 
 /**
@@ -142,20 +200,16 @@ export async function computePrice(params: {
     seatTotalCents = seats.reduce((s, x) => s + x.priceSupplementCents, 0);
   }
 
-  // Suppléments bagages (relus en base)
-  const bagIds = passengers
-    .map((p) => p.baggageOptionId)
-    .filter((b): b is string => Boolean(b));
+  // Suppléments bagages : franchise (1 soute 23 kg + 1 cabine 8 kg) incluse pour
+  // tous. On facture uniquement le poids en supplément (5 USD/kg) et les valises
+  // entières supplémentaires (68 USD pièce). Tarifs relus en base.
+  const policy = await getBaggagePolicy();
   let baggageTotalCents = 0;
-  if (bagIds.length > 0) {
-    const bags = await prisma.baggageOption.findMany({
-      where: { id: { in: bagIds } },
-    });
-    const byId = new Map(bags.map((b) => [b.id, b.priceCents]));
-    for (const p of passengers) {
-      if (p.baggageOptionId)
-        baggageTotalCents += byId.get(p.baggageOptionId) ?? 0;
-    }
+  for (const p of passengers) {
+    const kg = Math.max(0, Math.floor(p.extraBaggageKg ?? 0));
+    const bags = Math.max(0, Math.floor(p.extraFullBags ?? 0));
+    baggageTotalCents +=
+      kg * policy.extraKgPriceCents + bags * policy.extraBagPriceCents;
   }
 
   // Taxes & frais : 8% du tarif de base (arrondi au cent)

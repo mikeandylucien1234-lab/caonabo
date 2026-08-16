@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { computePrice } from "@/lib/booking";
@@ -19,7 +20,8 @@ interface PassengerInput {
   phone?: string | null;
   evisaFileUrl?: string | null;
   seatId?: string | null;
-  baggageOptionId?: string | null;
+  extraBaggageKg?: number | null; // kg au-delà de la franchise soute (23 kg)
+  extraFullBags?: number | null; // valises entières supplémentaires
 }
 
 interface BookingBody {
@@ -30,12 +32,14 @@ interface BookingBody {
   contactPhone?: string;
   passengers?: PassengerInput[];
   useMiles?: number;
+  holdToken?: string; // jeton du tunnel (verrous temporaires de sièges)
   paymentMethod?: string; // cosmétique : "card" | "miles-only" | "paypal"…
   cardLast4?: string; // cosmétique uniquement, jamais un vrai numéro
 }
 
 const CIVILITIES = new Set(["M", "MME", "MLLE"]);
 const DOC_TYPES = new Set(["PASSPORT", "ID_CARD"]);
+const CABIN_CLASSES = new Set(["Économique", "Première classe"]);
 
 function makeReference(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -111,6 +115,10 @@ export async function POST(req: Request) {
     }
   }
 
+  if (body.cabinClass && !CABIN_CLASSES.has(body.cabinClass)) {
+    return NextResponse.json({ error: "Classe invalide." }, { status: 400 });
+  }
+
   const flight = await prisma.flight.findUnique({ where: { id: flightId } });
   if (!flight) {
     return NextResponse.json({ error: "Vol introuvable." }, { status: 404 });
@@ -143,22 +151,52 @@ export async function POST(req: Request) {
     userMilesBalance: user?.milesBalance ?? null,
   });
 
+  const holdToken = body.holdToken ?? null;
+
   try {
     const booking = await prisma.$transaction(async (tx) => {
-      // Verrouillage optimiste des sièges : ne marque occupés que ceux
-      // encore disponibles ; si le compte ne correspond pas → conflit.
+      // ── Verrouillage réel des sièges (anti double-réservation) ──────────────
+      // On VERROUILLE les lignes des sièges demandés avec SELECT … FOR UPDATE :
+      // deux confirmations concurrentes sur le même siège se sérialisent (la 2e
+      // attend la validation de la 1re, puis voit isAvailable = false → conflit).
+      // La contrainte @@unique([flightId,row,column]) garantit en plus l'unicité
+      // d'identité des sièges. On revérifie ici l'état FRAIS de chaque siège.
       if (requestedSeatIds.length > 0) {
-        const upd = await tx.seat.updateMany({
-          where: {
-            id: { in: requestedSeatIds },
-            flightId,
-            isAvailable: true,
-          },
-          data: { isAvailable: false },
-        });
-        if (upd.count !== requestedSeatIds.length) {
+        const locked = await tx.$queryRaw<
+          Array<{
+            id: string;
+            isAvailable: boolean;
+            heldBy: string | null;
+            heldUntil: Date | null;
+          }>
+        >(
+          Prisma.sql`SELECT id, "isAvailable", "heldBy", "heldUntil"
+                     FROM "Seat"
+                     WHERE "flightId" = ${flightId}
+                       AND id IN (${Prisma.join(requestedSeatIds)})
+                     FOR UPDATE`,
+        );
+        if (locked.length !== requestedSeatIds.length) {
           throw new Error("SEAT_TAKEN");
         }
+        const now = Date.now();
+        for (const s of locked) {
+          // siège déjà réservé, ou tenu temporairement par un AUTRE tunnel
+          const heldByOther =
+            s.heldUntil != null &&
+            s.heldUntil.getTime() > now &&
+            s.heldBy !== holdToken;
+          if (!s.isAvailable || heldByOther) {
+            throw new Error("SEAT_TAKEN");
+          }
+        }
+        // Marque occupés + purge les verrous temporaires (dans la transaction)
+        await tx.$executeRaw(
+          Prisma.sql`UPDATE "Seat"
+                     SET "isAvailable" = false, "heldBy" = NULL, "heldUntil" = NULL
+                     WHERE "flightId" = ${flightId}
+                       AND id IN (${Prisma.join(requestedSeatIds)})`,
+        );
       }
 
       // Contrôle de concurrence sur le nombre de places
@@ -173,7 +211,9 @@ export async function POST(req: Request) {
           flightId,
           userId: user?.id ?? null,
           tripType: body.tripType ?? "aller-retour",
-          cabinClass: body.cabinClass ?? "Économique",
+          cabinClass: CABIN_CLASSES.has(body.cabinClass ?? "")
+            ? body.cabinClass!
+            : "Économique",
           contactEmail,
           contactPhone: body.contactPhone ?? null,
           passengerCount: passengers.length,
@@ -202,7 +242,8 @@ export async function POST(req: Request) {
               phone: p.phone ?? null,
               evisaFileUrl: p.evisaFileUrl ?? null,
               seatId: p.seatId ?? null,
-              baggageOptionId: p.baggageOptionId ?? null,
+              extraBaggageKg: Math.max(0, Math.floor(p.extraBaggageKg ?? 0)),
+              extraFullBags: Math.max(0, Math.floor(p.extraFullBags ?? 0)),
             })),
           },
         },
@@ -246,13 +287,17 @@ export async function POST(req: Request) {
     const msg = e instanceof Error ? e.message : "";
     if (msg === "SEAT_TAKEN") {
       return NextResponse.json(
-        { error: "Un des sièges choisis vient d'être réservé. Reprenez la sélection." },
+        {
+          error:
+            "Un des sièges choisis vient d'être réservé par un autre voyageur. Le plan a été actualisé : choisissez un autre siège.",
+          code: "SEAT_TAKEN",
+        },
         { status: 409 },
       );
     }
     if (msg === "NO_SEATS") {
       return NextResponse.json(
-        { error: "Plus assez de places disponibles sur ce vol." },
+        { error: "Plus assez de places disponibles sur ce vol.", code: "NO_SEATS" },
         { status: 409 },
       );
     }

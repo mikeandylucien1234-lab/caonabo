@@ -9,6 +9,7 @@ import type {
 } from "./types";
 import type { CurrencyCode, RateInfo } from "@/lib/currency";
 import { FALLBACK_RATES } from "@/lib/currency";
+import { getBaggagePolicy as getBaggagePolicyLib } from "@/lib/booking";
 
 export async function getCities(): Promise<CityDTO[]> {
   const airports = await prisma.airport.findMany({
@@ -130,24 +131,16 @@ export async function getFaqs(): Promise<FaqDTO[]> {
   return rows.map((f) => ({ id: f.id, question: f.question, answer: f.answer }));
 }
 
-export interface BaggageOptionRow {
-  id: string;
-  label: string;
-  weightKg: number;
-  priceCents: number;
-  sortOrder: number;
+export interface BaggagePolicyRow {
+  includedCheckedKg: number;
+  includedCabinKg: number;
+  extraKgPriceCents: number;
+  extraBagPriceCents: number;
 }
 
-/** Options de bagage en soute (pour la page Politique de Bagages). */
-export async function getBaggageOptions(): Promise<BaggageOptionRow[]> {
-  const rows = await prisma.baggageOption.findMany({ orderBy: { sortOrder: "asc" } });
-  return rows.map((b) => ({
-    id: b.id,
-    label: b.label,
-    weightKg: b.weightKg,
-    priceCents: b.priceCents,
-    sortOrder: b.sortOrder,
-  }));
+/** Politique de bagages (franchises incluses + tarifs), pour la page dédiée. */
+export async function getBaggagePolicy(): Promise<BaggagePolicyRow> {
+  return getBaggagePolicyLib();
 }
 
 export async function getPrepSteps(): Promise<PrepStepDTO[]> {

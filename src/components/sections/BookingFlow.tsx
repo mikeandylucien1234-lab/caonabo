@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
-  BaggageOptionDTO,
+  BaggagePolicyDTO,
   CityDTO,
   FlightResultDTO,
   SeatDTO,
@@ -18,6 +18,17 @@ const HAITI_CODES = ["PAP", "CAP"];
 function isHaitiToChile(f: FlightResultDTO | null): boolean {
   return !!f && HAITI_CODES.includes(f.origin.code) && f.destination.code === "SCL";
 }
+
+// Les 2 classes réelles (Boeing 737-400, affrètement complet).
+const CABIN_CLASSES = ["Économique", "Première classe"] as const;
+
+// Politique de bagages de secours (si l'API n'a pas encore répondu).
+const FALLBACK_POLICY: BaggagePolicyDTO = {
+  includedCheckedKg: 23,
+  includedCabinKg: 8,
+  extraKgPriceCents: 500,
+  extraBagPriceCents: 6800,
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tunnel de réservation en 5 étapes
@@ -40,7 +51,8 @@ interface PaxForm {
   phone: string;
   evisaFileUrl: string | null;
   seatId: string | null;
-  baggageOptionId: string | null;
+  extraBaggageKg: number; // kg au-delà de la franchise soute (23 kg incluse)
+  extraFullBags: number; // valises entières supplémentaires (68 $ pièce)
 }
 
 interface Breakdown {
@@ -73,8 +85,14 @@ function emptyPax(): PaxForm {
     phone: "",
     evisaFileUrl: null,
     seatId: null,
-    baggageOptionId: null,
+    extraBaggageKg: 0,
+    extraFullBags: 0,
   };
+}
+
+// Jeton opaque du tunnel (identifie NOS verrous temporaires de sièges).
+function makeHoldToken(): string {
+  return `h_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
 export default function BookingFlow({
@@ -96,6 +114,7 @@ export default function BookingFlow({
   const [origin, setOrigin] = useState(initialOrigin ?? "");
   const [destination, setDestination] = useState(initialDestination ?? "");
   const [tripType, setTripType] = useState("aller-retour");
+  const [cabinClass, setCabinClass] = useState<string>("Économique");
   const [departDate, setDepartDate] = useState(initialDate ?? "");
   const [returnDate, setReturnDate] = useState("");
   const [paxCount, setPaxCount] = useState(1);
@@ -111,8 +130,10 @@ export default function BookingFlow({
 
   // étape 4
   const [seats, setSeats] = useState<SeatDTO[] | null>(null);
-  const [baggage, setBaggage] = useState<BaggageOptionDTO[]>([]);
+  const [policy, setPolicy] = useState<BaggagePolicyDTO>(FALLBACK_POLICY);
   const [activePax, setActivePax] = useState(0);
+  // jeton du tunnel : identifie nos verrous temporaires de sièges (10 min)
+  const holdTokenRef = useRef<string>(makeHoldToken());
 
   // étape 5
   const [useMiles, setUseMiles] = useState(false);
@@ -124,6 +145,7 @@ export default function BookingFlow({
   const [breakdown, setBreakdown] = useState<Breakdown | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [seatNotice, setSeatNotice] = useState<string | null>(null);
   const [reference, setReference] = useState<string | null>(null);
   const [confirmInfo, setConfirmInfo] = useState<{
     milesEarned: number | null;
@@ -132,11 +154,11 @@ export default function BookingFlow({
   const autoRef = useRef(false);
   const isLoggedIn = milesBalance !== null;
 
-  // ── chargement des options de bagage (une fois) ────────────────────────────
+  // ── chargement de la politique de bagages (une fois) ────────────────────────
   useEffect(() => {
-    fetch("/api/baggage-options")
+    fetch("/api/baggage-policy")
       .then((r) => r.json())
-      .then((d) => setBaggage(d.options as BaggageOptionDTO[]))
+      .then((d) => d?.policy && setPolicy(d.policy as BaggagePolicyDTO))
       .catch(() => {});
   }, []);
 
@@ -205,24 +227,32 @@ export default function BookingFlow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // (Re)charge le plan de cabine, en signalant nos propres verrous temporaires.
+  const loadSeats = useCallback(async (flightId: string) => {
+    try {
+      const res = await fetch(
+        `/api/flights/${flightId}/seats?hold=${encodeURIComponent(holdTokenRef.current)}`,
+      );
+      const data = await res.json();
+      setSeats(data.seats as SeatDTO[]);
+      return data.seats as SeatDTO[];
+    } catch {
+      setSeats([]);
+      return [] as SeatDTO[];
+    }
+  }, []);
+
   async function selectFlight(f: FlightResultDTO) {
     setSelected(f);
     setSeats(null);
-    // charge le plan de cabine
-    try {
-      const res = await fetch(`/api/flights/${f.id}/seats`);
-      const data = await res.json();
-      setSeats(data.seats as SeatDTO[]);
-    } catch {
-      setSeats([]);
-    }
+    await loadSeats(f.id);
   }
 
   // ── recalcul du prix côté serveur (étapes 4 et 5) ───────────────────────────
   const priceKey = selected
     ? JSON.stringify({
         f: selected.id,
-        p: passengers.map((p) => [p.seatId, p.baggageOptionId]),
+        p: passengers.map((p) => [p.seatId, p.extraBaggageKg, p.extraFullBags]),
         m: useMiles,
       })
     : "";
@@ -238,7 +268,8 @@ export default function BookingFlow({
             flightId: selected.id,
             passengers: passengers.map((p) => ({
               seatId: p.seatId,
-              baggageOptionId: p.baggageOptionId,
+              extraBaggageKg: p.extraBaggageKg,
+              extraFullBags: p.extraFullBags,
             })),
             useMiles: useMiles && milesBalance ? milesBalance : 0,
           }),
@@ -261,20 +292,55 @@ export default function BookingFlow({
     );
   }
 
-  // assignation d'un siège au passager actif (toggle)
-  function toggleSeat(seat: SeatDTO) {
-    if (!seat.isAvailable) return;
-    setPassengers((prev) => {
-      // si déjà pris par un autre passager → ignore
-      const takenByOther = prev.some(
-        (p, idx) => idx !== activePax && p.seatId === seat.id,
-      );
-      if (takenByOther) return prev;
-      return prev.map((p, idx) => {
-        if (idx !== activePax) return p;
-        return { ...p, seatId: p.seatId === seat.id ? null : seat.id };
+  // Libère un verrou temporaire côté serveur (désélection / changement).
+  const releaseHold = useCallback((flightId: string, seatId: string) => {
+    fetch(`/api/flights/${flightId}/seats/hold`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ seatId, holdToken: holdTokenRef.current }),
+      keepalive: true,
+    }).catch(() => {});
+  }, []);
+
+  // Assignation d'un siège au passager actif (toggle) AVEC verrou temporaire.
+  // Au clic : on pose un verrou serveur (« en cours de sélection », 10 min). En
+  // cas de conflit (siège pris entre-temps), on rafraîchit le plan et on prévient.
+  async function toggleSeat(seat: SeatDTO) {
+    if (!selected) return;
+    if (seat.heldByOther || !seat.isAvailable) return;
+    const current = passengers[activePax];
+    // Désélection du même siège → libère le verrou
+    if (current?.seatId === seat.id) {
+      updatePax(activePax, { seatId: null });
+      releaseHold(selected.id, seat.id);
+      return;
+    }
+    // Siège déjà attribué à un autre passager de la réservation → ignore
+    if (passengers.some((p, idx) => idx !== activePax && p.seatId === seat.id))
+      return;
+
+    // Pose le verrou serveur avant d'attribuer
+    try {
+      const res = await fetch(`/api/flights/${selected.id}/seats/hold`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ seatId: seat.id, holdToken: holdTokenRef.current }),
       });
-    });
+      if (!res.ok) {
+        setSeatNotice(
+          "Ce siège vient d'être choisi par un autre voyageur. Le plan a été actualisé.",
+        );
+        await loadSeats(selected.id);
+        return;
+      }
+    } catch {
+      return;
+    }
+    // Libère l'éventuel siège précédent du passager actif
+    const prevSeat = current?.seatId;
+    if (prevSeat && prevSeat !== seat.id) releaseHold(selected.id, prevSeat);
+    setSeatNotice(null);
+    updatePax(activePax, { seatId: seat.id });
   }
 
   // ── validation par étape ────────────────────────────────────────────────────
@@ -322,10 +388,11 @@ export default function BookingFlow({
             body: JSON.stringify({
               flightId: selected.id,
               tripType,
-              cabinClass: "Économique",
+              cabinClass,
               contactEmail: email,
               contactPhone: phone,
               useMiles: useMiles && milesBalance ? milesBalance : 0,
+              holdToken: holdTokenRef.current,
               paymentMethod,
               cardLast4: cardNumber.replace(/\D/g, "").slice(-4),
               passengers: passengers.map((p) => ({
@@ -342,7 +409,8 @@ export default function BookingFlow({
                 phone: p.phone || null,
                 evisaFileUrl: p.evisaFileUrl || null,
                 seatId: p.seatId,
-                baggageOptionId: p.baggageOptionId,
+                extraBaggageKg: p.extraBaggageKg,
+                extraFullBags: p.extraFullBags,
               })),
             }),
           });
@@ -350,7 +418,26 @@ export default function BookingFlow({
           return { res, data };
         })(),
       );
-      if (!res.ok) throw new Error(data.error ?? "Erreur de réservation");
+      if (!res.ok) {
+        // Siège pris entre la sélection et la confirmation : on rafraîchit le
+        // plan, on retire les sièges devenus indisponibles et on renvoie à
+        // l'étape 4 pour reprendre la sélection.
+        if (res.status === 409 && data.code === "SEAT_TAKEN") {
+          const fresh = await loadSeats(selected.id);
+          const stillFree = new Set(
+            fresh.filter((s) => s.isAvailable && !s.heldByOther).map((s) => s.id),
+          );
+          setPassengers((prev) =>
+            prev.map((p) =>
+              p.seatId && !stillFree.has(p.seatId) ? { ...p, seatId: null } : p,
+            ),
+          );
+          setSeatNotice(data.error as string);
+          setStep(4);
+          return;
+        }
+        throw new Error(data.error ?? "Erreur de réservation");
+      }
       setReference(data.reference as string);
       setConfirmInfo({
         milesEarned: typeof data.milesEarned === "number" ? data.milesEarned : null,
@@ -407,6 +494,8 @@ export default function BookingFlow({
             setDestination={setDestination}
             tripType={tripType}
             setTripType={setTripType}
+            cabinClass={cabinClass}
+            setCabinClass={setCabinClass}
             departDate={departDate}
             setDepartDate={setDepartDate}
             returnDate={returnDate}
@@ -437,11 +526,12 @@ export default function BookingFlow({
             passengers={passengers}
             activePax={activePax}
             setActivePax={setActivePax}
-            baggage={baggage}
+            policy={policy}
             updatePax={updatePax}
             seats={seats}
             toggleSeat={toggleSeat}
             breakdown={breakdown}
+            seatNotice={seatNotice}
           />
         )}
 
@@ -450,7 +540,8 @@ export default function BookingFlow({
             selected={selected!}
             passengers={passengers}
             seats={seats}
-            baggage={baggage}
+            cabinClass={cabinClass}
+            policy={policy}
             breakdown={breakdown}
             email={email}
             isLoggedIn={isLoggedIn}
@@ -552,6 +643,8 @@ function Step1(props: {
   setDestination: (v: string) => void;
   tripType: string;
   setTripType: (v: string) => void;
+  cabinClass: string;
+  setCabinClass: (v: string) => void;
   departDate: string;
   setDepartDate: (v: string) => void;
   returnDate: string;
@@ -583,6 +676,43 @@ function Step1(props: {
           </button>
         ))}
       </div>
+
+      {/* Sélecteur de classe (2 classes réelles du Boeing 737-400) */}
+      <div>
+        <div style={{ fontSize: 12, color: "#5c5c7a", marginBottom: 6, fontWeight: 500 }}>
+          Classe de voyage
+        </div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          {CABIN_CLASSES.map((c) => {
+            const on = props.cabinClass === c;
+            return (
+              <button
+                key={c}
+                onClick={() => props.setCabinClass(c)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "10px 18px",
+                  borderRadius: 12,
+                  fontSize: 13.5,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  border: `1.5px solid ${on ? PURPLE2 : "#dcdae6"}`,
+                  background: on ? "#f4efff" : "#fff",
+                  color: on ? PURPLE : "#5c5c7a",
+                }}
+              >
+                <span aria-hidden style={{ fontSize: 15 }}>
+                  {c === "Première classe" ? "★" : "✈"}
+                </span>
+                {c}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="bk-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <Field label="Depuis">
           <select style={inputStyle} value={props.origin} onChange={(e) => props.setOrigin(e.target.value)}>
@@ -829,26 +959,32 @@ function Step4({
   passengers,
   activePax,
   setActivePax,
-  baggage,
+  policy,
   updatePax,
   seats,
   toggleSeat,
   breakdown,
+  seatNotice,
 }: {
   passengers: PaxForm[];
   activePax: number;
   setActivePax: (i: number) => void;
-  baggage: BaggageOptionDTO[];
+  policy: BaggagePolicyDTO;
   updatePax: (i: number, patch: Partial<PaxForm>) => void;
   seats: SeatDTO[] | null;
   toggleSeat: (s: SeatDTO) => void;
   breakdown: Breakdown | null;
+  seatNotice: string | null;
 }) {
   const pax = passengers[activePax];
-  // sièges pris par un AUTRE passager (indispo pour l'actif)
+  // sièges pris par un AUTRE passager de la même réservation (indispo pour l'actif)
   const takenByOthers = new Set(
     passengers.filter((_, idx) => idx !== activePax).map((p) => p.seatId).filter(Boolean) as string[],
   );
+  const kg = pax?.extraBaggageKg ?? 0;
+  const bags = pax?.extraFullBags ?? 0;
+  const paxBaggageCents =
+    kg * policy.extraKgPriceCents + bags * policy.extraBagPriceCents;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -880,41 +1016,61 @@ function Step4({
       <div className="bk-options" style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 24 }}>
         {/* bagages */}
         <div>
-          <div style={{ fontWeight: 700, color: "#1e1b4b", fontSize: 15, marginBottom: 12 }}>Bagage en soute</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {baggage.map((b) => {
-              const active = pax?.baggageOptionId === b.id || (b.priceCents === 0 && !pax?.baggageOptionId);
-              return (
-                <label
-                  key={b.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 12,
-                    padding: "14px 16px",
-                    borderRadius: 12,
-                    cursor: "pointer",
-                    border: `1.5px solid ${active ? PURPLE2 : "#eceafa"}`,
-                    background: active ? "#faf7ff" : "#fff",
-                  }}
-                >
-                  <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <input
-                      type="radio"
-                      name={`bag-${activePax}`}
-                      checked={active}
-                      onChange={() => updatePax(activePax, { baggageOptionId: b.priceCents === 0 ? null : b.id })}
-                      style={{ accentColor: PURPLE2, width: 16, height: 16 }}
-                    />
-                    <span style={{ fontSize: 14, color: "#1e1b4b", fontWeight: 600 }}>{b.label}</span>
-                  </span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: b.priceCents ? PURPLE : "#1f9d55" }}>
-                    {b.priceCents ? `+ ${formatPrice(b.priceCents, "USD")}` : "Inclus"}
-                  </span>
-                </label>
-              );
-            })}
+          <div style={{ fontWeight: 700, color: "#1e1b4b", fontSize: 15, marginBottom: 12 }}>Bagages</div>
+
+          {/* Franchise incluse pour tous */}
+          <div style={{ border: "1.5px solid #cbe8d3", background: "#f2fbf5", borderRadius: 12, padding: "14px 16px", marginBottom: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#1f9d55", fontWeight: 700, fontSize: 13.5, marginBottom: 6 }}>
+              ✓ Inclus pour chaque passager
+            </div>
+            <div style={{ fontSize: 13.5, color: "#2f6b46", lineHeight: 1.6 }}>
+              🧳 1 bagage en soute ({policy.includedCheckedKg} kg) &nbsp;·&nbsp; 🎒 1 bagage cabine ({policy.includedCabinKg} kg)
+            </div>
+          </div>
+
+          {/* Supplément de poids (soute) */}
+          <div style={{ border: "1.5px solid #eceafa", borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 14, color: "#1e1b4b", fontWeight: 700 }}>Poids supplémentaire</div>
+                <div style={{ fontSize: 12.5, color: "#8a8aa0", marginTop: 2 }}>
+                  {formatPrice(policy.extraKgPriceCents, "USD")} / kg au-delà de {policy.includedCheckedKg} kg
+                </div>
+              </div>
+              <QtyStepper
+                value={kg}
+                min={0}
+                max={30}
+                onChange={(v) => updatePax(activePax, { extraBaggageKg: v })}
+                suffix="kg"
+              />
+            </div>
+          </div>
+
+          {/* Valise entière supplémentaire */}
+          <div style={{ border: "1.5px solid #eceafa", borderRadius: 12, padding: "14px 16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 14, color: "#1e1b4b", fontWeight: 700 }}>Valise entière en plus</div>
+                <div style={{ fontSize: 12.5, color: "#8a8aa0", marginTop: 2 }}>
+                  {formatPrice(policy.extraBagPriceCents, "USD")} par valise supplémentaire
+                </div>
+              </div>
+              <QtyStepper
+                value={bags}
+                min={0}
+                max={4}
+                onChange={(v) => updatePax(activePax, { extraFullBags: v })}
+                suffix="val."
+              />
+            </div>
+          </div>
+
+          <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", fontSize: 13.5 }}>
+            <span style={{ color: "#5c5c7a" }}>Suppléments bagages de ce passager</span>
+            <span style={{ fontWeight: 800, color: paxBaggageCents ? PURPLE : "#1f9d55" }}>
+              {paxBaggageCents ? `+ ${formatPrice(paxBaggageCents, "USD")}` : "0 $"}
+            </span>
           </div>
         </div>
 
@@ -923,6 +1079,11 @@ function Step4({
           <div style={{ fontWeight: 700, color: "#1e1b4b", fontSize: 15, marginBottom: 12 }}>
             Siège {pax?.firstName ? `de ${pax.firstName}` : `du passager ${activePax + 1}`}
           </div>
+          {seatNotice && (
+            <div style={{ background: "#fdecec", border: "1.5px solid #f5c2c2", color: "#b23333", borderRadius: 10, padding: "10px 12px", fontSize: 12.5, marginBottom: 10, lineHeight: 1.5 }}>
+              ⚠️ {seatNotice}
+            </div>
+          )}
           <SeatMap
             seats={seats}
             selectedSeatId={pax?.seatId ?? null}
@@ -938,6 +1099,48 @@ function Step4({
           <span style={{ fontWeight: 800, fontSize: 20, color: PURPLE }}>{formatPrice(breakdown.totalUsdCents, "USD")}</span>
         </div>
       )}
+    </div>
+  );
+}
+
+// Compteur +/- réutilisable (poids supplémentaire, valises).
+function QtyStepper({
+  value,
+  min,
+  max,
+  onChange,
+  suffix,
+}: {
+  value: number;
+  min: number;
+  max: number;
+  onChange: (v: number) => void;
+  suffix: string;
+}) {
+  const btn = (disabled: boolean): React.CSSProperties => ({
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    border: `1.5px solid ${disabled ? "#ece9f5" : "#d8cdf2"}`,
+    background: "#fff",
+    color: disabled ? "#c4c0d4" : PURPLE,
+    fontSize: 18,
+    fontWeight: 800,
+    cursor: disabled ? "default" : "pointer",
+    lineHeight: 1,
+    padding: 0,
+  });
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <button type="button" aria-label="Diminuer" disabled={value <= min} onClick={() => onChange(Math.max(min, value - 1))} style={btn(value <= min)}>
+        −
+      </button>
+      <span style={{ minWidth: 54, textAlign: "center", fontSize: 14, fontWeight: 700, color: "#1e1b4b" }}>
+        {value} {suffix}
+      </span>
+      <button type="button" aria-label="Augmenter" disabled={value >= max} onClick={() => onChange(Math.min(max, value + 1))} style={btn(value >= max)}>
+        +
+      </button>
     </div>
   );
 }
@@ -961,7 +1164,8 @@ function SeatMap({
     rows.get(s.row)!.push(s);
   }
   const rowNums = [...rows.keys()].sort((a, b) => a - b);
-  const cols = ["A", "B", "C", "D", "E", "F"];
+  const fareOf = (rn: number) =>
+    [...rows.get(rn)!].sort((a, b) => a.column.localeCompare(b.column))[0].fareClass;
 
   return (
     <div>
@@ -969,58 +1173,72 @@ function SeatMap({
         <Legend color="#fff" border="#c9b8ef" label="Libre" />
         <Legend color={PURPLE2} border={PURPLE2} label="Choisi" />
         <Legend color="#e7e3f0" border="#d8d3e6" label="Occupé" />
-        <Legend color="#fff7e6" border="#f0d79a" label="Premium/Business" />
+        <Legend color="#fff7e6" border="#f0d79a" label="Première classe" />
       </div>
       <div style={{ maxHeight: 360, overflowY: "auto", border: "1px solid #eceafa", borderRadius: 12, padding: 12, background: "#fbfaff" }}>
-        {/* en-tête colonnes */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 6, marginBottom: 8 }}>
-          {cols.map((c, idx) => (
-            <span key={c} style={{ width: 30, textAlign: "center", fontSize: 11, color: "#9a94b5", fontWeight: 700, marginRight: idx === 2 ? 16 : 0 }}>
-              {c}
-            </span>
-          ))}
-        </div>
-        {rowNums.map((rn) => {
-          const rowSeats = rows.get(rn)!;
-          const byCol = new Map(rowSeats.map((s) => [s.column, s]));
+        {rowNums.map((rn, ri) => {
+          const rowSeats = [...rows.get(rn)!].sort((a, b) => a.column.localeCompare(b.column));
+          // Couloir au milieu de la rangée (2-2 en Première, 3-3 en Économique)
+          const mid = Math.ceil(rowSeats.length / 2);
+          const fare = rowSeats[0].fareClass;
+          const cabinStart = ri === 0 || fareOf(rowNums[ri - 1]) !== fare;
           return (
-            <div key={rn} style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 6, marginBottom: 6 }}>
-              <span style={{ width: 20, fontSize: 10, color: "#b4afca", textAlign: "right", marginRight: 4 }}>{rn}</span>
-              {cols.map((c, idx) => {
-                const s = byCol.get(c);
-                if (!s) return <span key={c} style={{ width: 30 }} />;
-                const isSel = s.id === selectedSeatId;
-                const takenOther = takenByOthers.has(s.id);
-                const occupied = !s.isAvailable || takenOther;
-                const premium = s.fareClass !== "Économique";
-                let bg = "#fff", bd = "#c9b8ef", col = "#5c5c7a";
-                if (occupied) { bg = "#e7e3f0"; bd = "#d8d3e6"; col = "#b4afca"; }
-                else if (isSel) { bg = PURPLE2; bd = PURPLE2; col = "#fff"; }
-                else if (premium) { bg = "#fff7e6"; bd = "#f0d79a"; col = "#a9820f"; }
-                return (
-                  <button
-                    key={c}
-                    onClick={() => onToggle(s)}
-                    disabled={occupied}
-                    title={`${rn}${c} · ${s.fareClass}${s.priceSupplementCents ? ` · +${formatPrice(s.priceSupplementCents, "USD")}` : ""}`}
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: 7,
-                      border: `1.5px solid ${bd}`,
-                      background: bg,
-                      color: col,
-                      fontSize: 10,
-                      fontWeight: 700,
-                      cursor: occupied ? "not-allowed" : "pointer",
-                      marginRight: idx === 2 ? 16 : 0,
-                      padding: 0,
-                    }}
-                  >
-                    {c}
-                  </button>
-                );
-              })}
+            <div key={rn}>
+              {/* étiquette de cabine en tête de bloc */}
+              {cabinStart && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    margin: ri === 0 ? "0 0 8px" : "12px 0 8px",
+                    color: fare === "Économique" ? "#b4afca" : "#a9820f",
+                    fontSize: 10.5,
+                    fontWeight: 700,
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  <span style={{ flex: 1, height: 1, background: fare === "Économique" ? "#e8e4f2" : "#f0e2bd" }} />
+                  {fare.toUpperCase()}
+                  <span style={{ flex: 1, height: 1, background: fare === "Économique" ? "#e8e4f2" : "#f0e2bd" }} />
+                </div>
+              )}
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                <span style={{ width: 20, fontSize: 10, color: "#b4afca", textAlign: "right", marginRight: 4 }}>{rn}</span>
+                {rowSeats.map((s, idx) => {
+                  const isSel = s.id === selectedSeatId;
+                  const takenOther = takenByOthers.has(s.id) || s.heldByOther;
+                  const occupied = !s.isAvailable || takenOther;
+                  const premium = s.fareClass !== "Économique";
+                  let bg = "#fff", bd = "#c9b8ef", col = "#5c5c7a";
+                  if (occupied) { bg = "#e7e3f0"; bd = "#d8d3e6"; col = "#b4afca"; }
+                  else if (isSel) { bg = PURPLE2; bd = PURPLE2; col = "#fff"; }
+                  else if (premium) { bg = "#fff7e6"; bd = "#f0d79a"; col = "#a9820f"; }
+                  return (
+                    <button
+                      key={s.column}
+                      onClick={() => onToggle(s)}
+                      disabled={occupied}
+                      title={`${rn}${s.column} · ${s.fareClass}${s.priceSupplementCents ? ` · +${formatPrice(s.priceSupplementCents, "USD")}` : ""}`}
+                      style={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: 7,
+                        border: `1.5px solid ${bd}`,
+                        background: bg,
+                        color: col,
+                        fontSize: 10,
+                        fontWeight: 700,
+                        cursor: occupied ? "not-allowed" : "pointer",
+                        marginRight: idx === mid - 1 ? 16 : 0,
+                        padding: 0,
+                      }}
+                    >
+                      {s.column}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           );
         })}
@@ -1045,7 +1263,8 @@ function Step5(props: {
   selected: FlightResultDTO;
   passengers: PaxForm[];
   seats: SeatDTO[] | null;
-  baggage: BaggageOptionDTO[];
+  cabinClass: string;
+  policy: BaggagePolicyDTO;
   breakdown: Breakdown | null;
   email: string;
   isLoggedIn: boolean;
@@ -1059,9 +1278,15 @@ function Step5(props: {
   cardNumber: string;
   setCardNumber: (v: string) => void;
 }) {
-  const { selected: f, passengers, seats, baggage, breakdown: b } = props;
+  const { selected: f, passengers, seats, cabinClass, breakdown: b } = props;
   const dep = new Date(f.departAt);
-  const bagLabel = (id: string | null) => baggage.find((x) => x.id === id)?.label ?? "Aucun bagage en soute";
+  // Résumé bagages d'un passager : franchise incluse + éventuels suppléments.
+  const bagSummary = (p: PaxForm) => {
+    const extras: string[] = [];
+    if (p.extraBaggageKg > 0) extras.push(`+${p.extraBaggageKg} kg`);
+    if (p.extraFullBags > 0) extras.push(`+${p.extraFullBags} valise${p.extraFullBags > 1 ? "s" : ""}`);
+    return extras.length ? `Bagages inclus · ${extras.join(" · ")}` : "Bagages inclus";
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -1078,7 +1303,7 @@ function Step5(props: {
               {fmtDate(dep)} · {fmtTime(dep)} · {f.direct ? "Direct" : `${f.stops} escale`} · {fmtDur(f.durationMinutes)}
             </div>
             <div style={{ fontSize: 12, color: "#9a94b5", marginTop: 2 }}>
-              Vol {f.flightNumber} · opéré par {f.operatedBy}
+              Vol {f.flightNumber} · opéré par {f.operatedBy} · {cabinClass}
             </div>
           </div>
 
@@ -1090,7 +1315,7 @@ function Step5(props: {
                   {civ(p.civility)} {p.firstName} {p.lastName}
                 </span>
                 <span style={{ color: "#8a8aa0" }}>
-                  {p.seatId ? seatLabel(seats, p.seatId) : "Siège auto"} · {bagLabel(p.baggageOptionId)}
+                  {p.seatId ? seatLabel(seats, p.seatId) : "Siège auto"} · {bagSummary(p)}
                 </span>
               </div>
             ))}

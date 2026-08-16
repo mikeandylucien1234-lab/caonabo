@@ -3,11 +3,14 @@ import type { DestinationDTO } from "@/lib/data/types";
 import { formatPrice, type RateInfo } from "@/lib/currency";
 import { getPrefs } from "@/lib/prefs";
 import { getDictionary } from "@/lib/i18n";
+import type { SiteMediaMap } from "@/lib/data/queries";
+import MediaFill, { resolveMedia } from "@/components/MediaFill";
 
-// Cartes avec vidéo en boucle (le poster reste l'image de la carte).
-const VIDEO_BY_CITY: Record<string, string> = {
-  Toronto: "/videos/toronto.mp4",
-  "Port-au-Prince": "/videos/port-au-prince.mp4",
+// Cartes à média configurable : ville → clé SiteMedia + vidéo par défaut
+// (le poster reste l'image de la carte). L'admin peut remplacer par une image.
+const CITY_MEDIA: Record<string, { key: string; defaultVideo: string }> = {
+  Toronto: { key: "dest-toronto", defaultVideo: "/videos/toronto.mp4" },
+  "Port-au-Prince": { key: "dest-pap", defaultVideo: "/videos/port-au-prince.mp4" },
 };
 
 /**
@@ -17,9 +20,11 @@ const VIDEO_BY_CITY: Record<string, string> = {
 export default async function PopularDestinations({
   destinations,
   rates,
+  media,
 }: {
   destinations: DestinationDTO[];
   rates: Record<string, RateInfo>;
+  media?: SiteMediaMap;
 }) {
   const { locale, currency } = await getPrefs();
   const t = getDictionary(locale);
@@ -103,19 +108,15 @@ export default async function PopularDestinations({
               boxShadow: "0 8px 30px rgba(20,10,60,0.12)",
             }}
           >
-            {VIDEO_BY_CITY[d.city] ? (
-              // eslint-disable-next-line jsx-a11y/media-has-caption
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
+            {CITY_MEDIA[d.city] ? (
+              <MediaFill
+                media={resolveMedia(media, CITY_MEDIA[d.city].key, {
+                  type: "video",
+                  src: CITY_MEDIA[d.city].defaultVideo,
+                })}
                 poster={d.imageUrl}
-                aria-label={d.placeholder}
-                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-              >
-                <source src={VIDEO_BY_CITY[d.city]} type="video/mp4" />
-              </video>
+                alt={d.placeholder}
+              />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
               <img

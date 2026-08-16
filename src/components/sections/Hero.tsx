@@ -1,15 +1,21 @@
 import Header from "@/components/layout/Header";
 import { getPrefs } from "@/lib/prefs";
 import { getDictionary } from "@/lib/i18n";
+import type { SiteMediaMap } from "@/lib/data/queries";
+import MediaFill, { resolveMedia } from "@/components/MediaFill";
 
 /**
- * Section Hero : l'image de fond est affichée EN ENTIER (jamais rognée), le
- * header et le titre sont superposés, et une carte « Prochain vol » compacte en
- * verre dépoli flotte au-dessus du bas de l'image.
+ * Section Hero : le média de fond (image OU vidéo, configurable depuis l'admin)
+ * remplit le hero en cover, le header et le titre sont superposés, et une carte
+ * « Prochain vol » compacte en verre dépoli flotte au-dessus du bas.
  */
-export default async function Hero() {
+export default async function Hero({ media }: { media?: SiteMediaMap }) {
   const { locale } = await getPrefs();
   const t = getDictionary(locale);
+  const bg = resolveMedia(media, "hero", {
+    type: "image",
+    src: "/images/hero-bg.png",
+  });
   return (
     <div
       className="hero-wrap"
@@ -20,18 +26,11 @@ export default async function Hero() {
         background: "#eef0f6",
       }}
     >
-      {/* fond : image qui remplit le hero (format précédent, cover) */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/images/hero-bg.png"
+      {/* fond : image ou vidéo qui remplit le hero (cover) */}
+      <MediaFill
+        media={bg}
+        poster="/images/hero-bg.png"
         alt="Terre vue de l'espace, villes de la diaspora"
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-        }}
       />
 
       {/* calque superposé : header en haut + titre */}

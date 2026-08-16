@@ -143,6 +143,31 @@ export async function getBaggagePolicy(): Promise<BaggagePolicyRow> {
   return getBaggagePolicyLib();
 }
 
+export interface SiteMediaEntry {
+  type: "image" | "video";
+  url: string;
+}
+export type SiteMediaMap = Record<string, SiteMediaEntry>;
+
+/**
+ * Médias configurables des sections « bannière » (Hero, cartes vidéo,
+ * bannière). Renvoie une map clé → {type, url}. Une clé absente ⇒ le
+ * composant garde son média par défaut (fichier /public).
+ */
+export async function getSiteMedia(): Promise<SiteMediaMap> {
+  try {
+    const rows = await prisma.siteMedia.findMany();
+    const map: SiteMediaMap = {};
+    for (const r of rows) {
+      map[r.key] = { type: r.mediaType === "video" ? "video" : "image", url: r.url };
+    }
+    return map;
+  } catch {
+    // table pas encore migrée → aucun override, on garde les défauts
+    return {};
+  }
+}
+
 export async function getPrepSteps(): Promise<PrepStepDTO[]> {
   const rows = await prisma.prepStep.findMany({ orderBy: { sortOrder: "asc" } });
   return rows.map((s) => ({

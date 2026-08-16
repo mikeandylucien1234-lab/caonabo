@@ -19,13 +19,14 @@ import {
   getFaqs,
   getPrepSteps,
   getRates,
+  getSiteMedia,
 } from "@/lib/data/queries";
 
 // Données dynamiques (lues en base à chaque requête).
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [cities, destinations, promotions, faqs, prepSteps, rates] =
+  const [cities, destinations, promotions, faqs, prepSteps, rates, media] =
     await Promise.all([
       getCities(),
       getDestinations(),
@@ -33,19 +34,20 @@ export default async function HomePage() {
       getFaqs(),
       getPrepSteps(),
       getRates(),
+      getSiteMedia(),
     ]);
 
   return (
     <div style={{ maxWidth: 1536, margin: "0 auto", background: "#fff" }}>
-      <Hero />
+      <Hero media={media} />
       <FlightSearch cities={cities} />
-      <PopularDestinations destinations={destinations} rates={rates} />
+      <PopularDestinations destinations={destinations} rates={rates} media={media} />
       <Faq faqs={faqs} />
       <PaymentBanner />
       <Promotions promotions={promotions} rates={rates} />
       <BookingStepsShowcase />
       <CargoCarousel />
-      <VideoBanner />
+      <VideoBanner media={media} />
       <PrepToTravel steps={prepSteps} />
       <NewsletterSignup />
       <ContactWhatsapp />

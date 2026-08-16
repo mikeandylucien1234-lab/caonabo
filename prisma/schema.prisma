@@ -295,6 +295,21 @@ model GroupRequest {
   @@index([createdAt])
 }
 
+// Médias des sections « bannière » du site public (Hero, cartes vidéo
+// Toronto/Port-au-Prince, bannière avant « Préparez-vous »). L'admin peut
+// remplacer chaque média (vidéo mp4 ou image) sans redéploiement : le média
+// est stocké dans Supabase Storage (bucket public) et l'URL + le type sont
+// enregistrés ici. Le composant public affiche <video> ou <img> selon le type.
+// Une clé absente ⇒ le composant garde son média par défaut (fichier /public).
+model SiteMedia {
+  id            String   @id @default(cuid())
+  key           String   @unique // hero | dest-toronto | dest-pap | video-banner
+  mediaType     String   @default("image") // "image" | "video"
+  url           String // URL publique du média (Supabase Storage)
+  fileSizeBytes Int      @default(0)
+  updatedAt     DateTime @updatedAt
+}
+
 // Abonnés à la newsletter (section « Ne manquez jamais une offre »)
 model NewsletterSubscriber {
   id           String   @id @default(cuid())

@@ -1,30 +1,25 @@
 import { getPrefs } from "@/lib/prefs";
 import { getDictionary } from "@/lib/i18n";
+import type { SiteMediaMap } from "@/lib/data/queries";
+import MediaFill, { resolveMedia } from "@/components/MediaFill";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Bannière vidéo pleine largeur (avant « Préparez-vous à voyager »).
-// Vidéo de fond en boucle + voile sombre pour la lisibilité + titre/texte.
-// Poster de secours si la vidéo ne charge pas.
+// Bannière pleine largeur (avant « Préparez-vous à voyager »).
+// Média de fond en boucle (vidéo OU image, configurable depuis l'admin) +
+// voile sombre pour la lisibilité + titre/texte. Poster de secours.
 // ─────────────────────────────────────────────────────────────────────────────
-export default async function VideoBanner() {
+export default async function VideoBanner({ media }: { media?: SiteMediaMap }) {
   const { locale } = await getPrefs();
   const t = getDictionary(locale);
+  const bg = resolveMedia(media, "video-banner", {
+    type: "video",
+    src: "/videos/banner-voyage.mp4",
+  });
   return (
     <section style={{ padding: "10px 0 44px" }}>
       <div style={{ position: "relative", width: "100%", minHeight: "clamp(300px, 42vw, 440px)", borderRadius: 28, overflow: "hidden", background: "#0f0a2d" }}>
-        {/* vidéo de fond */}
-        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          poster="/images/hero-bg.png"
-          aria-hidden="true"
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-        >
-          <source src="/videos/banner-voyage.mp4" type="video/mp4" />
-        </video>
+        {/* média de fond (vidéo ou image) */}
+        <MediaFill media={bg} poster="/images/hero-bg.png" ariaHidden />
 
         {/* voile sombre (cohérent avec le hero) */}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(15,10,45,0.74) 0%, rgba(15,10,45,0.48) 55%, rgba(15,10,45,0.28) 100%)" }} />

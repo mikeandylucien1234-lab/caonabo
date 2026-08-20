@@ -157,7 +157,7 @@ html {
     display: flex !important;
   }
   .logo-img {
-    height: 50px !important;
+    height: 92px !important; /* logo bien visible à l'arrivée (compense le zoom mobile) */
   }
   .hero-wrap {
     min-height: 680px !important;
@@ -169,11 +169,18 @@ html {
   .hero-headline {
     padding-top: 4% !important;
   }
+  /* Carte « Prochain vol » : occupe toute la largeur du hero (moins une petite
+     marge) → plus large, donc moins haute, et posée plus bas. */
   .hero-card-float {
-    bottom: 22px !important;
+    bottom: 20px !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    transform: none !important;
   }
   .hero-flightcard {
-    padding: 16px 16px !important;
+    width: 100% !important;
+    padding: 16px 18px !important;
   }
   .grid-2 {
     grid-template-columns: 1fr !important;

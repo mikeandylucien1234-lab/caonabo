@@ -5,15 +5,13 @@ import { runBookingTransaction, makeReference } from "@/lib/bookingCreate";
 export const dynamic = "force-dynamic";
 
 interface DemoBody extends BookingBody {
-  paymentMethod?: string; // cosmétique (mode démo) : "card" | "miles-only" | "paypal"
+  paymentMethod?: string; // cosmétique (mode démo) : "card" | "paypal"
   cardLast4?: string; // cosmétique uniquement, jamais un vrai numéro
 }
 
 // Libellé du mode de paiement de DÉMONSTRATION (aucune vraie transaction).
 function demoPaymentDisplay(method?: string, last4?: string): string {
   switch (method) {
-    case "miles-only":
-      return "Réglé en Miles Caonabo (démo)";
     case "paypal":
       return "PayPal (démo)";
     case "card":
@@ -54,8 +52,6 @@ export async function POST(req: Request) {
       paymentMethodDisplay: demoPaymentDisplay(body.paymentMethod, body.cardLast4),
       status: "confirmed",
       paymentStatus: "PAID",
-      user: data.user,
-      creditMilesNow: true,
     });
 
     return NextResponse.json(
@@ -67,11 +63,6 @@ export async function POST(req: Request) {
         passengerCount: booking.passengerCount,
         breakdown: data.breakdown,
         paymentMethodDisplay: booking.paymentMethodDisplay,
-        milesEarned: data.breakdown.milesEarned,
-        milesRedeemed: data.breakdown.milesRedeemed,
-        newMilesBalance: data.user
-          ? data.user.milesBalance - data.breakdown.milesRedeemed + data.breakdown.milesEarned
-          : null,
         demo: true,
       },
       { status: 201 },

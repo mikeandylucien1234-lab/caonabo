@@ -65,17 +65,6 @@ export async function POST(req: Request) {
           receiptNumber,
         },
       });
-
-      // Miles : débit des Miles utilisés + crédit des Miles gagnés
-      if (fresh.userId && (fresh.milesRedeemed > 0 || fresh.milesEarned > 0)) {
-        const u = await tx.user.findUnique({ where: { id: fresh.userId } });
-        if (u) {
-          await tx.user.update({
-            where: { id: u.id },
-            data: { milesBalance: u.milesBalance - fresh.milesRedeemed + fresh.milesEarned },
-          });
-        }
-      }
       // Les sièges sont déjà occupés (isAvailable=false) depuis la création :
       // ils deviennent définitifs, rien à modifier.
     });

@@ -174,14 +174,11 @@ export async function getBaggagePolicy(): Promise<BaggagePolicyInfo> {
 
 /**
  * Calcule le détail de prix côté serveur. Les suppléments sièges / bagages
- * sont relus en base (jamais depuis le client). `useMiles` est plafonné au
- * solde du compte et au montant dû.
+ * sont relus en base (jamais depuis le client).
  */
 export async function computePrice(params: {
   flight: Flight;
   passengers: PricePassenger[];
-  useMiles?: number;
-  userMilesBalance?: number | null;
 }): Promise<PriceBreakdown> {
   const { flight, passengers } = params;
   const count = passengers.length;
@@ -215,30 +212,17 @@ export async function computePrice(params: {
   // Taxes & frais : 8% du tarif de base (arrondi au cent)
   const taxesCents = Math.round(basePriceCents * 0.08);
 
-  const subtotal = basePriceCents + baggageTotalCents + seatTotalCents + taxesCents;
+  const totalUsdCents = basePriceCents + baggageTotalCents + seatTotalCents + taxesCents;
 
-  // Miles : 1 Mile = 1 cent, plafonné au solde et au sous-total
-  let milesRedeemed = 0;
-  if (params.useMiles && params.useMiles > 0 && params.userMilesBalance != null) {
-    milesRedeemed = Math.min(
-      Math.floor(params.useMiles),
-      params.userMilesBalance,
-      subtotal,
-    );
-  }
-
-  const totalUsdCents = subtotal - milesRedeemed;
-  // Miles gagnés : 1 Mile par dollar du tarif de base (avant remise Miles)
-  const milesEarned = Math.floor(basePriceCents / 100);
-
+  // Programme de fidélité « Miles » retiré du site : aucune remise ni gain.
   return {
     basePriceCents,
     baggageTotalCents,
     seatTotalCents,
     taxesCents,
-    milesRedeemed,
+    milesRedeemed: 0,
     totalUsdCents,
-    milesEarned,
+    milesEarned: 0,
   };
 }
 

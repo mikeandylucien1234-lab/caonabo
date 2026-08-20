@@ -72,8 +72,6 @@ export async function POST(req: Request) {
       paymentMethodDisplay: null,
       status: "pending",
       paymentStatus: "PENDING",
-      user: data.user,
-      creditMilesNow: false,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";

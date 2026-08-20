@@ -137,7 +137,6 @@ export default function Promotions({
                   <div style={{ fontSize: 14, color: "#8a8aa0", marginBottom: 16 }}><b style={{ color: "#5c5c7a" }}>{p.routeLabel}</b></div>
                   <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
                     <span style={{ background: "#5b21b6", color: "#fff", fontWeight: 700, fontSize: 13, padding: "7px 16px", borderRadius: 999 }}>{p.category}</span>
-                    <span style={{ background: "#fbe86a", color: "#5c4a00", fontWeight: 700, fontSize: 13, padding: "7px 16px", borderRadius: 999, display: "flex", alignItems: "center", gap: 6 }}>✦ Cumule des <b>miles</b></span>
                   </div>
                   <div style={{ fontSize: 14, color: "#5c5c7a", marginBottom: 4 }}>Prix dès</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>

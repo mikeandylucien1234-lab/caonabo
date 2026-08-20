@@ -52,7 +52,6 @@ export async function POST(req: Request) {
       passwordHash: hashPassword(password),
       firstName,
       lastName,
-      milesBalance: 500, // Miles de bienvenue
     },
   });
 

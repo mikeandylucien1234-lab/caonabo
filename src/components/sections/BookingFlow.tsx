@@ -97,13 +97,11 @@ function makeHoldToken(): string {
 
 export default function BookingFlow({
   cities,
-  milesBalance = null,
   initialOrigin = null,
   initialDestination = null,
   initialDate = null,
 }: {
   cities: CityDTO[];
-  milesBalance?: number | null;
   initialOrigin?: string | null;
   initialDestination?: string | null;
   initialDate?: string | null;
@@ -136,7 +134,6 @@ export default function BookingFlow({
   const holdTokenRef = useRef<string>(makeHoldToken());
 
   // étape 5
-  const [useMiles, setUseMiles] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [cardName, setCardName] = useState("");
   const [cardNumber, setCardNumber] = useState("");
@@ -151,11 +148,9 @@ export default function BookingFlow({
   const [seatNotice, setSeatNotice] = useState<string | null>(null);
   const [reference, setReference] = useState<string | null>(null);
   const [confirmInfo, setConfirmInfo] = useState<{
-    milesEarned: number | null;
     payment: string | null;
   } | null>(null);
   const autoRef = useRef(false);
-  const isLoggedIn = milesBalance !== null;
 
   // ── chargement de la politique de bagages (une fois) ────────────────────────
   useEffect(() => {
@@ -267,7 +262,6 @@ export default function BookingFlow({
     ? JSON.stringify({
         f: selected.id,
         p: passengers.map((p) => [p.seatId, p.extraBaggageKg, p.extraFullBags]),
-        m: useMiles,
       })
     : "";
   useEffect(() => {
@@ -285,7 +279,6 @@ export default function BookingFlow({
               extraBaggageKg: p.extraBaggageKg,
               extraFullBags: p.extraFullBags,
             })),
-            useMiles: useMiles && milesBalance ? milesBalance : 0,
           }),
         });
         const data = await res.json();
@@ -397,7 +390,6 @@ export default function BookingFlow({
       cabinClass,
       contactEmail: email,
       contactPhone: phone,
-      useMiles: useMiles && milesBalance ? milesBalance : 0,
       holdToken: holdTokenRef.current,
       passengers: passengers.map((p) => ({
         civility: p.civility,
@@ -454,10 +446,7 @@ export default function BookingFlow({
       throw new Error(data.error ?? "Erreur de réservation");
     }
     setReference(data.reference as string);
-    setConfirmInfo({
-      milesEarned: typeof data.milesEarned === "number" ? data.milesEarned : null,
-      payment: data.paymentMethodDisplay ?? null,
-    });
+    setConfirmInfo({ payment: data.paymentMethodDisplay ?? null });
   }
 
   async function confirmBooking() {
@@ -520,9 +509,6 @@ export default function BookingFlow({
             <p style={{ color: "#7a7a92", fontSize: 13, marginTop: 4 }}>
               Paiement : {confirmInfo.payment} <i>(simulé)</i>
             </p>
-          )}
-          {confirmInfo?.milesEarned != null && (
-            <div style={milesBadge}>✦ +{confirmInfo.milesEarned} Miles Caonabo crédités</div>
           )}
         </div>
       </div>
@@ -593,10 +579,6 @@ export default function BookingFlow({
             policy={policy}
             breakdown={breakdown}
             email={email}
-            isLoggedIn={isLoggedIn}
-            milesBalance={milesBalance}
-            useMiles={useMiles}
-            setUseMiles={setUseMiles}
             paymentMethod={paymentMethod}
             setPaymentMethod={setPaymentMethod}
             cardName={cardName}
@@ -1325,10 +1307,6 @@ function Step5(props: {
   policy: BaggagePolicyDTO;
   breakdown: Breakdown | null;
   email: string;
-  isLoggedIn: boolean;
-  milesBalance: number | null;
-  useMiles: boolean;
-  setUseMiles: (v: boolean) => void;
   paymentMethod: string;
   setPaymentMethod: (v: string) => void;
   cardName: string;
@@ -1390,14 +1368,10 @@ function Step5(props: {
                 {b.baggageTotalCents > 0 && <Line label="Bagages" value={formatPrice(b.baggageTotalCents, "USD")} />}
                 {b.seatTotalCents > 0 && <Line label="Sièges" value={formatPrice(b.seatTotalCents, "USD")} />}
                 <Line label="Taxes & frais" value={formatPrice(b.taxesCents, "USD")} />
-                {b.milesRedeemed > 0 && <Line label="Remise Miles Caonabo" value={`− ${formatPrice(b.milesRedeemed, "USD")}`} green />}
                 <div style={{ borderTop: "1px solid #eceafa", marginTop: 6, paddingTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span style={{ fontWeight: 700, color: "#1e1b4b", fontSize: 15 }}>Total</span>
                   <span style={{ fontWeight: 800, color: PURPLE, fontSize: 22 }}>{formatPrice(b.totalUsdCents, "USD")}</span>
                 </div>
-                {b.milesEarned > 0 && (
-                  <div style={{ fontSize: 12, color: "#1f9d55", textAlign: "right" }}>✦ +{b.milesEarned} Miles gagnés</div>
-                )}
               </div>
             ) : (
               <p style={{ fontSize: 13, color: "#8a8aa0" }}>Calcul du prix…</p>
@@ -1420,33 +1394,6 @@ function Step5(props: {
             </div>
           )}
 
-          {props.isLoggedIn && (
-            <label
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                background: "#f7f4fe",
-                border: "1.5px solid #e4dbfb",
-                borderRadius: 12,
-                padding: "12px 14px",
-                cursor: props.milesBalance! > 0 ? "pointer" : "default",
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={props.useMiles}
-                disabled={props.milesBalance! <= 0}
-                onChange={(e) => props.setUseMiles(e.target.checked)}
-                style={{ width: 18, height: 18, accentColor: PURPLE2 }}
-              />
-              <div style={{ fontSize: 13.5, color: "#1e1b4b" }}>
-                <b>Utiliser mes Miles Caonabo</b>{" "}
-                <span style={{ color: "#8a8aa0" }}>({props.milesBalance!.toLocaleString("fr-FR")} dispo)</span>
-              </div>
-            </label>
-          )}
-
           {props.flowConfigured ? (
             <div style={{ border: "1.5px solid #eceafa", borderRadius: 12, padding: "16px 18px", background: "#faf9fd" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, fontWeight: 700, color: "#1e1b4b", fontSize: 14, marginBottom: 6 }}>
@@ -1465,10 +1412,9 @@ function Step5(props: {
             {[
               { id: "card", label: "Carte bancaire", icon: "💳" },
               { id: "paypal", label: "PayPal", icon: "🅿️" },
-              { id: "miles-only", label: "Miles Caonabo uniquement", icon: "✦" },
             ].map((m) => {
               const active = props.paymentMethod === m.id;
-              const disabled = m.id === "miles-only" && !props.isLoggedIn;
+              const disabled = false;
               return (
                 <button
                   key={m.id}
@@ -1584,17 +1530,6 @@ const refBadge: React.CSSProperties = {
   padding: "12px 24px",
   borderRadius: 12,
 };
-const milesBadge: React.CSSProperties = {
-  marginTop: 16,
-  display: "inline-block",
-  background: "#f0ecfb",
-  color: PURPLE,
-  fontWeight: 700,
-  fontSize: 14,
-  padding: "10px 18px",
-  borderRadius: 999,
-};
-
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return <div style={{ fontWeight: 800, color: "#1e1b4b", fontSize: 19 }}>{children}</div>;
 }

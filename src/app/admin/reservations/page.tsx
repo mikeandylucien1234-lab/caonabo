@@ -258,10 +258,8 @@ function BookingDetail({ id, onClose, onStatus, statusPending }: { id: string; o
                 <PriceRow k="Bagages" v={fmtUsd(b.baggageTotalCents)} />
                 <PriceRow k="Sièges" v={fmtUsd(b.seatTotalCents)} />
                 <PriceRow k="Taxes" v={fmtUsd(b.taxesCents)} />
-                {b.milesRedeemed > 0 && <PriceRow k="Miles utilisés" v={`− ${fmtUsd(b.milesRedeemed)}`} accent="#1f9d55" />}
                 <div style={{ height: 1, background: "#e6e4f0", margin: "8px 0" }} />
                 <PriceRow k="Total payé" v={`${fmtUsd(b.totalUsdCents)} ${b.currency}`} bold />
-                <div style={{ fontSize: 12.5, color: "#8a8aa0", marginTop: 8 }}>Miles gagnés par cette réservation : <b style={{ color: "#5b21b6" }}>{b.milesEarned}</b></div>
               </Section>
             </div>
           ) : null}

@@ -2,7 +2,6 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BookingFlow from "@/components/sections/BookingFlow";
 import { getCities } from "@/lib/data/queries";
-import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,11 +12,7 @@ export default async function BookPage({
 }: {
   searchParams: Promise<{ origin?: string; destination?: string; date?: string }>;
 }) {
-  const [cities, user, sp] = await Promise.all([
-    getCities(),
-    getCurrentUser(),
-    searchParams,
-  ]);
+  const [cities, sp] = await Promise.all([getCities(), searchParams]);
   return (
     <div style={{ maxWidth: 1536, margin: "0 auto", background: "#fff" }}>
       <Header variant="solid" active="/book" />
@@ -35,7 +30,6 @@ export default async function BookPage({
       </div>
       <BookingFlow
         cities={cities}
-        milesBalance={user?.milesBalance ?? null}
         initialOrigin={sp.origin ?? null}
         initialDestination={sp.destination ?? null}
         initialDate={sp.date ?? null}

@@ -24,8 +24,7 @@ const SECTIONS: LegalSection[] = [
           items={[
             "Données de compte : nom, prénom, adresse e-mail et mot de passe (stocké de façon chiffrée) ;",
             "Données de réservation : passagers, documents de voyage, itinéraires, sièges et bagages ;",
-            "Données de contact : messages envoyés via le formulaire de contact ou les demandes de groupe ;",
-            "Solde et historique des Miles Caonabo rattachés à votre compte.",
+            "Données de contact : messages envoyés via le formulaire de contact ou les demandes de groupe.",
           ]}
         />
       </>

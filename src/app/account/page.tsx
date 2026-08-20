@@ -33,30 +33,6 @@ export default async function AccountPage() {
           <LogoutButton />
         </div>
 
-        {/* solde Miles */}
-        <div
-          style={{
-            marginTop: 24,
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 14,
-            background: "linear-gradient(120deg,#3d1e8a,#5b21b6)",
-            color: "#fff",
-            padding: "20px 28px",
-            borderRadius: 18,
-          }}
-        >
-          <span style={{ fontSize: 30 }}>✦</span>
-          <div>
-            <div style={{ fontSize: 13, opacity: 0.85 }}>Vos Miles Caonabo</div>
-            <div className="font-heading" style={{ fontSize: 30, fontWeight: 800 }}>
-              {user.milesBalance.toLocaleString("fr-FR")} Miles
-            </div>
-            <div style={{ fontSize: 12, opacity: 0.85 }}>
-              1 Mile = 0,01 $ · utilisables au paiement
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className="hz" style={{ padding: "40px 56px 100px" }}>
@@ -127,10 +103,6 @@ export default async function AccountPage() {
                       minute: "2-digit",
                     })}{" "}
                     · {b.passengerCount} passager{b.passengerCount > 1 ? "s" : ""}
-                  </div>
-                  <div style={{ fontSize: 12, color: "#8a8aa0", marginTop: 4 }}>
-                    +{b.milesEarned} Miles gagnés
-                    {b.milesRedeemed > 0 ? ` · ${b.milesRedeemed} Miles utilisés` : ""}
                   </div>
                   <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                     <span

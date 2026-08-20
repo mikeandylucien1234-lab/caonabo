@@ -61,8 +61,7 @@ const SECTIONS: LegalSection[] = [
     heading: "Paiement",
     body: (
       <P>
-        Les moyens de paiement acceptés, ainsi que l&apos;utilisation des Miles Caonabo en
-        règlement partiel ou total, sont décrits dans notre page{" "}
+        Les moyens de paiement acceptés sont décrits dans notre page{" "}
         <a href="/moyens-de-paiement" style={{ color: "#5b21b6", fontWeight: 600 }}>Moyens de Paiement</a>. Le
         contrat n&apos;est définitif qu&apos;après validation du paiement.
       </P>
@@ -85,17 +84,6 @@ const SECTIONS: LegalSection[] = [
           ]}
         />
       </>
-    ),
-  },
-  {
-    id: "miles",
-    heading: "Programme Miles Caonabo",
-    body: (
-      <P>
-        Chaque réservation payante permet de cumuler des Miles Caonabo, utilisables ensuite pour
-        régler tout ou partie d&apos;un futur billet (1 Mile = 0,01 USD de remise). Les Miles sont
-        rattachés à un compte client, personnels et non cessibles.
-      </P>
     ),
   },
   {

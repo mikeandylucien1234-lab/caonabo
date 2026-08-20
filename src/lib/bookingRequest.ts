@@ -30,7 +30,6 @@ export interface BookingBody {
   contactEmail?: string;
   contactPhone?: string;
   passengers?: PassengerInput[];
-  useMiles?: number;
   holdToken?: string;
 }
 
@@ -54,7 +53,7 @@ export interface PreparedBooking {
   requestedSeatIds: string[];
   holdToken: string | null;
   breakdown: PriceBreakdown;
-  user: { id: string; milesBalance: number } | null;
+  user: { id: string } | null;
 }
 
 export type PrepareResult =
@@ -102,12 +101,7 @@ export async function prepareBooking(body: BookingBody): Promise<PrepareResult> 
   }
 
   const user = await getCurrentUser();
-  const breakdown = await computePrice({
-    flight,
-    passengers: raw,
-    useMiles: body.useMiles,
-    userMilesBalance: user?.milesBalance ?? null,
-  });
+  const breakdown = await computePrice({ flight, passengers: raw });
 
   const passengers: PreparedPassenger[] = raw.map((p) => ({
     civility: p.civility ?? "M",
@@ -139,7 +133,7 @@ export async function prepareBooking(body: BookingBody): Promise<PrepareResult> 
       requestedSeatIds,
       holdToken: body.holdToken ?? null,
       breakdown,
-      user: user ? { id: user.id, milesBalance: user.milesBalance } : null,
+      user: user ? { id: user.id } : null,
     },
   };
 }

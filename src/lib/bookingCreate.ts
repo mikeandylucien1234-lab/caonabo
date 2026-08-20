@@ -51,14 +51,11 @@ export interface RunBookingInput {
   paymentMethodDisplay: string | null;
   status: string; // "confirmed" (démo) | "pending" (Flow)
   paymentStatus: string; // "PAID" (démo) | "PENDING" (Flow)
-  user: { id: string; milesBalance: number } | null;
-  creditMilesNow: boolean; // démo : crédit immédiat ; Flow : au webhook
 }
 
 /**
- * Verrouille les sièges (SELECT … FOR UPDATE), crée la réservation + passagers,
- * décrémente les places du vol et (optionnellement) applique les Miles.
- * Lève "SEAT_TAKEN" / "NO_SEATS" en cas de conflit.
+ * Verrouille les sièges (SELECT … FOR UPDATE), crée la réservation + passagers
+ * et décrémente les places du vol. Lève "SEAT_TAKEN" / "NO_SEATS" en conflit.
  */
 export async function runBookingTransaction(input: RunBookingInput): Promise<Booking> {
   const { flightId, requestedSeatIds, holdToken, breakdown, passengers } = input;
@@ -139,16 +136,6 @@ export async function runBookingTransaction(input: RunBookingInput): Promise<Boo
       where: { id: flightId },
       data: { seatsAvailable: fresh.seatsAvailable - passengers.length },
     });
-
-    if (input.creditMilesNow && input.user) {
-      await tx.user.update({
-        where: { id: input.user.id },
-        data: {
-          milesBalance:
-            input.user.milesBalance - breakdown.milesRedeemed + breakdown.milesEarned,
-        },
-      });
-    }
 
     return created;
   });

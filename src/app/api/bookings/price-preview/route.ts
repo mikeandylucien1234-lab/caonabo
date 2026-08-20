@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { computePrice, type PricePassenger } from "@/lib/booking";
 
 export const dynamic = "force-dynamic";
@@ -8,7 +7,6 @@ export const dynamic = "force-dynamic";
 interface PreviewBody {
   flightId?: string;
   passengers?: PricePassenger[];
-  useMiles?: number;
 }
 
 // POST /api/bookings/price-preview → recalcule le détail de prix côté serveur.
@@ -38,17 +36,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Vol introuvable." }, { status: 404 });
   }
 
-  const user = await getCurrentUser();
-  const breakdown = await computePrice({
-    flight,
-    passengers,
-    useMiles: body.useMiles,
-    userMilesBalance: user?.milesBalance ?? null,
-  });
+  const breakdown = await computePrice({ flight, passengers });
 
-  return NextResponse.json({
-    ...breakdown,
-    currency: "USD",
-    milesBalance: user?.milesBalance ?? null,
-  });
+  return NextResponse.json({ ...breakdown, currency: "USD" });
 }

@@ -46,7 +46,6 @@ interface ReceiptData {
   baggageTotalCents: number;
   seatTotalCents: number;
   taxesCents: number;
-  milesRedeemed: number;
   totalUsdCents: number;
   passengers: Array<{ civility: string; firstName: string; lastName: string }>;
   route: string;
@@ -140,7 +139,6 @@ export async function buildReceiptPdf(d: ReceiptData): Promise<Uint8Array> {
   if (d.baggageTotalCents > 0) row("Bagages supplémentaires", eur(d.baggageTotalCents));
   if (d.seatTotalCents > 0) row("Sièges", eur(d.seatTotalCents));
   row("Taxes & frais", eur(d.taxesCents));
-  if (d.milesRedeemed > 0) row("Remise Miles Caonabo", `- ${eur(d.milesRedeemed)}`, font, rgb(0.12, 0.6, 0.33));
   y -= 4;
   hr(y);
   y -= 22;
@@ -196,7 +194,6 @@ export async function generateReceiptForBooking(bookingId: string): Promise<stri
     baggageTotalCents: b.baggageTotalCents,
     seatTotalCents: b.seatTotalCents,
     taxesCents: b.taxesCents,
-    milesRedeemed: b.milesRedeemed,
     totalUsdCents: b.totalUsdCents,
     passengers: b.passengers,
     route,

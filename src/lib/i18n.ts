@@ -64,7 +64,7 @@ const fr: Dict = {
   whatsapp: { titleA: "Réservez votre vol avec", titleHi: "l'accompagnement d'experts", cardTitle: "Écrivez-nous sur WhatsApp", text: "Notre équipe vous accompagne dans la planification et l'achat de vos vols.", hours: "Lundi à dimanche de 8h00 à 20h00", cta: "Aller sur WhatsApp" },
   trust: { text: "Caonabo Airlinje propose des vols directs et avec escale entre le Chili, Haïti, le Canada et le Pérou. Les prix, disponibilités, taxes et délais peuvent varier selon la période et sont toujours confirmés au moment du paiement. Les paiements sont traités de façon sécurisée — Caonabo ne stocke jamais vos données de carte complètes.", cgv: "Conditions Générales" },
   search: { round: "Aller-retour", oneway: "Aller simple", prompt: "Où souhaitez-vous aller ?", from: "Depuis", to: "Vers", depart: "Départ", ret: "Retour", passengers: "Passagers", adult: "Adulte", adults: "Adultes" },
-  videoBanner: { title: "Chaque vol vous rapproche des vôtres", text: "De Port-au-Prince à Santiago, Montréal et Lima — Caonabo Airlinje relie la diaspora haïtienne, un voyage à la fois." },
+  videoBanner: { title: "Découvrez la face cachée d'Haïti", text: "Plages secrètes, montagnes et culture vibrante : laissez-vous surprendre par la beauté d'Haïti." },
 };
 
 const en: Dict = {
@@ -91,7 +91,7 @@ const en: Dict = {
   whatsapp: { titleA: "Book your flight with", titleHi: "expert guidance", cardTitle: "Message us on WhatsApp", text: "Our team helps you plan and purchase your flights.", hours: "Monday to Sunday, 8:00 AM to 8:00 PM", cta: "Go to WhatsApp" },
   trust: { text: "Caonabo Airlinje offers direct and connecting flights between Chile, Haiti, Canada and Peru. Prices, availability, taxes and times may vary by season and are always confirmed at payment. Payments are processed securely — Caonabo never stores your full card details.", cgv: "Terms & Conditions" },
   search: { round: "Round trip", oneway: "One way", prompt: "Where would you like to go?", from: "From", to: "To", depart: "Departure", ret: "Return", passengers: "Passengers", adult: "Adult", adults: "Adults" },
-  videoBanner: { title: "Every flight brings you closer to your loved ones", text: "From Port-au-Prince to Santiago, Montréal and Lima — Caonabo Airlinje connects the Haitian diaspora, one journey at a time." },
+  videoBanner: { title: "Discover the hidden side of Haiti", text: "Secret beaches, mountains and vibrant culture — let the beauty of Haiti surprise you." },
 };
 
 const es: Dict = {
@@ -118,7 +118,7 @@ const es: Dict = {
   whatsapp: { titleA: "Reserva tu vuelo con", titleHi: "el acompañamiento de expertos", cardTitle: "Escríbenos por WhatsApp", text: "Nuestro equipo te acompaña en la planificación y la compra de tus vuelos.", hours: "De lunes a domingo de 8:00 a 20:00", cta: "Ir a WhatsApp" },
   trust: { text: "Caonabo Airlinje ofrece vuelos directos y con escala entre Chile, Haití, Canadá y Perú. Los precios, la disponibilidad, los impuestos y los plazos pueden variar según la temporada y siempre se confirman al momento del pago. Los pagos se procesan de forma segura: Caonabo nunca almacena los datos completos de tu tarjeta.", cgv: "Términos y Condiciones" },
   search: { round: "Ida y vuelta", oneway: "Solo ida", prompt: "¿A dónde quieres ir?", from: "Desde", to: "Hacia", depart: "Salida", ret: "Regreso", passengers: "Pasajeros", adult: "Adulto", adults: "Adultos" },
-  videoBanner: { title: "Cada vuelo te acerca a los tuyos", text: "De Puerto Príncipe a Santiago, Montreal y Lima — Caonabo Airlinje conecta a la diáspora haitiana, un viaje a la vez." },
+  videoBanner: { title: "Descubre la cara oculta de Haití", text: "Playas secretas, montañas y cultura vibrante: déjate sorprender por la belleza de Haití." },
 };
 
 const ht: Dict = {
@@ -145,7 +145,7 @@ const ht: Dict = {
   whatsapp: { titleA: "Rezève vòl ou ak", titleHi: "akonpayman ekspè", cardTitle: "Ekri nou sou WhatsApp", text: "Ekip nou an ap akonpaye w nan planifikasyon ak acha vòl ou yo.", hours: "Lendi rive dimanch, 8è nan maten rive 8è nan aswè", cta: "Ale sou WhatsApp" },
   trust: { text: "Caonabo Airlinje ofri vòl dirèk ak vòl ak eskal ant Chili, Ayiti, Kanada ak Perou. Pri, disponibilite, taks ak delè yo ka chanje selon peryòd la epi yo toujou konfime nan moman peman an. Peman yo trete an sekirite — Caonabo pa janm estoke tout enfòmasyon kat ou yo.", cgv: "Kondisyon Jeneral" },
   search: { round: "Ale-retou", oneway: "Ale sèlman", prompt: "Ki kote ou vle ale ?", from: "Soti", to: "Ale", depart: "Depa", ret: "Retou", passengers: "Pasaje", adult: "Granmoun", adults: "Granmoun" },
-  videoBanner: { title: "Chak vòl pwoche w de moun pa w yo", text: "Depi Pòtoprens rive Santiago, Monreyal ak Lima — Caonabo Airlinje konekte dyaspora ayisyen an, yon vwayaj alafwa." },
+  videoBanner: { title: "Dekouvri fas kache Ayiti a", text: "Plaj sekrè, mòn ak yon kilti vivan : kite bèlte Ayiti a sezi w." },
 };
 
 export const dictionaries: Record<Locale, Dict> = { fr, en, es, ht };

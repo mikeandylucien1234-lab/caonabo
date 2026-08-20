@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePrefs } from "@/components/PreferencesProvider";
 import LocaleCurrencySwitcher from "@/components/LocaleCurrencySwitcher";
@@ -23,7 +24,9 @@ export default function MobileNav({
   firstName?: string | null;
 }) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { dict } = usePrefs();
+  useEffect(() => setMounted(true), []);
 
   return (
     <div className="mobile-nav" style={{ position: "relative", alignItems: "center", gap: 8 }}>
@@ -74,24 +77,29 @@ export default function MobileNav({
         <span style={barStyle(open, 3)} />
       </button>
 
-      {open && (
+      {open && mounted && createPortal(
         <>
-          {/* voile de fermeture */}
+          {/* voile de fermeture (surdimensionné pour couvrir malgré le zoom mobile) */}
           <div
             onClick={() => setOpen(false)}
-            style={{ position: "fixed", inset: 0, zIndex: 40 }}
+            style={{ position: "fixed", top: "-25vh", left: "-25vw", width: "150vw", height: "150vh", zIndex: 9998 }}
           />
+          {/* Menu rendu via PORTAL sur <body> + position fixe + z-index élevé :
+              il sort de la pile du hero et passe AU-DESSUS de la carte (qui,
+              autrement, masque les dernières options). */}
           <nav
             style={{
-              position: "absolute",
-              top: "calc(100% + 12px)",
-              right: 0,
-              zIndex: 50,
-              width: 240,
+              position: "fixed",
+              top: 84,
+              right: 14,
+              zIndex: 9999,
+              width: "min(320px, 84vw)",
+              maxHeight: "calc(100vh - 104px)",
+              overflowY: "auto",
               background: "#fff",
               border: "1px solid #eceafa",
               borderRadius: 16,
-              boxShadow: "0 20px 60px rgba(20,10,60,0.18)",
+              boxShadow: "0 20px 60px rgba(20,10,60,0.22)",
               padding: 10,
               display: "flex",
               flexDirection: "column",
@@ -131,7 +139,8 @@ export default function MobileNav({
               {firstName ? `👤 ${firstName}` : dict.login}
             </Link>
           </nav>
-        </>
+        </>,
+        document.body,
       )}
     </div>
   );

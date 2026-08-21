@@ -143,6 +143,30 @@ export async function getBaggagePolicy(): Promise<BaggagePolicyRow> {
   return getBaggagePolicyLib();
 }
 
+/**
+ * Date de départ du PROCHAIN vol à venir pour une route (origine/destination
+ * en codes IATA). Utilisé par la carte « Prochain vol » du hero : la date se
+ * met à jour automatiquement dès que le vol affiché est passé, sans jamais
+ * être codée en dur.
+ */
+export async function getNextFlightDate(
+  originCode: string,
+  destinationCode: string,
+): Promise<string | null> {
+  const flight = await prisma.flight.findFirst({
+    where: {
+      route: {
+        origin: { code: originCode },
+        destination: { code: destinationCode },
+      },
+      departAt: { gte: new Date() },
+    },
+    orderBy: { departAt: "asc" },
+    select: { departAt: true },
+  });
+  return flight ? flight.departAt.toISOString() : null;
+}
+
 export interface SiteMediaEntry {
   type: "image" | "video";
   url: string;

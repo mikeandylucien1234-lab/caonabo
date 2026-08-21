@@ -12,6 +12,7 @@ import FlightResultCard from "@/components/sections/FlightResultCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { withMinDelay } from "@/lib/minDelay";
 import { getSupabase } from "@/lib/supabase/client";
+import { CalendarOverlay, keyOf, frDate } from "@/components/BookingCalendar";
 
 // Visa e- : requis uniquement pour un départ d'Haïti (PAP/CAP) vers le Chili (SCL).
 const HAITI_CODES = ["PAP", "CAP"];
@@ -116,6 +117,29 @@ export default function BookingFlow({
   const [departDate, setDepartDate] = useState(initialDate ?? "");
   const [returnDate, setReturnDate] = useState("");
   const [paxCount, setPaxCount] = useState(1);
+  const [calOpen, setCalOpen] = useState(false);
+
+  // Sélection de date depuis le calendrier (même logique que la recherche
+  // principale) : 1 date en aller simple, plage aller/retour sinon.
+  function onCalDayClick(dateStr: string) {
+    if (tripType === "aller-simple") {
+      setDepartDate(dateStr);
+      setReturnDate("");
+      setCalOpen(false);
+      return;
+    }
+    if (!departDate || (departDate && returnDate)) {
+      setDepartDate(dateStr);
+      setReturnDate("");
+      return;
+    }
+    if (keyOf(dateStr) < keyOf(departDate)) {
+      setDepartDate(dateStr);
+      return;
+    }
+    setReturnDate(dateStr);
+    setCalOpen(false);
+  }
 
   // étape 2
   const [flights, setFlights] = useState<FlightResultDTO[] | null>(null);
@@ -537,6 +561,7 @@ export default function BookingFlow({
             setReturnDate={setReturnDate}
             paxCount={paxCount}
             setPaxCount={setPaxCount}
+            openCalendar={() => setCalOpen(true)}
           />
         )}
 
@@ -620,6 +645,19 @@ export default function BookingFlow({
           </button>
         )}
       </div>
+
+      {/* calendrier multi-mois (overlay) — étape 1 */}
+      {calOpen && (
+        <CalendarOverlay
+          tripType={tripType}
+          departDate={departDate || null}
+          returnDate={returnDate || null}
+          onDayClick={onCalDayClick}
+          onClose={() => setCalOpen(false)}
+          originCode={origin}
+          destinationCode={destination}
+        />
+      )}
     </div>
   );
 }
@@ -691,6 +729,7 @@ function Step1(props: {
   setReturnDate: (v: string) => void;
   paxCount: number;
   setPaxCount: (v: number) => void;
+  openCalendar: () => void;
 }) {
   const { cities } = props;
   return (
@@ -777,11 +816,23 @@ function Step1(props: {
       </div>
       <div className="bk-grid" style={{ display: "grid", gridTemplateColumns: props.tripType === "aller-retour" ? "1fr 1fr 1fr" : "1fr 1fr", gap: 14 }}>
         <Field label="Date aller">
-          <input type="date" style={inputStyle} value={props.departDate} onChange={(e) => props.setDepartDate(e.target.value)} />
+          <button
+            type="button"
+            onClick={props.openCalendar}
+            style={{ ...inputStyle, textAlign: "left", cursor: "pointer", color: props.departDate ? "#1e1b4b" : "#8a8aa0" }}
+          >
+            {props.departDate ? frDate(props.departDate) : "Sélectionner"}
+          </button>
         </Field>
         {props.tripType === "aller-retour" && (
           <Field label="Date retour">
-            <input type="date" style={inputStyle} value={props.returnDate} onChange={(e) => props.setReturnDate(e.target.value)} />
+            <button
+              type="button"
+              onClick={props.openCalendar}
+              style={{ ...inputStyle, textAlign: "left", cursor: "pointer", color: props.returnDate ? "#1e1b4b" : "#8a8aa0" }}
+            >
+              {props.returnDate ? frDate(props.returnDate) : "Sélectionner"}
+            </button>
           </Field>
         )}
         <Field label="Passagers">

@@ -7,6 +7,7 @@ import FlightResultCard from "@/components/sections/FlightResultCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { withMinDelay } from "@/lib/minDelay";
 import { usePrefs } from "@/components/PreferencesProvider";
+import { CalendarOverlay, keyOf, frDate } from "@/components/BookingCalendar";
 
 type TripType = "aller-retour" | "aller-simple";
 type Panel = "from" | "to" | "pax" | null;
@@ -15,24 +16,6 @@ const TRIP_DEFS: { key: TripType; label: string }[] = [
   { key: "aller-retour", label: "Aller-retour" },
   { key: "aller-simple", label: "Aller simple" },
 ];
-
-const MONTHS_FR = [
-  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
-];
-const WEEKDAYS = ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
-
-/** Clé numérique comparable à partir d'une date "YYYY-M-D". */
-function keyOf(dateStr: string | null): number {
-  if (!dateStr) return 0;
-  const [y, m, d] = dateStr.split("-").map(Number);
-  return y * 10000 + m * 100 + d;
-}
-/** Affichage "26 Mai 2025". */
-function frDate(dateStr: string): string {
-  const [y, m, d] = dateStr.split("-").map(Number);
-  return `${String(d).padStart(2, "0")} ${MONTHS_FR[m - 1]} ${y}`;
-}
 
 export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
   const [tripType, setTripType] = useState<TripType>("aller-retour");
@@ -400,6 +383,8 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
           returnDate={returnDate}
           onDayClick={onCalDayClick}
           onClose={() => setCalOpen(false)}
+          originCode={from?.code}
+          destinationCode={to?.code}
         />
       )}
     </div>
@@ -541,188 +526,6 @@ function FieldSelect({
           })}
         </div>
       )}
-    </div>
-  );
-}
-
-function CalendarOverlay({
-  tripType,
-  departDate,
-  returnDate,
-  onDayClick,
-  onClose,
-}: {
-  tripType: TripType;
-  departDate: string | null;
-  returnDate: string | null;
-  onDayClick: (d: string) => void;
-  onClose: () => void;
-}) {
-  const { dict } = usePrefs();
-  // 6 mois glissants à partir du mois courant
-  const base = new Date();
-  base.setDate(1);
-  const months: { y: number; m: number }[] = [];
-  for (let i = 0; i < 6; i++) {
-    const dt = new Date(base.getFullYear(), base.getMonth() + i, 1);
-    months.push({ y: dt.getFullYear(), m: dt.getMonth() });
-  }
-
-  const today = new Date();
-  const todayKey = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-  const dK = keyOf(departDate);
-  const rK = keyOf(returnDate);
-
-  return (
-    <div
-      onClick={onClose}
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 1000,
-        background: "rgba(15,15,45,0.45)",
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "center",
-        padding: "5vh 12px",
-        overflowY: "auto",
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          width: "100%",
-          maxWidth: 460,
-          background: "#fff",
-          borderRadius: 20,
-          padding: "20px 18px 24px",
-          maxHeight: "90vh",
-          overflowY: "auto",
-        }}
-      >
-        {/* en-tête Aller / Retour + fermer */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 14,
-          }}
-        >
-          <div style={{ display: "flex", gap: 22 }}>
-            <div>
-              <div style={{ fontSize: 12, color: "#8a8aa0" }}>{dict.search.depart}</div>
-              <div style={{ fontWeight: 700, color: "#1e1b4b", fontSize: 15 }}>
-                {departDate ? frDate(departDate) : "Sélectionner"}
-              </div>
-            </div>
-            {tripType === "aller-retour" && (
-              <div>
-                <div style={{ fontSize: 12, color: "#8a8aa0" }}>{dict.search.ret}</div>
-                <div style={{ fontWeight: 700, color: "#1e1b4b", fontSize: 15 }}>
-                  {returnDate ? frDate(returnDate) : "Sélectionner"}
-                </div>
-              </div>
-            )}
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Fermer"
-            style={{
-              width: 38,
-              height: 38,
-              borderRadius: 999,
-              border: "1.5px solid #3d1e8a",
-              background: "#fff",
-              color: "#3d1e8a",
-              fontSize: 18,
-              cursor: "pointer",
-              flexShrink: 0,
-            }}
-          >
-            ✕
-          </button>
-        </div>
-
-        {months.map(({ y, m }) => {
-          const startOffset = (new Date(y, m, 1).getDay() + 6) % 7;
-          const daysInMonth = new Date(y, m + 1, 0).getDate();
-          const cells: (number | null)[] = [];
-          for (let i = 0; i < startOffset; i++) cells.push(null);
-          for (let d = 1; d <= daysInMonth; d++) cells.push(d);
-          return (
-            <div key={`${y}-${m}`} style={{ marginBottom: 22 }}>
-              <div
-                className="font-heading"
-                style={{
-                  textAlign: "center",
-                  fontWeight: 700,
-                  color: "#1e1b4b",
-                  fontSize: 16,
-                  marginBottom: 10,
-                }}
-              >
-                {MONTHS_FR[m]} {y}
-              </div>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(7,1fr)",
-                  gap: 4,
-                  marginBottom: 6,
-                }}
-              >
-                {WEEKDAYS.map((w) => (
-                  <div
-                    key={w}
-                    style={{
-                      textAlign: "center",
-                      fontSize: 12,
-                      color: "#a0a0b4",
-                      fontWeight: 600,
-                    }}
-                  >
-                    {w}
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 4 }}>
-                {cells.map((d, i) => {
-                  if (d === null) return <div key={i} />;
-                  const k = y * 10000 + (m + 1) * 100 + d;
-                  const past = k < todayKey;
-                  const isStart = k === dK;
-                  const isEnd = k === rK;
-                  const inRange = dK && rK && k > dK && k < rK;
-                  const selected = isStart || isEnd;
-                  return (
-                    <div
-                      key={i}
-                      onClick={() => !past && onDayClick(`${y}-${m + 1}-${d}`)}
-                      style={{
-                        textAlign: "center",
-                        padding: "9px 0",
-                        borderRadius: 9,
-                        fontSize: 14,
-                        cursor: past ? "default" : "pointer",
-                        color: past ? "#d4d2e0" : selected ? "#fff" : "#1e1b4b",
-                        background: selected
-                          ? "#5b21b6"
-                          : inRange
-                            ? "#eee7fb"
-                            : "transparent",
-                        fontWeight: selected ? 700 : 500,
-                      }}
-                    >
-                      {d}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
     </div>
   );
 }

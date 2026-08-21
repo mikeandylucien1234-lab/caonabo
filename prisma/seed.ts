@@ -17,11 +17,12 @@ const AIRPORTS = [
 ];
 
 // Corridors desservis : [origine, destination, direct, prix de base USD cents]
+// NB : SCL<->CAP est EXCLUE de cette génération procédurale (vols quotidiens) —
+// c'est un affrètement (charter) au calendrier officiel fixe, voir
+// SCL_CAP_OFFICIAL_SCHEDULE plus bas.
 const ROUTES: Array<[string, string, boolean, number]> = [
   ["SCL", "PAP", false, 68900], // Santiago ↔ Port-au-Prince (avec escale)
   ["PAP", "SCL", false, 68900],
-  ["SCL", "CAP", false, 71900],
-  ["CAP", "SCL", false, 71900],
   ["SCL", "LIM", true, 18900], // Santiago ↔ Lima (direct)
   ["LIM", "SCL", true, 18900],
   ["PAP", "YYZ", true, 52900], // Port-au-Prince ↔ Toronto (direct)
@@ -38,13 +39,39 @@ const ROUTES: Array<[string, string, boolean, number]> = [
 const STOP_HUBS: Record<string, string> = {
   "SCL-PAP": "LIM",
   "PAP-SCL": "LIM",
-  "SCL-CAP": "LIM",
-  "CAP-SCL": "LIM",
   "CAP-YYZ": "PAP",
   "YYZ-CAP": "PAP",
   "LIM-PAP": "PTY", // Panama (hub de correspondance)
   "PAP-LIM": "PTY",
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Calendrier OFFICIEL de la route Santiago (SCL) <-> Cap-Haïtien (CAP) :
+// affrètement (charter), ~1 rotation/mois, PAS un vol quotidien. Les dates
+// sont réelles et fixes — remplace toute génération procédurale pour cette
+// route. [flightNumber aller, flightNumber retour, [y,m,d] aller, [y,m,d] retour]
+// (mois 1-indexé pour la lisibilité, converti en 0-indexé à l'usage)
+// ─────────────────────────────────────────────────────────────────────────────
+const SCL_CAP_OFFICIAL_SCHEDULE: Array<{
+  out: string;
+  ret: string;
+  outDate: [number, number, number];
+  retDate: [number, number, number];
+}> = [
+  { out: "CA300", ret: "CA350", outDate: [2026, 9, 12], retDate: [2026, 9, 13] },
+  { out: "CA301", ret: "CA351", outDate: [2026, 10, 10], retDate: [2026, 10, 11] },
+  { out: "CA302", ret: "CA352", outDate: [2026, 11, 7], retDate: [2026, 11, 8] },
+  { out: "CA303", ret: "CA353", outDate: [2026, 12, 5], retDate: [2026, 12, 6] },
+  { out: "CA304", ret: "CA354", outDate: [2027, 1, 2], retDate: [2027, 1, 3] },
+  { out: "CA305", ret: "CA355", outDate: [2027, 1, 30], retDate: [2027, 1, 31] },
+  { out: "CA306", ret: "CA356", outDate: [2027, 2, 27], retDate: [2027, 2, 28] },
+  { out: "CA307", ret: "CA357", outDate: [2027, 3, 27], retDate: [2027, 3, 28] },
+  { out: "CA308", ret: "CA358", outDate: [2027, 4, 24], retDate: [2027, 4, 25] },
+  { out: "CA309", ret: "CA359", outDate: [2027, 5, 22], retDate: [2027, 5, 23] },
+  { out: "CA310", ret: "CA360", outDate: [2027, 6, 19], retDate: [2027, 6, 20] },
+];
+const SCL_CAP_PRICE_CENTS = 71900; // tarif fixe (charter), pas de variation journalière
+const SCL_CAP_DURATION_MIN = 690; // 11h30, 1 escale (LIM)
 
 // Politique de bagages réelle (Boeing 737-400, affrètement complet).
 //   Inclus / passager : 1 soute (23 kg) + 1 cabine (8 kg)
@@ -309,7 +336,65 @@ async function main() {
       flightCount++;
     }
   }
-  console.log(`  🛫 ${ROUTES.length} routes, ${flightCount} vols`);
+
+  // Route SCL<->CAP : affrètement (charter) au calendrier OFFICIEL fixe (pas
+  // de génération procédurale quotidienne). 1 escale (LIM), tarif fixe.
+  const sclCapRoute = await prisma.route.create({
+    data: {
+      originId: airportByCode.SCL,
+      destinationId: airportByCode.CAP,
+      directFlight: false,
+      stops: 1,
+    },
+  });
+  const capSclRoute = await prisma.route.create({
+    data: {
+      originId: airportByCode.CAP,
+      destinationId: airportByCode.SCL,
+      directFlight: false,
+      stops: 1,
+    },
+  });
+  for (const rot of SCL_CAP_OFFICIAL_SCHEDULE) {
+    const [oy, om, od] = rot.outDate;
+    const [ry, rm, rd] = rot.retDate;
+    const departOut = new Date(oy, om - 1, od, 10, 0, 0, 0);
+    const arriveOut = new Date(departOut.getTime() + SCL_CAP_DURATION_MIN * 60 * 1000);
+    const departRet = new Date(ry, rm - 1, rd, 10, 0, 0, 0);
+    const arriveRet = new Date(departRet.getTime() + SCL_CAP_DURATION_MIN * 60 * 1000);
+    await prisma.flight.create({
+      data: {
+        flightNumber: rot.out,
+        routeId: sclCapRoute.id,
+        departAt: departOut,
+        arriveAt: arriveOut,
+        priceUsdCents: SCL_CAP_PRICE_CENTS,
+        seatsTotal: 150,
+        seatsAvailable: 150,
+        operatedBy: "Caonabo Airlinje",
+        durationMinutes: SCL_CAP_DURATION_MIN,
+        stopsCount: 1,
+        stopAirports: "LIM",
+      },
+    });
+    await prisma.flight.create({
+      data: {
+        flightNumber: rot.ret,
+        routeId: capSclRoute.id,
+        departAt: departRet,
+        arriveAt: arriveRet,
+        priceUsdCents: SCL_CAP_PRICE_CENTS,
+        seatsTotal: 150,
+        seatsAvailable: 150,
+        operatedBy: "Caonabo Airlinje",
+        durationMinutes: SCL_CAP_DURATION_MIN,
+        stopsCount: 1,
+        stopAirports: "LIM",
+      },
+    });
+    flightCount += 2;
+  }
+  console.log(`  🛫 ${ROUTES.length + 2} routes, ${flightCount} vols (dont ${SCL_CAP_OFFICIAL_SCHEDULE.length * 2} SCL<->CAP officiels)`);
 
   // Politique de bagages (ligne de configuration unique)
   await prisma.baggagePolicy.create({ data: BAGGAGE_POLICY });

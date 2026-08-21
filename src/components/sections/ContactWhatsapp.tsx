@@ -6,13 +6,11 @@
 
 import { getPrefs } from "@/lib/prefs";
 import { getDictionary } from "@/lib/i18n";
+import { WHATSAPP_NUMBER } from "@/lib/contactInfo";
 
 const INK = "#1e1b4b";
 const RED = "#dc2626";
 const PURPLE = "#5b21b6";
-
-// Numéro WhatsApp — À DÉFINIR (format international sans « + » ni espaces).
-const WHATSAPP_NUMBER = "50937123456";
 
 export default async function ContactWhatsapp() {
   const { locale } = await getPrefs();

@@ -91,7 +91,7 @@ export default function Faq({ faqs }: { faqs: FaqDTO[] }) {
             })}
           </div>
           <div style={{ marginTop: 20, fontSize: 14, color: "#4b4b6b" }}>
-            {dict.faq.more} <a href="#">{dict.faq.helpCenter}</a>
+            {dict.faq.more} <a href="/centre-aide">{dict.faq.helpCenter}</a>
           </div>
         </div>
         <div className="faq-illus" style={{ display: "flex", justifyContent: "center" }}>

@@ -210,14 +210,14 @@ const FAQS = [
       "Vous trouverez des promotions sur les vols directs et avec escale vers le Chili, Haïti, le Canada et au-delà, avec des remises pouvant aller jusqu'à 50%.",
   },
   {
-    question: "Puis-je cumuler des Miles Caonabo en achetant sur ce site ?",
+    question: "Quels moyens de paiement acceptez-vous ?",
     answer:
-      "Oui, chaque réservation effectuée sur notre site vous permet d'accumuler des Miles Caonabo utilisables sur vos prochains voyages.",
+      "Nous acceptons les cartes bancaires (Visa, Mastercard) ainsi que le paiement en ligne sécurisé via Flow. Consultez notre page Moyens de Paiement pour le détail.",
   },
   {
-    question: "Est-il possible de payer avec mes Miles Caonabo ?",
+    question: "Comment obtenir ma carte d'embarquement ?",
     answer:
-      "Oui, vous pouvez régler tout ou partie de votre billet avec vos Miles Caonabo directement au moment du paiement.",
+      "Effectuez votre check-in en ligne dès 24h et jusqu'à 1h avant le départ, depuis la page Check-In, avec votre référence de réservation et votre nom de famille. Votre carte d'embarquement (PDF avec QR code) est générée immédiatement et reste téléchargeable à tout moment.",
   },
   {
     question: "Les offres sont-elles valables pour toutes les destinations ?",

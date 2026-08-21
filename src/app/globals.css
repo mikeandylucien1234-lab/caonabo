@@ -193,7 +193,8 @@ html {
   .cargo-grid,
   .legal-toc,
   .adm-cols,
-  .dest-grid {
+  .dest-grid,
+  .help-cat-grid {
     grid-template-columns: 1fr !important;
   }
   .adm-stats {

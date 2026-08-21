@@ -4,7 +4,7 @@ import { useRows, useUpsert, fmtDateTime } from "@/lib/admin/api";
 import { useAuth } from "@/components/admin/AdminProviders";
 import { PageHead, Card, Btn, Badge, Table, Td, Loading, ErrorBox } from "@/components/admin/ui";
 
-interface Msg { id: string; name: string; email: string; subject: string; message: string; isRead: boolean; createdAt: string }
+interface Msg { id: string; name: string; email: string; phone: string | null; subject: string; message: string; isRead: boolean; createdAt: string }
 interface Group { id: string; travelers: number; route: string; approxDates: string | null; email: string; phone: string | null; status: string; createdAt: string }
 
 export default function AdminSettings() {
@@ -34,7 +34,7 @@ export default function AdminSettings() {
             {(messages.data ?? []).map((m) => (
               <tr key={m.id}>
                 <Td>{m.isRead ? <Badge label="Lu" tone="grey" /> : <Badge label="Non lu" tone="violet" />}</Td>
-                <Td><b style={{ color: "#1e1b4b" }}>{m.name}</b><div style={{ fontSize: 12, color: "#8a8aa0" }}>{m.email}</div></Td>
+                <Td><b style={{ color: "#1e1b4b" }}>{m.name}</b><div style={{ fontSize: 12, color: "#8a8aa0" }}>{m.email}{m.phone ? ` · ${m.phone}` : ""}</div></Td>
                 <Td>{m.subject}</Td>
                 <Td style={{ maxWidth: 320, color: "#6b6b80" }}>{m.message.slice(0, 80)}{m.message.length > 80 ? "…" : ""}</Td>
                 <Td style={{ fontSize: 13 }}>{fmtDateTime(m.createdAt)}</Td>

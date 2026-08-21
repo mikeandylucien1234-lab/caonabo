@@ -292,7 +292,8 @@ model ContactMessage {
   id        String   @id @default(cuid())
   name      String
   email     String
-  subject   String // Réservation | Réclamation | Presse | Autre
+  phone     String?
+  subject   String // Réservation | Réclamation | Presse | Cargo | Autre
   message   String
   isRead    Boolean  @default(false) // statut lu / non-lu
   createdAt DateTime @default(now())

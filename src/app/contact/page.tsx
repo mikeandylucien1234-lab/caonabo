@@ -1,6 +1,7 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ContactForm from "@/components/sections/ContactForm";
+import { WHATSAPP_NUMBER } from "@/lib/contactInfo";
 
 export const metadata = { title: "Contactez-nous — Caonabo Airlinje" };
 
@@ -41,16 +42,37 @@ export default function ContactPage() {
             </div>
 
             <div style={card}>
-              <InfoRow icon="✉️" label="Email support" value="support@caonabo-airlinje.com" />
+              <InfoRow icon="✉️" label="Email support" value="contact@caonaboairlines.com" />
               <div style={divider} />
-              <InfoRow icon="📞" label="Téléphone" value="+56 2 2345 6789" />
+              <InfoRow icon="📞" label="Téléphone (WhatsApp)" value="+509 3712 3456" />
               <div style={divider} />
               <InfoRow
                 icon="🕒"
                 label="Horaires"
-                value="Lun–Ven 8h–20h · Sam 9h–14h (heure du Chili)"
+                value="Lundi à dimanche de 8h00 à 20h00"
               />
             </div>
+
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+                padding: "15px 24px",
+                borderRadius: 14,
+                background: "#1e1b4b",
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: 15,
+                textDecoration: "none",
+              }}
+            >
+              💬 Écrivez-nous sur WhatsApp
+            </a>
           </aside>
         </div>
       </div>

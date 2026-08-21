@@ -3,11 +3,12 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-const SUBJECTS = new Set(["Réservation", "Réclamation", "Presse", "Autre"]);
+const SUBJECTS = new Set(["Réservation", "Réclamation", "Presse", "Cargo", "Autre"]);
 
 interface ContactBody {
   name?: string;
   email?: string;
+  phone?: string;
   subject?: string;
   message?: string;
 }
@@ -23,6 +24,7 @@ export async function POST(req: Request) {
 
   const name = (body.name ?? "").trim();
   const email = (body.email ?? "").trim();
+  const phone = (body.phone ?? "").trim();
   const subject = (body.subject ?? "").trim();
   const message = (body.message ?? "").trim();
 
@@ -43,7 +45,7 @@ export async function POST(req: Request) {
   }
 
   await prisma.contactMessage.create({
-    data: { name, email, subject, message },
+    data: { name, email, phone: phone || null, subject, message },
   });
 
   return NextResponse.json({ ok: true }, { status: 201 });

@@ -11,7 +11,7 @@ const NAV = [
   { key: "destinations", href: "/destinations" },
   { key: "checkin", href: "/check-in" },
   { key: "book", href: "/book" },
-  { key: "contact", href: "/#contact" },
+  { key: "contact", href: "/contact" },
 ] as const;
 
 /**

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const SUBJECTS = ["Réservation", "Réclamation", "Presse", "Autre"];
+const SUBJECTS = ["Réservation", "Réclamation", "Presse", "Cargo", "Autre"];
 
 const inputStyle: React.CSSProperties = {
   padding: "13px 15px",
@@ -17,6 +17,7 @@ const inputStyle: React.CSSProperties = {
 export default function ContactForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [subject, setSubject] = useState("Réservation");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,7 +32,7 @@ export default function ContactForm() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, subject, message }),
+        body: JSON.stringify({ name, email, phone, subject, message }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Erreur");
@@ -54,8 +55,7 @@ export default function ContactForm() {
           Message envoyé !
         </h3>
         <p style={{ color: "#5c5c7a", fontSize: 14 }}>
-          Merci {name.split(" ")[0]}, notre équipe vous répondra dans les plus brefs délais
-          à <b>{email}</b>.
+          Votre message a bien été envoyé, nous vous répondrons sous 24-48h à <b>{email}</b>.
         </p>
       </div>
     );
@@ -71,6 +71,9 @@ export default function ContactForm() {
           <input type="email" style={inputStyle} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="vous@exemple.com" />
         </Field>
       </div>
+      <Field label="Téléphone (facultatif)">
+        <input type="tel" style={inputStyle} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+509 3712 3456" />
+      </Field>
       <Field label="Sujet *">
         <select style={inputStyle} value={subject} onChange={(e) => setSubject(e.target.value)}>
           {SUBJECTS.map((s) => (

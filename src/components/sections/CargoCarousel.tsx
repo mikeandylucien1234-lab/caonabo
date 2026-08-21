@@ -77,8 +77,9 @@ function CargoContactModal({ service, onClose }: { service: string; onClose: () 
       const body = {
         name: name.trim(),
         email: email.trim(),
-        subject: "Autre",
-        message: `[Cargo — ${service}] ${message.trim()}${phone.trim() ? `\nTéléphone : ${phone.trim()}` : ""}`,
+        phone: phone.trim(),
+        subject: "Cargo",
+        message: `[${service}] ${message.trim()}`,
       };
       const res = await fetch("/api/contact", {
         method: "POST",

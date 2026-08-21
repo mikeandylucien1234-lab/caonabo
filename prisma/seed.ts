@@ -70,7 +70,12 @@ const SCL_CAP_OFFICIAL_SCHEDULE: Array<{
   { out: "CA309", ret: "CA359", outDate: [2027, 5, 22], retDate: [2027, 5, 23] },
   { out: "CA310", ret: "CA360", outDate: [2027, 6, 19], retDate: [2027, 6, 20] },
 ];
-const SCL_CAP_PRICE_CENTS = 71900; // tarif fixe (charter), pas de variation journalière
+// Tarifs fixes (charter), pas de variation journalière. Convertis en USD
+// cents au taux CLP de référence (950 CLP = 1 USD, cf. ExchangeRate) :
+//   SCL -> CAP (aller-retour) : 1 800 000 CLP
+//   CAP -> SCL (aller simple) : 1 200 000 CLP
+const SCL_CAP_OUT_PRICE_CENTS = 189474; // ≈ 1 800 000 CLP
+const CAP_SCL_RET_PRICE_CENTS = 126316; // ≈ 1 200 000 CLP
 const SCL_CAP_DURATION_MIN = 690; // 11h30, 1 escale (LIM)
 
 // Politique de bagages réelle (Boeing 737-400, affrètement complet).
@@ -368,7 +373,7 @@ async function main() {
         routeId: sclCapRoute.id,
         departAt: departOut,
         arriveAt: arriveOut,
-        priceUsdCents: SCL_CAP_PRICE_CENTS,
+        priceUsdCents: SCL_CAP_OUT_PRICE_CENTS,
         seatsTotal: 150,
         seatsAvailable: 150,
         operatedBy: "Caonabo Airlinje",
@@ -383,7 +388,7 @@ async function main() {
         routeId: capSclRoute.id,
         departAt: departRet,
         arriveAt: arriveRet,
-        priceUsdCents: SCL_CAP_PRICE_CENTS,
+        priceUsdCents: CAP_SCL_RET_PRICE_CENTS,
         seatsTotal: 150,
         seatsAvailable: 150,
         operatedBy: "Caonabo Airlinje",

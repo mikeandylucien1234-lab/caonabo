@@ -23,6 +23,49 @@ function isHaitiToChile(f: FlightResultDTO | null): boolean {
 // Les 2 classes réelles (Boeing 737-400, affrètement complet).
 const CABIN_CLASSES = ["Économique", "Première classe"] as const;
 
+// Pays proposés pour la nationalité / le pays d'émission du document (menu
+// déroulant plutôt que saisie libre). Destinations de la diaspora en tête.
+const COUNTRIES = [
+  "Haïti",
+  "Chili",
+  "Canada",
+  "Pérou",
+  "République dominicaine",
+  "États-Unis",
+  "France",
+  "Afrique du Sud", "Albanie", "Algérie", "Allemagne", "Andorre", "Angola",
+  "Arabie saoudite", "Argentine", "Arménie", "Australie", "Autriche",
+  "Azerbaïdjan", "Bahamas", "Bahreïn", "Bangladesh", "Barbade", "Belgique",
+  "Belize", "Bénin", "Bhoutan", "Biélorussie", "Bolivie", "Bosnie-Herzégovine",
+  "Botswana", "Brésil", "Brunei", "Bulgarie", "Burkina Faso", "Burundi",
+  "Cambodge", "Cameroun", "Cap-Vert", "Chine", "Chypre", "Colombie",
+  "Comores", "Congo", "Corée du Sud", "Costa Rica", "Côte d'Ivoire",
+  "Croatie", "Cuba", "Danemark", "Djibouti", "Dominique", "Égypte",
+  "Émirats arabes unis", "Équateur", "Érythrée", "Espagne", "Estonie",
+  "Eswatini", "Éthiopie", "Fidji", "Finlande", "Gabon", "Gambie", "Géorgie",
+  "Ghana", "Grèce", "Grenade", "Guatemala", "Guinée", "Guinée équatoriale",
+  "Guinée-Bissau", "Guyana", "Honduras", "Hongrie", "Inde", "Indonésie",
+  "Irak", "Iran", "Irlande", "Islande", "Israël", "Italie", "Jamaïque",
+  "Japon", "Jordanie", "Kazakhstan", "Kenya", "Kirghizistan", "Kiribati",
+  "Kosovo", "Koweït", "Laos", "Lesotho", "Lettonie", "Liban", "Liberia",
+  "Libye", "Liechtenstein", "Lituanie", "Luxembourg", "Macédoine du Nord",
+  "Madagascar", "Malaisie", "Malawi", "Maldives", "Mali", "Malte", "Maroc",
+  "Maurice", "Mauritanie", "Mexique", "Micronésie", "Moldavie", "Monaco",
+  "Mongolie", "Monténégro", "Mozambique", "Namibie", "Népal", "Nicaragua",
+  "Niger", "Nigeria", "Norvège", "Nouvelle-Zélande", "Oman", "Ouganda",
+  "Ouzbékistan", "Pakistan", "Palaos", "Palestine", "Panama",
+  "Papouasie-Nouvelle-Guinée", "Paraguay", "Pays-Bas", "Philippines",
+  "Pologne", "Portugal", "Qatar", "Roumanie", "Royaume-Uni", "Russie",
+  "Rwanda", "Saint-Kitts-et-Nevis", "Saint-Marin", "Saint-Vincent-et-les-Grenadines",
+  "Sainte-Lucie", "Salvador", "Samoa", "Sénégal", "Serbie", "Seychelles",
+  "Sierra Leone", "Singapour", "Slovaquie", "Slovénie", "Somalie", "Soudan",
+  "Soudan du Sud", "Sri Lanka", "Suède", "Suisse", "Suriname", "Syrie",
+  "Tadjikistan", "Tanzanie", "Tchad", "Thaïlande", "Timor oriental", "Togo",
+  "Tonga", "Trinité-et-Tobago", "Tunisie", "Turkménistan", "Turquie",
+  "Tuvalu", "Ukraine", "Uruguay", "Vanuatu", "Vatican", "Venezuela",
+  "Vietnam", "Yémen", "Zambie", "Zimbabwe",
+] as const;
+
 // Politique de bagages de secours (si l'API n'a pas encore répondu).
 const FALLBACK_POLICY: BaggagePolicyDTO = {
   includedCheckedKg: 23,
@@ -931,7 +974,12 @@ function Step3({
               <input type="date" style={inputStyle} value={p.birthDate} onChange={(e) => updatePax(i, { birthDate: e.target.value })} />
             </Field>
             <Field label="Nationalité">
-              <input style={inputStyle} value={p.nationality} placeholder="ex : Haïti" onChange={(e) => updatePax(i, { nationality: e.target.value })} />
+              <select style={inputStyle} value={p.nationality} onChange={(e) => updatePax(i, { nationality: e.target.value })}>
+                <option value="">Sélectionner…</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
             </Field>
           </div>
           <div className="bk-grid" style={{ display: "grid", gridTemplateColumns: "180px 1fr 1fr", gap: 12, marginBottom: 12 }}>
@@ -950,7 +998,12 @@ function Step3({
           </div>
           <div className="bk-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <Field label="Pays d'émission">
-              <input style={inputStyle} value={p.documentIssuingCountry} placeholder="ex : Haïti" onChange={(e) => updatePax(i, { documentIssuingCountry: e.target.value })} />
+              <select style={inputStyle} value={p.documentIssuingCountry} onChange={(e) => updatePax(i, { documentIssuingCountry: e.target.value })}>
+                <option value="">Sélectionner…</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
             </Field>
             <Field label="Téléphone du passager">
               <input style={inputStyle} value={p.phone} onChange={(e) => updatePax(i, { phone: e.target.value })} />

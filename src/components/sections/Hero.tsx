@@ -162,7 +162,7 @@ function FlightTeaserCard() {
         <div>
           <div style={labelStyle}>Vers</div>
           <div style={valueRow}>
-            <IconPin /> <span>Port-au-Prince, Haïti</span>
+            <IconPin /> <span>Cap-Haïtien, Haïti</span>
           </div>
         </div>
       </div>

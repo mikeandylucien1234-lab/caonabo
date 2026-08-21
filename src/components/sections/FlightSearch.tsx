@@ -10,7 +10,7 @@ import { usePrefs } from "@/components/PreferencesProvider";
 import { CalendarOverlay, keyOf, frDate } from "@/components/BookingCalendar";
 
 type TripType = "aller-retour" | "aller-simple";
-type Panel = "from" | "to" | "pax" | null;
+type Panel = "from" | "to" | null;
 
 const TRIP_DEFS: { key: TripType; label: string }[] = [
   { key: "aller-retour", label: "Aller-retour" },
@@ -24,7 +24,6 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
   const [to, setTo] = useState<CityDTO | null>(null);
   const [departDate, setDepartDate] = useState<string | null>(null);
   const [returnDate, setReturnDate] = useState<string | null>(null);
-  const [adults, setAdults] = useState(1);
   const [calOpen, setCalOpen] = useState(false);
   const [results, setResults] = useState<FlightResultDTO[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -285,62 +284,6 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
                 />
               )}
             </div>
-
-            {/* passagers */}
-            <div style={{ position: "relative", maxWidth: 260 }}>
-              <div
-                onClick={() => setPanel(panel === "pax" ? null : "pax")}
-                style={{
-                  border: "1.5px solid #dcdae6",
-                  borderRadius: 12,
-                  padding: "10px 14px",
-                  cursor: "pointer",
-                }}
-              >
-                <div style={{ fontSize: 12, color: "#8a8aa0" }}>{dict.search.passengers}</div>
-                <div style={{ fontWeight: 600, color: "#1e1b4b", fontSize: 15 }}>
-                  👤 {adults} {adults > 1 ? dict.search.adults : dict.search.adult}
-                </div>
-              </div>
-              {panel === "pax" && (
-                <div
-                  onClick={(e) => e.stopPropagation()}
-                  style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: 0,
-                    marginTop: 8,
-                    width: 240,
-                    background: "#fff",
-                    border: "1.5px solid #1e1b4b",
-                    borderRadius: 14,
-                    boxShadow: "0 4px 20px rgba(30,27,75,0.08)",
-                    padding: 14,
-                    zIndex: 20,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <span style={{ fontSize: 14, color: "#1e1b4b", fontWeight: 600 }}>
-                    {dict.search.adults}
-                  </span>
-                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                    <Stepper
-                      label="−"
-                      onClick={() => setAdults((a) => Math.max(1, a - 1))}
-                    />
-                    <span style={{ minWidth: 20, textAlign: "center", fontWeight: 700 }}>
-                      {adults}
-                    </span>
-                    <Stepper
-                      label="+"
-                      onClick={() => setAdults((a) => Math.min(9, a + 1))}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         )}
 
@@ -388,27 +331,6 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
         />
       )}
     </div>
-  );
-}
-
-function Stepper({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        width: 30,
-        height: 30,
-        borderRadius: 999,
-        border: "1.5px solid #3d1e8a",
-        background: "#fff",
-        color: "#3d1e8a",
-        fontSize: 18,
-        lineHeight: 1,
-        cursor: "pointer",
-      }}
-    >
-      {label}
-    </button>
   );
 }
 

@@ -70,6 +70,11 @@ model Flight {
   durationMinutes Int     @default(0) // durée totale du trajet
   stopsCount      Int     @default(0) // nombre d'escales
   stopAirports    String  @default("") // codes IATA des escales, séparés par ","
+  // ── Check-in / embarquement ────────────────────────────────────────────────
+  terminal        String  @default("1") // terminal de départ
+  gate            String? // porte d'embarquement — assignée par l'équipe opérationnelle
+  // (l'heure d'embarquement n'est PAS stockée : elle se déduit toujours de
+  // departAt - 1h, cf. lib/checkin.ts, pour rester cohérente si departAt change)
   createdAt      DateTime @default(now())
 
   route    Route     @relation(fields: [routeId], references: [id])
@@ -270,6 +275,11 @@ model Passenger {
   // tous. On ne stocke que les SUPPLÉMENTS choisis par le passager.
   extraBaggageKg  Int    @default(0) // kg au-delà de la franchise soute (5 USD/kg)
   extraFullBags   Int    @default(0) // valises entières supplémentaires (68 USD pièce)
+  // ── Check-in / carte d'embarquement — PAR PASSAGER (chaque passager a son
+  // propre billet et sa propre carte, même au sein d'une réservation groupée) ─
+  ticketNumber    String?   @unique // ex: "CAO250912123456" — généré au check-in, jamais avant
+  checkedInAt     DateTime? // rempli uniquement quand le check-in est réellement effectué
+  boardingPassUrl String?   // chemin du PDF dans Supabase Storage (bucket privé "boarding-passes")
 
   booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   seat    Seat?   @relation(fields: [seatId], references: [id])

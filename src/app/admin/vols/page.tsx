@@ -21,15 +21,17 @@ interface Flight {
   stopsCount: number;
   operatedBy: string;
   stopAirports: string;
+  terminal: string;
+  gate: string | null;
   route?: RouteRow | null;
 }
 const FLIGHT_SEL =
-  "id,flightNumber,routeId,departAt,arriveAt,priceUsdCents,seatsTotal,seatsAvailable,durationMinutes,stopsCount,operatedBy,stopAirports," +
+  "id,flightNumber,routeId,departAt,arriveAt,priceUsdCents,seatsTotal,seatsAvailable,durationMinutes,stopsCount,operatedBy,stopAirports,terminal,gate," +
   "route:Route(id,origin:Airport!Route_originId_fkey(code,city),destination:Airport!Route_destinationId_fkey(code,city))";
 const ROUTE_SEL = "id,origin:Airport!Route_originId_fkey(code,city),destination:Airport!Route_destinationId_fkey(code,city)";
 
 function emptyFlight(): Flight {
-  return { flightNumber: "", routeId: "", departAt: "", arriveAt: "", priceUsdCents: 20000, seatsTotal: 180, seatsAvailable: 180, durationMinutes: 300, stopsCount: 0, operatedBy: "Caonabo Airlinje", stopAirports: "" };
+  return { flightNumber: "", routeId: "", departAt: "", arriveAt: "", priceUsdCents: 20000, seatsTotal: 180, seatsAvailable: 180, durationMinutes: 300, stopsCount: 0, operatedBy: "Caonabo Airlinje", stopAirports: "", terminal: "1", gate: null };
 }
 function toLocalInput(iso: string): string {
   if (!iso) return "";
@@ -76,12 +78,16 @@ export default function AdminFlights() {
       <PageHead title="Vols" subtitle="Gérez les vols programmés de Caonabo Airlinje." action={<Btn onClick={() => setForm(emptyFlight())}>+ Nouveau vol</Btn>} />
       <Card style={{ padding: 0 }}>
         {isLoading ? <Loading /> : error ? <ErrorBox message={(error as Error).message} /> : (
-          <Table head={["Vol", "Route", "Départ", "Prix", "Places", "Statut", ""]}>
+          <Table head={["Vol", "Route", "Départ", "Terminal / Porte", "Prix", "Places", "Statut", ""]}>
             {(data ?? []).map((f) => (
               <tr key={f.id}>
                 <Td><b style={{ color: "#1e1b4b" }}>{f.flightNumber}</b></Td>
                 <Td>{f.route?.origin?.city ?? "?"} → {f.route?.destination?.city ?? "?"}</Td>
                 <Td>{fmtDateTime(f.departAt)}</Td>
+                <Td>
+                  T{f.terminal}
+                  {f.gate ? <> · <b style={{ color: "#5b21b6" }}>{f.gate}</b></> : <span style={{ color: "#b0aec0" }}> · à confirmer</span>}
+                </Td>
                 <Td><b>{fmtUsd(f.priceUsdCents)}</b></Td>
                 <Td>{f.seatsAvailable}/{f.seatsTotal}</Td>
                 <Td><Badge label={f.seatsAvailable <= 0 ? "Complet" : "Actif"} tone={f.seatsAvailable <= 0 ? "amber" : "green"} /></Td>
@@ -117,6 +123,15 @@ export default function AdminFlights() {
             <Field label="Sièges dispo."><input type="number" style={inputStyle} value={form.seatsAvailable} onChange={(e) => setForm({ ...form, seatsAvailable: Number(e.target.value) })} /></Field>
             <Field label="Escales (nombre)"><input type="number" style={inputStyle} value={form.stopsCount} onChange={(e) => setForm({ ...form, stopsCount: Number(e.target.value) })} /></Field>
             <Field label="Escales (codes, ex: LIM)"><input style={inputStyle} value={form.stopAirports} onChange={(e) => setForm({ ...form, stopAirports: e.target.value.toUpperCase() })} /></Field>
+            <Field label="Terminal"><input style={inputStyle} value={form.terminal} onChange={(e) => setForm({ ...form, terminal: e.target.value })} /></Field>
+            <Field label="Porte d'embarquement (gate)">
+              <input
+                style={inputStyle}
+                value={form.gate ?? ""}
+                placeholder="ex : A3 (laisser vide = à confirmer)"
+                onChange={(e) => setForm({ ...form, gate: e.target.value.trim() ? e.target.value.toUpperCase() : null })}
+              />
+            </Field>
           </div>
           {(formError || upsert.error) && <p style={{ color: "#dc2626", fontSize: 13, marginTop: 12 }}>{formError ?? (upsert.error as Error).message}</p>}
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 20 }}>

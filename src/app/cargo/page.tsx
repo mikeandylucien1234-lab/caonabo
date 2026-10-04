@@ -3,7 +3,7 @@ import Footer from "@/components/layout/Footer";
 import CargoTracker from "@/components/sections/CargoTracker";
 import { pageBadge, pageCard, pageH2, pageP } from "@/lib/pageStyles";
 
-export const metadata = { title: "Courrier et Cargo — Caonabo Airlinje" };
+export const metadata = { title: "Courrier et Cargo — MoviCash" };
 
 const TYPES = [
   { icon: <IconDoc />, title: "Documents & courrier", desc: "Plis, contrats et documents urgents acheminés sur nos vols réguliers, de la diaspora vers Haïti et retour." },

@@ -5,7 +5,7 @@ import AuthForm from "@/components/sections/AuthForm";
 import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Créer un compte — Caonabo Airlinje" };
+export const metadata = { title: "Créer un compte — MoviCash" };
 
 export default async function RegisterPage() {
   if (await getCurrentUser()) redirect("/account");

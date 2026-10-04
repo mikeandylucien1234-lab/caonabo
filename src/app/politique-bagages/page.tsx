@@ -5,7 +5,7 @@ import { formatPrice } from "@/lib/currency";
 import { pageBadge, pageCard, pageH2 } from "@/lib/pageStyles";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Politique de Bagages — Caonabo Airlinje" };
+export const metadata = { title: "Politique de Bagages — MoviCash" };
 
 const FORBIDDEN = [
   "Batteries au lithium et power banks en soute (autorisées en cabine uniquement)",

@@ -53,7 +53,7 @@ export default function GroupRequestForm() {
           Demande envoyée !
         </h3>
         <p style={{ color: "#5c5c7a", fontSize: 14 }}>
-          Merci ! Un conseiller Caonabo vous prépare un devis personnalisé et vous
+          Merci ! Un conseiller MoviCash vous prépare un devis personnalisé et vous
           contactera à <b>{email}</b>.
         </p>
       </div>

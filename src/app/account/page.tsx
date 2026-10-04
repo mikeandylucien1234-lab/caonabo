@@ -8,7 +8,7 @@ import { getUserBookings } from "@/lib/data/queries";
 import { formatPrice } from "@/lib/currency";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Mon compte — Caonabo Airlinje" };
+export const metadata = { title: "Mon compte — MoviCash" };
 
 export default async function AccountPage() {
   const user = await getCurrentUser();

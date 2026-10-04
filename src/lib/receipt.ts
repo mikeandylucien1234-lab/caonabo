@@ -6,9 +6,9 @@ import { getServiceClient } from "@/lib/supabase/admin";
 const RECEIPTS_BUCKET = "receipts"; // bucket privé (accès via URL signée)
 
 const COMPANY = {
-  name: "Caonabo Airlinje",
+  name: "MoviCash",
   tagline: "Voyagez Plus Loin, Vivez Plus Fort",
-  contact: "contacto@caonabo-airlinje.cl · www.caonabo-airlinje.cl",
+  contact: "contacto@movicash.com · www.movicash.com",
 };
 
 /** Numéro de comprobante lisible : CAO-<année>-<6 chiffres>. */

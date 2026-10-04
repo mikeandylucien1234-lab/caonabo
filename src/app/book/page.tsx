@@ -5,7 +5,7 @@ import { getCities } from "@/lib/data/queries";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Réserver — Caonabo Airlinje" };
+export const metadata = { title: "Réserver — MoviCash" };
 
 export default async function BookPage({
   searchParams,

@@ -1,7 +1,7 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
-export const metadata = { title: "Notre Histoire — Caonabo Airlinje" };
+export const metadata = { title: "Notre Histoire — MoviCash" };
 
 const MILESTONES: { x: number; year: string; l1: string; l2: string }[] = [
   { x: 130, year: "2019", l1: "Fondation", l2: "à Santiago" },
@@ -31,19 +31,12 @@ export default function HistoryPage() {
         {/* Nos origines */}
         <section style={card}>
           <h2 className="font-heading" style={h2}>Nos origines</h2>
-          <p style={p}>
-            Caonabo Airlinje est née d'un constat simple : la diaspora haïtienne, dispersée
+          <p style={{ ...p, marginBottom: 0 }}>
+            MoviCash est née d'un constat simple : la diaspora haïtienne, dispersée
             entre le Chili, Haïti, le Canada et le reste de l'Amérique, manquait de liaisons
             aériennes pensées pour elle. En 2019, à Santiago, un groupe de voyageurs et
             d'entrepreneurs de la communauté décide de créer une compagnie capable de
             rapprocher les familles que les distances et les frontières avaient séparées.
-          </p>
-          <p style={{ ...p, marginBottom: 0 }}>
-            Le nom n'a pas été choisi au hasard. <b>Caonabo</b> était l'un des grands caciques
-            taïnos d'<i>Ayiti</i>, la terre précolombienne qui allait devenir Haïti. Figure de
-            résistance et de dignité, il incarne le lien indéfectible avec les racines. Porter
-            son nom, c'est rappeler à chaque passager d'où il vient — et lui donner les ailes
-            pour y retourner.
           </p>
         </section>
 
@@ -51,7 +44,7 @@ export default function HistoryPage() {
         <section style={card}>
           <h2 className="font-heading" style={h2}>Notre parcours</h2>
           <div style={{ overflowX: "auto", paddingBottom: 6 }}>
-            <svg viewBox="0 0 980 240" width="100%" style={{ minWidth: 720, height: "auto", display: "block" }} role="img" aria-label="Frise chronologique de Caonabo Airlinje">
+            <svg viewBox="0 0 980 240" width="100%" style={{ minWidth: 720, height: "auto", display: "block" }} role="img" aria-label="Frise chronologique de MoviCash">
               {/* ligne de base */}
               <line x1="130" y1="120" x2="850" y2="120" stroke="#ded9f5" strokeWidth="6" strokeLinecap="round" />
               <line x1="130" y1="120" x2="850" y2="120" stroke="#5b21b6" strokeWidth="6" strokeLinecap="round" strokeDasharray="0" opacity="0.9" />

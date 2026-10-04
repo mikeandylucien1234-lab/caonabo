@@ -3,7 +3,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { pageBadge, pageCard, pageH2, pageP } from "@/lib/pageStyles";
 
-export const metadata = { title: "Informations Check-In — Caonabo Airlinje" };
+export const metadata = { title: "Informations Check-In — MoviCash" };
 
 const STEPS = [
   { icon: "🔎", title: "Retrouvez votre réservation", desc: "Saisissez votre référence (PNR) et le nom du passager pour ouvrir votre dossier." },

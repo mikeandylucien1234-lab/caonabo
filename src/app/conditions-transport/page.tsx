@@ -1,6 +1,6 @@
 import LegalPage, { P, UL, type LegalSection } from "@/components/sections/LegalPage";
 
-export const metadata = { title: "Conditions de Transport — Caonabo Airlinje" };
+export const metadata = { title: "Conditions de Transport — MoviCash" };
 
 const SECTIONS: LegalSection[] = [
   {
@@ -9,7 +9,7 @@ const SECTIONS: LegalSection[] = [
     body: (
       <UL
         items={[
-          <><b>Transporteur</b> : Caonabo Airlinje, émetteur du titre de transport.</>,
+          <><b>Transporteur</b> : MoviCash, émetteur du titre de transport.</>,
           <><b>Passager</b> : toute personne titulaire d'un billet et transportée avec l'accord du transporteur.</>,
           <><b>Billet</b> : le titre de transport électronique et son PNR associé.</>,
           <><b>Bagage</b> : les effets personnels accompagnant le passager, en cabine ou en soute.</>,
@@ -132,7 +132,7 @@ export default function Page() {
       active="/conditions-transport"
       eyebrow="INFORMATIONS LÉGALES"
       title="Conditions de Transport"
-      intro="Les règles applicables au transport aérien des passagers et de leurs bagages sur les vols Caonabo Airlinje."
+      intro="Les règles applicables au transport aérien des passagers et de leurs bagages sur les vols MoviCash."
       sections={SECTIONS}
       lastUpdated="13 août 2026"
     />

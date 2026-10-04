@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Charte visuelle extraite du prototype Caonabo Airlinje.
+ * Charte visuelle extraite du prototype MoviCash.
  * Les tokens reprennent exactement les couleurs du HTML d'origine.
  */
 const config: Config = {

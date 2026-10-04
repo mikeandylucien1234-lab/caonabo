@@ -2,7 +2,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import CheckInForm from "@/components/sections/CheckInForm";
 
-export const metadata = { title: "Check-In — Caonabo Airlinje" };
+export const metadata = { title: "Check-In — MoviCash" };
 
 export default function CheckInPage() {
   return (

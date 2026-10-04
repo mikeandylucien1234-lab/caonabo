@@ -2,7 +2,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { pageBadge, pageCard, pageH2, pageP } from "@/lib/pageStyles";
 
-export const metadata = { title: "Notre Flotte — Caonabo Airlinje" };
+export const metadata = { title: "Notre Flotte — MoviCash" };
 
 // Appareil unique de la compagnie : Boeing 737-400 en affrètement complet.
 const AIRCRAFT = {
@@ -10,7 +10,7 @@ const AIRCRAFT = {
   kind: "Affrètement complet",
   capacity: "150 passagers",
   layout: "12 Première classe + 138 Économique",
-  desc: "Caonabo Airlinje opère l'ensemble de ses liaisons avec un unique Boeing 737-400 affrété en totalité. Un appareil éprouvé, fiable et parfaitement dimensionné pour relier sans détour les communautés de la diaspora — chaque vol est intégralement réservé à nos passagers.",
+  desc: "MoviCash opère l'ensemble de ses liaisons avec un unique Boeing 737-400 affrété en totalité. Un appareil éprouvé, fiable et parfaitement dimensionné pour relier sans détour les communautés de la diaspora — chaque vol est intégralement réservé à nos passagers.",
 };
 
 const CABINS = [
@@ -96,10 +96,10 @@ function Spec({ icon, label, value }: { icon: string; label: string; value: stri
   );
 }
 
-// Silhouette d'avion de profil (aplat violet, charte Caonabo)
+// Silhouette d'avion de profil (aplat violet, charte MoviCash)
 function PlaneSilhouette() {
   return (
-    <svg viewBox="0 0 360 150" width="100%" style={{ maxWidth: 360, height: "auto" }} role="img" aria-label="Silhouette d'avion Caonabo">
+    <svg viewBox="0 0 360 150" width="100%" style={{ maxWidth: 360, height: "auto" }} role="img" aria-label="Silhouette d'avion MoviCash">
       {/* aile avant (claire) */}
       <path d="M150 84 L120 128 L142 128 L196 90 Z" fill="#c9b8ef" />
       {/* fuselage */}

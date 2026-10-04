@@ -45,7 +45,7 @@ export default function AdminLoginPage() {
       <div style={{ background: "#fff", borderRadius: 22, boxShadow: "0 30px 80px rgba(0,0,0,0.35)", padding: "38px 36px", width: "min(420px, 100%)" }}>
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo.png" alt="Caonabo" style={{ height: 54, width: "auto", marginBottom: 12 }} />
+          <img src="/images/logo.png" alt="MoviCash" style={{ height: 54, width: "auto", marginBottom: 12 }} />
           <h1 className="font-heading" style={{ fontWeight: 800, fontSize: 24, color: INK, margin: "0 0 4px" }}>
             Back-office
           </h1>

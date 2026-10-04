@@ -1,4 +1,4 @@
-// Styles partagés par les pages "contenu" (charte Caonabo).
+// Styles partagés par les pages "contenu" (charte MoviCash).
 import type { CSSProperties } from "react";
 
 export const pageBadge: CSSProperties = {

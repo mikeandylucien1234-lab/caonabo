@@ -39,7 +39,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       <aside className="adm-sidebar" style={{ width: 250, background: INK, color: "#fff", display: "flex", flexDirection: "column", position: "sticky", top: 0, height: "100vh" }}>
         <div style={{ padding: "22px 22px 14px", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo.png" alt="Caonabo" style={{ height: 40, width: "auto" }} />
+          <img src="/images/logo.png" alt="MoviCash" style={{ height: 40, width: "auto" }} />
         </div>
         <nav style={{ flex: 1, padding: "14px 12px", overflowY: "auto" }}>
           {NAV.map((n) => {
@@ -83,7 +83,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       {/* zone principale */}
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
         <header style={{ height: 66, background: "#fff", borderBottom: "1px solid #ececf4", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", position: "sticky", top: 0, zIndex: 20 }}>
-          <div style={{ color: "#9a97bf", fontSize: 14 }}>Caonabo Airlinje · Back-office</div>
+          <div style={{ color: "#9a97bf", fontSize: 14 }}>MoviCash · Back-office</div>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <span style={{ fontSize: 13, color: "#6b6b80" }}>{email}</span>
             <div style={{ width: 34, height: 34, borderRadius: 999, background: PURPLE, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 12 }}>{initials}</div>

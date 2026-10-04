@@ -68,8 +68,8 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
         </h1>
         <p style={{ color: "#5c5c7a", fontSize: 14, margin: "0 0 24px" }}>
           {isRegister
-            ? "Rejoignez Caonabo pour gérer vos réservations."
-            : "Accédez à vos réservations Caonabo."}
+            ? "Rejoignez MoviCash pour gérer vos réservations."
+            : "Accédez à vos réservations MoviCash."}
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>

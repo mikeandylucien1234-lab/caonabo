@@ -111,7 +111,7 @@ export default function NewsletterSignup() {
                   style={{ marginTop: 3, width: 18, height: 18, accentColor: VIOLET, flexShrink: 0, cursor: "pointer" }}
                 />
                 <span style={{ color: "rgba(255,255,255,0.72)", fontSize: 13.5, lineHeight: 1.5 }}>
-                  J&rsquo;aimerais recevoir des offres et des actualités de <b style={{ color: "#fff" }}>Caonabo</b>. Je comprends que je peux me désabonner à tout moment en utilisant le lien en bas de chaque message.
+                  J&rsquo;aimerais recevoir des offres et des actualités de <b style={{ color: "#fff" }}>MoviCash</b>. Je comprends que je peux me désabonner à tout moment en utilisant le lien en bas de chaque message.
                 </span>
               </label>
 

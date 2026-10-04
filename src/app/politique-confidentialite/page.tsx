@@ -1,6 +1,6 @@
 import LegalPage, { P, UL, type LegalSection } from "@/components/sections/LegalPage";
 
-export const metadata = { title: "Politique de Confidentialité — Caonabo Airlinje" };
+export const metadata = { title: "Politique de Confidentialité — MoviCash" };
 
 const SECTIONS: LegalSection[] = [
   {
@@ -8,7 +8,7 @@ const SECTIONS: LegalSection[] = [
     heading: "Responsable du traitement",
     body: (
       <P>
-        Caonabo Airlinje est responsable du traitement des données personnelles collectées via
+        MoviCash est responsable du traitement des données personnelles collectées via
         son site. La présente politique explique quelles données sont traitées, dans quel but, et
         quels sont vos droits.
       </P>
@@ -115,7 +115,7 @@ const SECTIONS: LegalSection[] = [
     body: (
       <P>
         Pour toute question relative à vos données personnelles, écrivez-nous à{" "}
-        <b>support@caonabo-airlinje.com</b> ou via la page{" "}
+        <b>support@movicash.com</b> ou via la page{" "}
         <a href="/contact" style={{ color: "#5b21b6", fontWeight: 600 }}>Contactez-nous</a>.
       </P>
     ),
@@ -128,7 +128,7 @@ export default function Page() {
       active="/politique-confidentialite"
       eyebrow="INFORMATIONS LÉGALES"
       title="Politique de Confidentialité"
-      intro="Comment Caonabo Airlinje collecte, utilise et protège vos données personnelles, et comment exercer vos droits."
+      intro="Comment MoviCash collecte, utilise et protège vos données personnelles, et comment exercer vos droits."
       sections={SECTIONS}
       lastUpdated="13 août 2026"
     />

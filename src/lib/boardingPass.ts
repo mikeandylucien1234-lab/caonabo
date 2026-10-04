@@ -9,7 +9,7 @@ import { boardingTimeFor, formatTicketNumber } from "@/lib/checkin";
 
 const BUCKET = "boarding-passes"; // bucket privé (accès via URL signée)
 
-// Palette (navy/or, cohérente avec la charte Caonabo)
+// Palette (navy/or, cohérente avec la charte MoviCash)
 const NAVY = rgb(0.055, 0.086, 0.22);
 const NAVY_LIGHT = rgb(0.1, 0.14, 0.3);
 const GOLD = rgb(0.78, 0.62, 0.18);
@@ -132,7 +132,7 @@ export async function buildBoardingPassPdf(d: BoardingPassData): Promise<Uint8Ar
     page.drawImage(logoImg, { x: 30, y: logoY, width: lw, height: lh });
     logoBottomY = logoY;
   } else {
-    textAt(page, "CAONABO AIRLINES", 30, H - 60, 20, bold, NAVY);
+    textAt(page, "MOVICASH", 30, H - 60, 20, bold, NAVY);
   }
 
   // Bandeau "BILLET ÉLECTRONIQUE" (haut droit)
@@ -232,7 +232,7 @@ export async function buildBoardingPassPdf(d: BoardingPassData): Promise<Uint8Ar
   page.drawRectangle({ x: 4, y: bandY, width: W - 8, height: bandH, color: NAVY });
   planeIcon(page, 46, bandY + bandH / 2, 18, GOLD);
   textAt(page, "CARTE D'EMBARQUEMENT", 66, bandY + bandH / 2 - 6, 15, bold, GOLD);
-  textAt(page, "CAONABO AIRLINES", W - 210, bandY + bandH / 2 - 5, 13, bold, WHITE);
+  textAt(page, "MOVICASH", W - 210, bandY + bandH / 2 - 5, 13, bold, WHITE);
   planeIcon(page, W - 34, bandY + bandH / 2, 14, WHITE);
 
   const contentTop = bandY - 14;
@@ -314,9 +314,9 @@ export async function buildBoardingPassPdf(d: BoardingPassData): Promise<Uint8Ar
   const footerH = 30;
   page.drawRectangle({ x: 4, y: 20, width: W - 8, height: footerH, color: NAVY });
   const fy = 20 + footerH / 2 - 4;
-  textAt(page, "www.caonaboairlines.com", 30, fy, 9.5, bold, WHITE);
+  textAt(page, "www.movicash.com", 30, fy, 9.5, bold, WHITE);
   textAt(page, "+509 2810 4040", 250, fy, 9.5, bold, WHITE);
-  textAt(page, "@caonaboairlines", 420, fy, 9.5, bold, WHITE);
+  textAt(page, "@movicash", 420, fy, 9.5, bold, WHITE);
 
   textCentered(
     page,

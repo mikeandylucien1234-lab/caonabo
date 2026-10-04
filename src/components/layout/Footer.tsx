@@ -81,7 +81,7 @@ export default function Footer() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/logo.png"
-          alt="Caonabo Airlinje"
+          alt="MoviCash"
           style={{ height: 70, width: "auto", marginBottom: 18 }}
         />
         <div style={{ display: "flex", gap: 14, marginBottom: 18 }}>
@@ -96,7 +96,7 @@ export default function Footer() {
           </Social>
         </div>
         <div style={{ color: "#a9a6c8", fontSize: 13, lineHeight: 1.6 }}>
-          © 2025 Caonabo Airlines. {dict.footer.rights}
+          © 2025 MoviCash. {dict.footer.rights}
         </div>
       </div>
     </footer>

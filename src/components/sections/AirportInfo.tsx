@@ -65,7 +65,7 @@ export default function AirportInfo({ airports }: { airports: AirportEntry[] }) 
                 <Row icon="⏱" label="Arrivée recommandée" value={a.arrival} />
                 <Row icon="🚗" label="Parking" value={a.parking} />
                 <Row icon="🚌" label="Transports" value={a.transport} />
-                <Row icon="🛫" label="Terminal Caonabo" value={a.terminal} />
+                <Row icon="🛫" label="Terminal MoviCash" value={a.terminal} />
               </div>
             )}
           </div>

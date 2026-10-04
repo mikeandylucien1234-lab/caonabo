@@ -1,6 +1,6 @@
 import LegalPage, { P, UL, type LegalSection } from "@/components/sections/LegalPage";
 
-export const metadata = { title: "Moyens de Paiement — Caonabo Airlinje" };
+export const metadata = { title: "Moyens de Paiement — MoviCash" };
 
 const SECTIONS: LegalSection[] = [
   {
@@ -24,7 +24,7 @@ const SECTIONS: LegalSection[] = [
     heading: "Sécurité des paiements",
     body: (
       <P>
-        Les échanges liés au paiement se font via une connexion chiffrée. Caonabo Airlinje ne
+        Les échanges liés au paiement se font via une connexion chiffrée. MoviCash ne
         conserve jamais le numéro complet de votre carte : seul un libellé cosmétique (par
         exemple « Carte •••• 4242 ») est associé à la réservation à titre indicatif.
       </P>
@@ -60,7 +60,7 @@ export default function Page() {
       active="/moyens-de-paiement"
       eyebrow="INFORMATIONS LÉGALES"
       title="Moyens de Paiement"
-      intro="Les moyens de règlement acceptés pour vos réservations Caonabo Airlinje."
+      intro="Les moyens de règlement acceptés pour vos réservations MoviCash."
       sections={SECTIONS}
       lastUpdated="13 août 2026"
     />

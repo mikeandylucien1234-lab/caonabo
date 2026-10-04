@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatTicketNumber } from "@/lib/checkin";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Vérification de billet — Caonabo Airlinje" };
+export const metadata = { title: "Vérification de billet — MoviCash" };
 
 // Page cible du QR code de la carte d'embarquement (agent de porte). N'expose
 // volontairement AUCUNE donnée sensible (pas de document, pas de contact) :

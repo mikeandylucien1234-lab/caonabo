@@ -31,7 +31,7 @@ const FLIGHT_SEL =
 const ROUTE_SEL = "id,origin:Airport!Route_originId_fkey(code,city),destination:Airport!Route_destinationId_fkey(code,city)";
 
 function emptyFlight(): Flight {
-  return { flightNumber: "", routeId: "", departAt: "", arriveAt: "", priceUsdCents: 20000, seatsTotal: 180, seatsAvailable: 180, durationMinutes: 300, stopsCount: 0, operatedBy: "Caonabo Airlinje", stopAirports: "", terminal: "1", gate: null };
+  return { flightNumber: "", routeId: "", departAt: "", arriveAt: "", priceUsdCents: 20000, seatsTotal: 180, seatsAvailable: 180, durationMinutes: 300, stopsCount: 0, operatedBy: "MoviCash", stopAirports: "", terminal: "1", gate: null };
 }
 function toLocalInput(iso: string): string {
   if (!iso) return "";
@@ -75,7 +75,7 @@ export default function AdminFlights() {
 
   return (
     <div>
-      <PageHead title="Vols" subtitle="Gérez les vols programmés de Caonabo Airlinje." action={<Btn onClick={() => setForm(emptyFlight())}>+ Nouveau vol</Btn>} />
+      <PageHead title="Vols" subtitle="Gérez les vols programmés de MoviCash." action={<Btn onClick={() => setForm(emptyFlight())}>+ Nouveau vol</Btn>} />
       <Card style={{ padding: 0 }}>
         {isLoading ? <Loading /> : error ? <ErrorBox message={(error as Error).message} /> : (
           <Table head={["Vol", "Route", "Départ", "Terminal / Porte", "Prix", "Places", "Statut", ""]}>

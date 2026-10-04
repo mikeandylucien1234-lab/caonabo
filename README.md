@@ -1,7 +1,7 @@
-# Caonabo Airlinje ✈️
+# MoviCash ✈️
 
-Site web de la compagnie aérienne fictive **Caonabo Airlinje**, dédiée à la
-diaspora haïtienne : vols entre le **Chili, Haïti, le Canada et le Pérou**.
+Site web de l'agence de voyage fictive **MoviCash**, dédiée à la
+diaspora haïtienne : billets entre le **Chili, Haïti, le Canada et le Pérou**.
 
 Application web complète construite à partir du prototype HTML : frontend fidèle
 au design d'origine + backend réel (recherche de vols, réservation, promotions et

@@ -14,7 +14,7 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const offer = await getOfferBySlug(slug);
-  return { title: offer ? `${offer.title} — Caonabo Airlinje` : "Offre — Caonabo Airlinje" };
+  return { title: offer ? `${offer.title} — MoviCash` : "Offre — MoviCash" };
 }
 
 export default async function OfferPage({
@@ -70,7 +70,7 @@ export default async function OfferPage({
                 borderRadius: 999,
               }}
             >
-              {offer.kind === "promotion" ? "PROMOTION CAONABO" : "DESTINATION PHARE"}
+              {offer.kind === "promotion" ? "PROMOTION MOVICASH" : "DESTINATION PHARE"}
             </div>
           </div>
 

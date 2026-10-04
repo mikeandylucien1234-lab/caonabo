@@ -69,7 +69,7 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <PageHead title="Tableau de bord" subtitle={`Aperçu de l'activité de Caonabo Airlinje — ${today}`} />
+      <PageHead title="Tableau de bord" subtitle={`Aperçu de l'activité de MoviCash — ${today}`} />
 
       <div className="adm-stats" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 18, marginBottom: 24 }}>
         <Stat label="Réservations" value={bookings.data ?? "…"} icon="🎫" />

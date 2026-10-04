@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Caonabo Airlinje — schéma de base de données
+// MoviCash — schéma de base de données
 //
 // PRODUCTION (défaut) : provider = "postgresql" (Supabase "caonabo").
 //   DATABASE_URL = connexion poolée (pgBouncer, port 6543) — API serverless Vercel
@@ -66,7 +66,7 @@ model Flight {
   priceUsdCents  Int // prix de référence en USD (cents)
   seatsTotal     Int      @default(150) // Boeing 737-400 : 12 Première + 138 Économique
   seatsAvailable Int      @default(150)
-  operatedBy      String  @default("Caonabo Airlinje")
+  operatedBy      String  @default("MoviCash")
   durationMinutes Int     @default(0) // durée totale du trajet
   stopsCount      Int     @default(0) // nombre d'escales
   stopAirports    String  @default("") // codes IATA des escales, séparés par ","
@@ -103,7 +103,7 @@ model Destination {
   @@index([featured, sortOrder])
 }
 
-// Promotions (bloc "Promotions Caonabo")
+// Promotions (bloc "Promotions MoviCash")
 model Promotion {
   id               String    @id @default(cuid())
   slug             String    @unique
@@ -164,7 +164,7 @@ model User {
   passwordHash String
   firstName    String
   lastName     String
-  milesBalance Int      @default(0) // Miles Caonabo utilisables au paiement (1 Mile = 0,01 USD)
+  milesBalance Int      @default(0) // Miles MoviCash utilisables au paiement (1 Mile = 0,01 USD)
   createdAt    DateTime @default(now())
 
   bookings Booking[]

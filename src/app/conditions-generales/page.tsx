@@ -1,6 +1,6 @@
 import LegalPage, { P, UL, type LegalSection } from "@/components/sections/LegalPage";
 
-export const metadata = { title: "Conditions Générales — Caonabo Airlinje" };
+export const metadata = { title: "Conditions Générales — MoviCash" };
 
 const SECTIONS: LegalSection[] = [
   {
@@ -10,12 +10,12 @@ const SECTIONS: LegalSection[] = [
       <>
         <P>
           Les présentes conditions générales de vente (CGV) régissent la vente de billets et
-          de services annexes proposés par Caonabo Airlinje sur son site. Toute réservation
+          de services annexes proposés par MoviCash sur son site. Toute réservation
           implique l&apos;acceptation pleine et entière des présentes CGV, ainsi que des
           conditions de transport applicables.
         </P>
         <P>
-          Caonabo Airlinje est une compagnie fictive présentée à des fins de démonstration ;
+          MoviCash est une compagnie fictive présentée à des fins de démonstration ;
           aucun transport réel n&apos;est effectué et aucune somme réelle n&apos;est encaissée.
         </P>
       </>
@@ -91,7 +91,7 @@ const SECTIONS: LegalSection[] = [
     heading: "Responsabilité",
     body: (
       <P>
-        La responsabilité de Caonabo Airlinje au titre du transport est régie par les conditions
+        La responsabilité de MoviCash au titre du transport est régie par les conditions
         de transport et les conventions internationales applicables. La compagnie ne saurait être
         tenue responsable des conséquences d&apos;informations erronées fournies par le passager.
       </P>
@@ -127,7 +127,7 @@ export default function Page() {
       active="/conditions-generales"
       eyebrow="INFORMATIONS LÉGALES"
       title="Conditions Générales de Vente"
-      intro="Les règles applicables à la vente de billets et de services Caonabo Airlinje. Utilisez le sommaire ci-dessous pour accéder directement à une section."
+      intro="Les règles applicables à la vente de billets et de services MoviCash. Utilisez le sommaire ci-dessous pour accéder directement à une section."
       sections={SECTIONS}
       lastUpdated="13 août 2026"
     />

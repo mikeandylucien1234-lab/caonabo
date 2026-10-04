@@ -38,7 +38,7 @@ export default function AdminPromotions() {
 
   return (
     <div>
-      <PageHead title="Promotions" subtitle="Les offres de la section « Promotions Caonabo »." action={<Btn onClick={() => setForm({ ...EMPTY })}>+ Nouvelle promotion</Btn>} />
+      <PageHead title="Promotions" subtitle="Les offres de la section « Promotions MoviCash »." action={<Btn onClick={() => setForm({ ...EMPTY })}>+ Nouvelle promotion</Btn>} />
       <Card style={{ padding: 0 }}>
         {isLoading ? <Loading /> : error ? <ErrorBox message={(error as Error).message} /> : (
           <Table head={["Titre", "Catégorie", "Route", "Prix promo", "Ancien prix", ""]}>

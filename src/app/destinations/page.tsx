@@ -4,7 +4,7 @@ import Footer from "@/components/layout/Footer";
 import { getDestinationCities } from "@/lib/data/queries";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Nos Destinations — Caonabo Airlinje" };
+export const metadata = { title: "Nos Destinations — MoviCash" };
 
 // Ordre d'affichage préféré (les autres villes suivent).
 const ORDER = ["SCL", "PAP", "YYZ", "LIM", "CAP", "YUL"];
@@ -26,14 +26,14 @@ export default async function DestinationsPage() {
           Nos Destinations
         </h1>
         <p style={{ color: "#5c5c7a", fontSize: 16, lineHeight: 1.7, margin: "14px 0 36px", maxWidth: 760 }}>
-          Caonabo Airlinje relie le Chili, Haïti, le Canada et au-delà avec des vols sûrs et
+          MoviCash relie le Chili, Haïti, le Canada et au-delà avec des vols sûrs et
           abordables. Découvrez nos principales destinations et réservez votre prochaine aventure.
         </p>
 
         <div className="dest-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 26 }}>
           {sorted.map((c) => {
             const image = c.imageUrl?.trim() || null;
-            const description = c.description?.trim() || `Vols Caonabo Airlinje vers ${c.city}.`;
+            const description = c.description?.trim() || `Vols MoviCash vers ${c.city}.`;
             return (
               <article
                 key={c.code}

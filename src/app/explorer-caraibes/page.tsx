@@ -5,7 +5,7 @@ import { getPromotions } from "@/lib/data/queries";
 import { pageBadge } from "@/lib/pageStyles";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Explorer les Caraïbes — Caonabo Airlinje" };
+export const metadata = { title: "Explorer les Caraïbes — MoviCash" };
 
 // Descriptions inspirationnelles par destination (réutilise les images des promos).
 const DESC: Record<string, string> = {

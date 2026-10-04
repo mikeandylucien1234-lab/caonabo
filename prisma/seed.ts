@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Seed — injecte les données extraites du prototype Caonabo Airlinje.
+// Seed — injecte les données extraites du prototype MoviCash.
 // Tous les prix sont en USD (cents). Idempotent : on vide puis on recrée.
 // ─────────────────────────────────────────────────────────────────────────────
 import { PrismaClient } from "@prisma/client";
@@ -123,7 +123,7 @@ const DESTINATIONS = [
   },
 ];
 
-// Promotions (bloc "Promotions Caonabo") — toutes en USD dans le proto
+// Promotions (bloc "Promotions MoviCash") — toutes en USD dans le proto
 const PROMOTIONS = [
   {
     slug: "labadee",
@@ -205,7 +205,7 @@ const PROMOTIONS = [
 // FAQ (textes complets extraits du proto)
 const FAQS = [
   {
-    question: "Quels types d'offres puis-je trouver chez Caonabo ?",
+    question: "Quels types d'offres puis-je trouver chez MoviCash ?",
     answer:
       "Vous trouverez des promotions sur les vols directs et avec escale vers le Chili, Haïti, le Canada et au-delà, avec des remises pouvant aller jusqu'à 50%.",
   },
@@ -272,7 +272,7 @@ function addDays(base: Date, days: number): Date {
 }
 
 async function main() {
-  console.log("🌱 Seed Caonabo Airlinje…");
+  console.log("🌱 Seed MoviCash…");
 
   // Ordre de suppression : enfants → parents
   await prisma.passenger.deleteMany();
@@ -332,7 +332,7 @@ async function main() {
           priceUsdCents,
           seatsTotal: 150,
           seatsAvailable: 120 + ((day * 7) % 30),
-          operatedBy: "Caonabo Airlinje",
+          operatedBy: "MoviCash",
           durationMinutes: durationH * 60,
           stopsCount: direct ? 0 : 1,
           stopAirports,
@@ -376,7 +376,7 @@ async function main() {
         priceUsdCents: SCL_CAP_OUT_PRICE_CENTS,
         seatsTotal: 150,
         seatsAvailable: 150,
-        operatedBy: "Caonabo Airlinje",
+        operatedBy: "MoviCash",
         durationMinutes: SCL_CAP_DURATION_MIN,
         stopsCount: 1,
         stopAirports: "LIM",
@@ -391,7 +391,7 @@ async function main() {
         priceUsdCents: CAP_SCL_RET_PRICE_CENTS,
         seatsTotal: 150,
         seatsAvailable: 150,
-        operatedBy: "Caonabo Airlinje",
+        operatedBy: "MoviCash",
         durationMinutes: SCL_CAP_DURATION_MIN,
         stopsCount: 1,
         stopAirports: "LIM",

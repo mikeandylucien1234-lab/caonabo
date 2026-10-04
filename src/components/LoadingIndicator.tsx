@@ -1,4 +1,4 @@
-// Indicateur de chargement unique du site : l'avion Caonabo animé + un texte
+// Indicateur de chargement unique du site : l'avion MoviCash animé + un texte
 // optionnel en dessous. Remplace tous les spinners génériques (public + admin).
 // Utilisable en composant serveur comme client (aucun hook).
 

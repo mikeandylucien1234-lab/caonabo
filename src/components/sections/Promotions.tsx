@@ -6,7 +6,7 @@ import { formatPrice, type RateInfo } from "@/lib/currency";
 import { usePrefs } from "@/components/PreferencesProvider";
 
 /**
- * "Promotions Caonabo".
+ * "Promotions MoviCash".
  *   • Desktop (PC) : grille de cartes (interface d'origine).
  *   • Mobile       : carrousel horizontal (flèches + scroll + pastilles).
  * Les deux vues partagent le même en-tête et sont basculées par media query.
@@ -64,7 +64,7 @@ export default function Promotions({
         <div>
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1, color: "#5b21b6", marginBottom: 8 }}>OFFRES DU MOMENT</div>
           <h2 className="font-heading" style={{ fontWeight: 800, fontSize: 34, color: "#0f0f2d", margin: "0 0 10px" }}>
-            Promotions <span style={{ color: "#5b21b6" }}>Caonabo</span>
+            Promotions <span style={{ color: "#5b21b6" }}>MoviCash</span>
           </h2>
           <p style={{ fontSize: 15, color: "#5c5c7a", margin: 0 }}>
             Tarifs aller-retour toutes taxes comprises, dans la limite des places disponibles.

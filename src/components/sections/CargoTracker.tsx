@@ -102,7 +102,7 @@ export default function CargoTracker() {
             })}
           </div>
           <p style={{ fontSize: 12, color: "#a0a0b4", marginTop: 16, marginBottom: 0, fontStyle: "italic" }}>
-            Suivi de démonstration — le service cargo Caonabo est présenté à titre illustratif.
+            Suivi de démonstration — le service cargo MoviCash est présenté à titre illustratif.
           </p>
         </div>
       )}

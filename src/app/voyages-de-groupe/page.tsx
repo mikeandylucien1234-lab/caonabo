@@ -2,7 +2,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import GroupRequestForm from "@/components/sections/GroupRequestForm";
 
-export const metadata = { title: "Voyages de Groupe — Caonabo Airlinje" };
+export const metadata = { title: "Voyages de Groupe — MoviCash" };
 
 const ADVANTAGES: { icon: React.ReactNode; title: string; desc: string }[] = [
   {
@@ -13,7 +13,7 @@ const ADVANTAGES: { icon: React.ReactNode; title: string; desc: string }[] = [
   {
     icon: <IconAgent />,
     title: "Un interlocuteur dédié",
-    desc: "Un conseiller Caonabo unique suit votre dossier de A à Z : itinéraire, sièges, bagages, noms des passagers et modifications de dernière minute.",
+    desc: "Un conseiller MoviCash unique suit votre dossier de A à Z : itinéraire, sièges, bagages, noms des passagers et modifications de dernière minute.",
   },
   {
     icon: <IconWallet />,
@@ -34,7 +34,7 @@ export default function GroupTravelPage() {
         </h1>
         <p style={{ color: "#5c5c7a", fontSize: 16, marginTop: 10, maxWidth: 680 }}>
           Familles élargies, groupes religieux, voyages scolaires ou retours au pays
-          organisés : Caonabo vous fait voyager à plusieurs, plus simplement et moins cher.
+          organisés : MoviCash vous fait voyager à plusieurs, plus simplement et moins cher.
         </p>
       </div>
 
@@ -48,7 +48,7 @@ export default function GroupTravelPage() {
                 Réunir toute une famille pour un mariage à Cap-Haïtien, emmener une chorale
                 d'église d'une rive à l'autre du continent, organiser un voyage scolaire ou
                 coordonner un grand retour au pays : à plusieurs, chaque détail compte.
-                Caonabo négocie pour vous des <b>tarifs préférentiels dès 10 personnes</b>,
+                MoviCash négocie pour vous des <b>tarifs préférentiels dès 10 personnes</b>,
                 centralise la réservation et vous évite la logistique — pour que vous n'ayez
                 à penser qu'aux retrouvailles.
               </p>

@@ -3,7 +3,7 @@ import Footer from "@/components/layout/Footer";
 import ContactForm from "@/components/sections/ContactForm";
 import { WHATSAPP_NUMBER } from "@/lib/contactInfo";
 
-export const metadata = { title: "Contactez-nous — Caonabo Airlinje" };
+export const metadata = { title: "Contactez-nous — MoviCash" };
 
 export default function ContactPage() {
   return (
@@ -42,7 +42,7 @@ export default function ContactPage() {
             </div>
 
             <div style={card}>
-              <InfoRow icon="✉️" label="Email support" value="contact@caonaboairlines.com" />
+              <InfoRow icon="✉️" label="Email support" value="contact@movicash.com" />
               <div style={divider} />
               <InfoRow icon="📞" label="Téléphone (WhatsApp)" value="+509 3712 3456" />
               <div style={divider} />

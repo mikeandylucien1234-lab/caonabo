@@ -21,7 +21,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Caonabo Airlinje — Voyagez Plus Loin, Vivez Plus Fort",
+  title: "MoviCash — Voyagez Plus Loin, Vivez Plus Fort",
   description:
     "Compagnie aérienne pour la diaspora haïtienne. Vols directs et avec escale entre le Chili, Haïti, le Canada et le Pérou.",
   metadataBase: new URL(
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   ),
   icons: { icon: "/images/logo.png" },
   openGraph: {
-    title: "Caonabo Airlinje",
+    title: "MoviCash",
     description:
       "Voyagez Plus Loin, Vivez Plus Fort — vols vers Haïti, le Chili, le Canada et le Pérou.",
     type: "website",

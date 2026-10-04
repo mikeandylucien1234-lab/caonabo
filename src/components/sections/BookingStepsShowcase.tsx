@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 //   • Droite : carrousel automatique des 4 étapes, façon stories (barre de
 //     progression segmentée), avec flèches préc./suiv. et pause/lecture.
 // Les images portent leur propre texte → aucune chaîne à traduire ici.
-// L'habillage (barre, flèches, contrôles) reste aux couleurs Caonabo pour
+// L'habillage (barre, flèches, contrôles) reste aux couleurs MoviCash pour
 // harmoniser la section malgré les couleurs propres à chaque étape.
 // ─────────────────────────────────────────────────────────────────────────────
 

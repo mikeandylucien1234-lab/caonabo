@@ -6,7 +6,7 @@ import { formatPrice } from "@/lib/currency";
 import AutoRefresh from "./AutoRefresh";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Résultat du paiement — Caonabo Airlinje" };
+export const metadata = { title: "Résultat du paiement — MoviCash" };
 
 export default async function PaymentReturnPage({
   searchParams,

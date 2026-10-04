@@ -5,7 +5,7 @@ import { getCities } from "@/lib/data/queries";
 import { pageBadge } from "@/lib/pageStyles";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Informations Aéroport — Caonabo Airlinje" };
+export const metadata = { title: "Informations Aéroport — MoviCash" };
 
 // Détails pratiques par code IATA (la LISTE des aéroports vient de la base).
 const DETAILS: Record<string, Omit<AirportEntry, "code" | "city" | "country">> = {
@@ -15,7 +15,7 @@ const DETAILS: Record<string, Omit<AirportEntry, "code" | "city" | "country">> =
     arrival: "3 h avant les vols internationaux.",
     parking: "Parkings courte et longue durée face au Terminal 2.",
     transport: "Bus Centropuerto/Turbus et taxis officiels vers le centre de Santiago.",
-    terminal: "Départs Caonabo au Terminal 2, comptoirs rangée H.",
+    terminal: "Départs MoviCash au Terminal 2, comptoirs rangée H.",
   },
   PAP: {
     name: "Aéroport International Toussaint Louverture",
@@ -23,7 +23,7 @@ const DETAILS: Record<string, Omit<AirportEntry, "code" | "city" | "country">> =
     arrival: "3 h avant le vol.",
     parking: "Parking surveillé à l'entrée de l'aérogare.",
     transport: "Taxis agréés et navettes hôtelières.",
-    terminal: "Enregistrement Caonabo dans le hall principal des départs.",
+    terminal: "Enregistrement MoviCash dans le hall principal des départs.",
   },
   CAP: {
     name: "Aéroport International du Cap-Haïtien",
@@ -31,7 +31,7 @@ const DETAILS: Record<string, Omit<AirportEntry, "code" | "city" | "country">> =
     arrival: "2 h 30 avant le vol.",
     parking: "Stationnement limité gratuit devant l'aérogare.",
     transport: "Taxis collectifs et motos-taxis vers le centre-ville.",
-    terminal: "Comptoir Caonabo à l'entrée du hall unique.",
+    terminal: "Comptoir MoviCash à l'entrée du hall unique.",
   },
   YYZ: {
     name: "Toronto Pearson International Airport",
@@ -39,7 +39,7 @@ const DETAILS: Record<string, Omit<AirportEntry, "code" | "city" | "country">> =
     arrival: "3 h avant le vol.",
     parking: "Parkings du Terminal 1 (courte et longue durée).",
     transport: "UP Express vers Union Station, métro TTC et taxis.",
-    terminal: "Départs internationaux Caonabo au Terminal 1.",
+    terminal: "Départs internationaux MoviCash au Terminal 1.",
   },
   YUL: {
     name: "Aéroport international Montréal-Trudeau",
@@ -47,7 +47,7 @@ const DETAILS: Record<string, Omit<AirportEntry, "code" | "city" | "country">> =
     arrival: "3 h avant le vol.",
     parking: "Parkings étagés reliés directement à l'aérogare.",
     transport: "Bus 747 vers le centre-ville et taxis à tarif fixe.",
-    terminal: "Comptoirs Caonabo en zone départs internationaux.",
+    terminal: "Comptoirs MoviCash en zone départs internationaux.",
   },
   LIM: {
     name: "Aeropuerto Internacional Jorge Chávez",
@@ -55,17 +55,17 @@ const DETAILS: Record<string, Omit<AirportEntry, "code" | "city" | "country">> =
     arrival: "3 h avant les vols internationaux.",
     parking: "Parking multiniveaux face au terminal.",
     transport: "Airport Express Lima et taxis officiels.",
-    terminal: "Enregistrement Caonabo à l'îlot 4 du terminal.",
+    terminal: "Enregistrement MoviCash à l'îlot 4 du terminal.",
   },
 };
 
 const FALLBACK = {
-  name: "Aéroport desservi par Caonabo Airlinje",
+  name: "Aéroport desservi par MoviCash",
   address: "Informations détaillées bientôt disponibles.",
   arrival: "3 h avant le vol.",
   parking: "Parkings disponibles à proximité de l'aérogare.",
   transport: "Taxis et transports en commun vers le centre-ville.",
-  terminal: "Comptoir Caonabo en zone départs.",
+  terminal: "Comptoir MoviCash en zone départs.",
 };
 
 export default async function AirportInfoPage() {

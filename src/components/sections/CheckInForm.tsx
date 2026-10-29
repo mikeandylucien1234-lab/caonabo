@@ -135,13 +135,13 @@ export default function CheckInForm() {
         <div className="bk-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 16 }}>
           <div>
             <div style={{ fontSize: 12, color: "#5c5c7a", marginBottom: 6 }}>
-              Référence (ex : CAO-XXXXX)
+              Référence (ex : MVC-XXXXX)
             </div>
             <input
               style={inputStyle}
               value={reference}
               onChange={(e) => setReference(e.target.value)}
-              placeholder="CAO-XXXXX"
+              placeholder="MVC-XXXXX"
             />
           </div>
           <div>

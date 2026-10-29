@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, setSession } from "@/lib/auth";
+import { rateLimit, rateLimitResponse, clientIp } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,11 @@ interface Body {
 }
 
 export async function POST(req: Request) {
+  // Anti-spam : 5 créations de compte / heure par IP.
+  if (!(await rateLimit(`register:${clientIp(req)}`, 5, 60 * 60 * 1000))) {
+    return rateLimitResponse();
+  }
+
   let body: Body;
   try {
     body = (await req.json()) as Body;

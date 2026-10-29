@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generateBoardingPassForPassenger, signedBoardingPassUrl } from "@/lib/boardingPass";
+import { rateLimit, rateLimitResponse, clientIp } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,11 @@ export const dynamic = "force-dynamic";
 // Régénère le PDF s'il n'existe pas encore (ex: stockage indisponible lors du
 // check-in) mais ne redemande jamais un check-in déjà effectué.
 export async function GET(req: Request) {
+  // Anti-énumération : 20 essais / 15 min par IP.
+  if (!(await rateLimit(`boarding-pass:${clientIp(req)}`, 20, 15 * 60 * 1000))) {
+    return rateLimitResponse();
+  }
+
   const { searchParams } = new URL(req.url);
   const reference = (searchParams.get("reference") ?? "").trim().toUpperCase();
   const lastName = (searchParams.get("lastName") ?? "").trim();

@@ -70,16 +70,16 @@ export function checkInBlockReason(params: {
   return null;
 }
 
-/** Génère un numéro de billet réaliste : CAO + AAMMJJ (jour du check-in) + 6 chiffres. */
+/** Génère un numéro de billet réaliste : MVC + AAMMJJ (jour du check-in) + 6 chiffres. */
 export function makeTicketNumber(now: Date = new Date()): string {
   const yy = String(now.getFullYear()).slice(-2);
   const mm = String(now.getMonth() + 1).padStart(2, "0");
   const dd = String(now.getDate()).padStart(2, "0");
   const seq = String(Math.floor(Math.random() * 1_000_000)).padStart(6, "0");
-  return `CAO${yy}${mm}${dd}${seq}`;
+  return `MVC${yy}${mm}${dd}${seq}`;
 }
 
-/** Affichage lisible du numéro de billet : "CAO 250912345678". */
+/** Affichage lisible du numéro de billet : "MVC 250912345678". */
 export function formatTicketNumber(ticketNumber: string): string {
   return `${ticketNumber.slice(0, 3)} ${ticketNumber.slice(3)}`;
 }

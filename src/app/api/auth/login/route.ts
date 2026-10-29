@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword, setSession } from "@/lib/auth";
+import { rateLimit, rateLimitResponse, clientIp } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,11 @@ interface Body {
 }
 
 export async function POST(req: Request) {
+  // Anti brute-force : 10 tentatives / 15 min par IP.
+  if (!(await rateLimit(`login:${clientIp(req)}`, 10, 15 * 60 * 1000))) {
+    return rateLimitResponse();
+  }
+
   let body: Body;
   try {
     body = (await req.json()) as Body;

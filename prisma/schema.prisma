@@ -355,3 +355,15 @@ model NewsletterSubscriber {
 
   @@index([subscribedAt])
 }
+
+// Journal des requêtes pour la limitation de débit (anti brute-force / anti-
+// spam) sur les endpoints sensibles : connexion, création de compte, contact,
+// consultation de réservation par référence, paiement. Une ligne = 1 requête ;
+// on compte les lignes récentes pour une clé donnée (ex: "login:1.2.3.4").
+model RateLimitHit {
+  id        String   @id @default(cuid())
+  key       String
+  createdAt DateTime @default(now())
+
+  @@index([key, createdAt])
+}

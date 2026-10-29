@@ -10,6 +10,7 @@ import {
   releaseBookingSeats,
 } from "@/lib/bookingCreate";
 import { getFlowContext, createFlowPayment } from "@/lib/flow";
+import { rateLimit, rateLimitResponse, clientIp } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,12 @@ function siteUrl(req: Request): string {
 // verrouillage des sièges, puis crée un paiement Flow et renvoie l'URL de
 // redirection. La réservation ne sera marquée payée que par le webhook.
 export async function POST(req: Request) {
+  // Anti-abus : évite qu'un script sature l'inventaire de sièges en créant
+  // des réservations PENDING en boucle (20 tentatives / 15 min par IP).
+  if (!(await rateLimit(`payments-create:${clientIp(req)}`, 20, 15 * 60 * 1000))) {
+    return rateLimitResponse();
+  }
+
   let body: BookingBody;
   try {
     body = (await req.json()) as BookingBody;

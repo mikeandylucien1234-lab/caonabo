@@ -1,7 +1,9 @@
+import { headers } from "next/headers";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { prisma } from "@/lib/prisma";
 import { formatTicketNumber } from "@/lib/checkin";
+import { rateLimit } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Vérification de billet — MoviCash" };
@@ -15,17 +17,24 @@ export default async function VerifyTicketPage({
   params: Promise<{ ticketNumber: string }>;
 }) {
   const { ticketNumber } = await params;
-  const passenger = await prisma.passenger.findUnique({
-    where: { ticketNumber },
-    include: {
-      seat: true,
-      booking: {
+
+  // Anti-énumération des numéros de billet : 20 essais / 15 min par IP.
+  const h = await headers();
+  const ip = h.get("x-forwarded-for")?.split(",")[0].trim() ?? h.get("x-real-ip") ?? "unknown";
+  const allowed = await rateLimit(`verify:${ip}`, 20, 15 * 60 * 1000);
+  const passenger = allowed
+    ? await prisma.passenger.findUnique({
+        where: { ticketNumber },
         include: {
-          flight: { include: { route: { include: { origin: true, destination: true } } } },
+          seat: true,
+          booking: {
+            include: {
+              flight: { include: { route: { include: { origin: true, destination: true } } } },
+            },
+          },
         },
-      },
-    },
-  });
+      })
+    : null;
 
   const valid = Boolean(passenger?.checkedInAt);
   const flight = passenger?.booking.flight;

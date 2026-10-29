@@ -237,6 +237,9 @@ html {
   .bk-grid {
     grid-template-columns: 1fr !important;
   }
+  .bk-main-grid {
+    grid-template-columns: 1fr !important;
+  }
   .city-pop {
     width: min(280px, 78vw) !important;
   }

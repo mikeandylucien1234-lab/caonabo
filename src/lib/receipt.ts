@@ -11,9 +11,9 @@ const COMPANY = {
   contact: "contacto@movicash.com · www.movicash.com",
 };
 
-/** Numéro de comprobante lisible : CAO-<année>-<6 chiffres>. */
+/** Numéro de comprobante lisible : MVC-<année>-<6 chiffres>. */
 export function formatReceiptNumber(seq: number, year: number): string {
-  return `CAO-${year}-${String(seq).padStart(6, "0")}`;
+  return `MVC-${year}-${String(seq).padStart(6, "0")}`;
 }
 
 function eur(cents: number): string {

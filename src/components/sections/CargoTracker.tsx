@@ -47,7 +47,7 @@ export default function CargoTracker() {
           style={inputStyle}
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          placeholder="ex : CAO-CARGO-4821"
+          placeholder="ex : MVC-CARGO-4821"
           aria-label="Numéro de suivi"
         />
         <button

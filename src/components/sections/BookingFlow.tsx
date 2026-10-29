@@ -199,6 +199,8 @@ export default function BookingFlow({
   const [activePax, setActivePax] = useState(0);
   // jeton du tunnel : identifie nos verrous temporaires de sièges (10 min)
   const holdTokenRef = useRef<string>(makeHoldToken());
+  // instant d'expiration du verrou de sièges le plus récent (affiché en minuterie)
+  const [holdExpiresAt, setHoldExpiresAt] = useState<Date | null>(null);
 
   // étape 5
   const [paymentMethod, setPaymentMethod] = useState("card");
@@ -407,6 +409,8 @@ export default function BookingFlow({
         await loadSeats(selected.id);
         return;
       }
+      const holdData = (await res.json()) as { heldUntil?: string };
+      if (holdData.heldUntil) setHoldExpiresAt(new Date(holdData.heldUntil));
     } catch {
       return;
     }
@@ -415,6 +419,17 @@ export default function BookingFlow({
     if (prevSeat && prevSeat !== seat.id) releaseHold(selected.id, prevSeat);
     setSeatNotice(null);
     updatePax(activePax, { seatId: seat.id });
+  }
+
+  // Appelé quand la minuterie côté client atteint 0 : les verrous serveur sont
+  // sans doute expirés, on réaligne l'UI (sièges libérés, avertissement).
+  async function handleHoldExpire() {
+    setHoldExpiresAt(null);
+    setPassengers((prev) => prev.map((p) => ({ ...p, seatId: null })));
+    setSeatNotice(
+      "Le temps de réservation de vos sièges est écoulé. Veuillez resélectionner vos sièges.",
+    );
+    if (selected) await loadSeats(selected.id);
   }
 
   // ── validation par étape ────────────────────────────────────────────────────
@@ -583,109 +598,134 @@ export default function BookingFlow({
   }
 
   return (
-    <div className="hz" style={{ padding: "28px 56px 100px", display: "flex", flexDirection: "column", gap: 22 }}>
+    <div className="hz" style={{ padding: "28px 56px 100px" }}>
       <Stepper current={step} />
 
-      <div style={{ background: "#fff", borderRadius: 18, boxShadow: "0 6px 26px rgba(30,27,75,0.09)", padding: "26px 30px" }}>
-        {step === 1 && (
-          <Step1
-            cities={cities}
-            origin={origin}
-            setOrigin={setOrigin}
-            destination={destination}
-            setDestination={setDestination}
-            tripType={tripType}
-            setTripType={setTripType}
+      <div
+        className="bk-main-grid"
+        style={{
+          display: "grid",
+          gridTemplateColumns: selected ? "1fr 300px" : "1fr",
+          gap: 22,
+          marginTop: 22,
+          alignItems: "start",
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 22, minWidth: 0 }}>
+          <div style={{ background: "#fff", borderRadius: 18, boxShadow: "0 6px 26px rgba(30,27,75,0.09)", padding: "26px 30px" }}>
+            {step === 1 && (
+              <Step1
+                cities={cities}
+                origin={origin}
+                setOrigin={setOrigin}
+                destination={destination}
+                setDestination={setDestination}
+                tripType={tripType}
+                setTripType={setTripType}
+                cabinClass={cabinClass}
+                setCabinClass={setCabinClass}
+                departDate={departDate}
+                setDepartDate={setDepartDate}
+                returnDate={returnDate}
+                setReturnDate={setReturnDate}
+                paxCount={paxCount}
+                setPaxCount={setPaxCount}
+                openCalendar={() => setCalOpen(true)}
+              />
+            )}
+
+            {step === 2 && (
+              <Step2 flights={flights} selected={selected} onSelect={selectFlight} />
+            )}
+
+            {step === 3 && (
+              <Step3
+                passengers={passengers}
+                updatePax={updatePax}
+                email={email}
+                setEmail={setEmail}
+                phone={phone}
+                setPhone={setPhone}
+                showEvisa={isHaitiToChile(selected)}
+              />
+            )}
+
+            {step === 4 && (
+              <Step4
+                passengers={passengers}
+                activePax={activePax}
+                setActivePax={setActivePax}
+                policy={policy}
+                updatePax={updatePax}
+                seats={seats}
+                toggleSeat={toggleSeat}
+                breakdown={breakdown}
+                seatNotice={seatNotice}
+              />
+            )}
+
+            {step === 5 && (
+              <Step5
+                selected={selected!}
+                passengers={passengers}
+                seats={seats}
+                cabinClass={cabinClass}
+                policy={policy}
+                breakdown={breakdown}
+                email={email}
+                paymentMethod={paymentMethod}
+                setPaymentMethod={setPaymentMethod}
+                cardName={cardName}
+                setCardName={setCardName}
+                cardNumber={cardNumber}
+                setCardNumber={setCardNumber}
+                flowConfigured={flowConfigured}
+                flowMode={flowMode}
+              />
+            )}
+
+            {error && <p style={{ color: "#dc2626", fontSize: 13, marginTop: 16 }}>{error}</p>}
+          </div>
+
+          {/* indicateur de chargement (recherche des vols / confirmation) */}
+          {loading && (step === 1 || step === 5) && (
+            <LoadingIndicator label={step === 1 ? "Recherche des meilleurs vols…" : "Confirmation de votre réservation…"} />
+          )}
+
+          {/* navigation */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+            <button onClick={prev} disabled={step === 1 || loading} style={ghostBtn(step === 1 || loading)}>
+              ← Précédent
+            </button>
+            {step < 5 ? (
+              <button onClick={next} disabled={loading} style={primaryBtn(loading)}>
+                {loading && step === 1 ? "Recherche…" : "Suivant"} →
+              </button>
+            ) : (
+              <button onClick={confirmBooking} disabled={loading} style={primaryBtn(loading)}>
+                {loading
+                  ? flowConfigured
+                    ? "Redirection vers Flow…"
+                    : "Confirmation…"
+                  : flowConfigured
+                    ? "Payer avec Flow"
+                    : "Payer et confirmer"}{" "}
+                →
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* récapitulatif persistant (vol choisi, prix, minuterie de sièges) */}
+        {selected && step >= 2 && (
+          <BookingSidebar
+            selected={selected}
+            paxCount={passengers.length}
             cabinClass={cabinClass}
-            setCabinClass={setCabinClass}
-            departDate={departDate}
-            setDepartDate={setDepartDate}
-            returnDate={returnDate}
-            setReturnDate={setReturnDate}
-            paxCount={paxCount}
-            setPaxCount={setPaxCount}
-            openCalendar={() => setCalOpen(true)}
-          />
-        )}
-
-        {step === 2 && (
-          <Step2 flights={flights} selected={selected} onSelect={selectFlight} />
-        )}
-
-        {step === 3 && (
-          <Step3
-            passengers={passengers}
-            updatePax={updatePax}
-            email={email}
-            setEmail={setEmail}
-            phone={phone}
-            setPhone={setPhone}
-            showEvisa={isHaitiToChile(selected)}
-          />
-        )}
-
-        {step === 4 && (
-          <Step4
-            passengers={passengers}
-            activePax={activePax}
-            setActivePax={setActivePax}
-            policy={policy}
-            updatePax={updatePax}
-            seats={seats}
-            toggleSeat={toggleSeat}
             breakdown={breakdown}
-            seatNotice={seatNotice}
+            holdExpiresAt={holdExpiresAt}
+            onHoldExpire={handleHoldExpire}
           />
-        )}
-
-        {step === 5 && (
-          <Step5
-            selected={selected!}
-            passengers={passengers}
-            seats={seats}
-            cabinClass={cabinClass}
-            policy={policy}
-            breakdown={breakdown}
-            email={email}
-            paymentMethod={paymentMethod}
-            setPaymentMethod={setPaymentMethod}
-            cardName={cardName}
-            setCardName={setCardName}
-            cardNumber={cardNumber}
-            setCardNumber={setCardNumber}
-            flowConfigured={flowConfigured}
-            flowMode={flowMode}
-          />
-        )}
-
-        {error && <p style={{ color: "#dc2626", fontSize: 13, marginTop: 16 }}>{error}</p>}
-      </div>
-
-      {/* indicateur de chargement (recherche des vols / confirmation) */}
-      {loading && (step === 1 || step === 5) && (
-        <LoadingIndicator label={step === 1 ? "Recherche des meilleurs vols…" : "Confirmation de votre réservation…"} />
-      )}
-
-      {/* navigation */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-        <button onClick={prev} disabled={step === 1 || loading} style={ghostBtn(step === 1 || loading)}>
-          ← Précédent
-        </button>
-        {step < 5 ? (
-          <button onClick={next} disabled={loading} style={primaryBtn(loading)}>
-            {loading && step === 1 ? "Recherche…" : "Suivant"} →
-          </button>
-        ) : (
-          <button onClick={confirmBooking} disabled={loading} style={primaryBtn(loading)}>
-            {loading
-              ? flowConfigured
-                ? "Redirection vers Flow…"
-                : "Confirmation…"
-              : flowConfigured
-                ? "Payer avec Flow"
-                : "Payer et confirmer"}{" "}
-            →
-          </button>
         )}
       </div>
 
@@ -701,6 +741,172 @@ export default function BookingFlow({
           destinationCode={destination}
         />
       )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MINUTERIE DE VERROU DE SIÈGES — affichée dès qu'un siège est en cours de
+// sélection (verrou serveur de 10 min). Purement informative côté client : la
+// seule source de vérité sur l'expiration réelle reste le serveur.
+// ═══════════════════════════════════════════════════════════════════════════
+function HoldCountdown({
+  expiresAt,
+  onExpire,
+}: {
+  expiresAt: Date;
+  onExpire: () => void;
+}) {
+  const [msLeft, setMsLeft] = useState(() => expiresAt.getTime() - Date.now());
+  const expiredRef = useRef(false);
+
+  useEffect(() => {
+    expiredRef.current = false;
+    const id = setInterval(() => {
+      const left = expiresAt.getTime() - Date.now();
+      setMsLeft(left);
+      if (left <= 0 && !expiredRef.current) {
+        expiredRef.current = true;
+        onExpire();
+      }
+    }, 1000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expiresAt.getTime()]);
+
+  const secs = Math.max(0, Math.ceil(msLeft / 1000));
+  const mm = String(Math.floor(secs / 60)).padStart(2, "0");
+  const ss = String(secs % 60).padStart(2, "0");
+  const low = secs <= 120;
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "10px 14px",
+        borderRadius: 12,
+        background: low ? "#fef2f2" : "#f0ecfb",
+        border: `1px solid ${low ? "#fecaca" : "#e2daf7"}`,
+      }}
+    >
+      <span style={{ fontSize: 17 }}>⏱️</span>
+      <div>
+        <div style={{ fontSize: 11.5, color: low ? "#b91c1c" : "#6b5aa3", fontWeight: 700 }}>
+          Sièges réservés pendant
+        </div>
+        <div
+          className="font-heading"
+          style={{ fontSize: 17, fontWeight: 800, color: low ? "#dc2626" : PURPLE, fontVariantNumeric: "tabular-nums" }}
+        >
+          {mm}:{ss}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PANNEAU RÉCAPITULATIF PERSISTANT — vol, passagers, prix, minuterie. Visible
+// en continu dès qu'un vol est sélectionné (étapes 2 à 5), comme sur les
+// sites de réservation des grandes compagnies aériennes.
+// ═══════════════════════════════════════════════════════════════════════════
+function BookingSidebar({
+  selected,
+  paxCount,
+  cabinClass,
+  breakdown,
+  holdExpiresAt,
+  onHoldExpire,
+}: {
+  selected: FlightResultDTO;
+  paxCount: number;
+  cabinClass: string;
+  breakdown: Breakdown | null;
+  holdExpiresAt: Date | null;
+  onHoldExpire: () => void;
+}) {
+  const d = new Date(selected.departAt);
+  return (
+    <aside
+      style={{
+        background: "#fff",
+        borderRadius: 18,
+        boxShadow: "0 6px 26px rgba(30,27,75,0.09)",
+        padding: "22px 22px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
+        alignSelf: "flex-start",
+        position: "sticky",
+        top: 20,
+      }}
+    >
+      <div>
+        <div style={{ fontSize: 11.5, color: "#8a8aa0", fontWeight: 700, letterSpacing: 0.4, marginBottom: 6 }}>
+          VOTRE VOL
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 800, color: "#1e1b4b", fontSize: 15.5 }}>
+          <span>{selected.origin.code}</span>
+          <span style={{ color: PURPLE }}>→</span>
+          <span>{selected.destination.code}</span>
+        </div>
+        <div style={{ fontSize: 13, color: "#6b6b80", marginTop: 4 }}>
+          {d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })} ·{" "}
+          {selected.flightNumber}
+        </div>
+        <div style={{ fontSize: 12.5, color: "#8a8aa0", marginTop: 2 }}>
+          {cabinClass} · {paxCount} passager{paxCount > 1 ? "s" : ""}
+        </div>
+      </div>
+
+      {holdExpiresAt && (
+        <HoldCountdown expiresAt={holdExpiresAt} onExpire={onHoldExpire} />
+      )}
+
+      <div style={{ borderTop: "1px solid #eceafa", paddingTop: 14 }}>
+        <div style={{ fontSize: 11.5, color: "#8a8aa0", fontWeight: 700, letterSpacing: 0.4, marginBottom: 8 }}>
+          PRIX
+        </div>
+        {breakdown ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 13.5 }}>
+            <Row2 k="Vol" v={formatPrice(breakdown.basePriceCents, "USD")} />
+            {breakdown.seatTotalCents > 0 && <Row2 k="Sièges" v={formatPrice(breakdown.seatTotalCents, "USD")} />}
+            {breakdown.baggageTotalCents > 0 && (
+              <Row2 k="Bagages" v={formatPrice(breakdown.baggageTotalCents, "USD")} />
+            )}
+            <Row2 k="Taxes" v={formatPrice(breakdown.taxesCents, "USD")} />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginTop: 8,
+                paddingTop: 10,
+                borderTop: "1px dashed #e2daf7",
+                fontWeight: 800,
+              }}
+            >
+              <span style={{ color: "#1e1b4b" }}>Total</span>
+              <span style={{ color: PURPLE, fontSize: 18 }}>{formatPrice(breakdown.totalUsdCents, "USD")}</span>
+            </div>
+          </div>
+        ) : (
+          <div style={{ fontSize: 13, color: "#8a8aa0" }}>
+            {formatPrice(selected.priceUsdCents * paxCount, "USD")} (estimation)
+          </div>
+        )}
+      </div>
+    </aside>
+  );
+}
+
+function Row2({ k, v }: { k: string; v: string }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", color: "#4b4b63" }}>
+      <span>{k}</span>
+      <span style={{ fontWeight: 600, color: "#1e1b4b" }}>{v}</span>
     </div>
   );
 }

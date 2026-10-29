@@ -1,13 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { signedReceiptUrl } from "@/lib/receipt";
+import { rateLimit, rateLimitResponse, clientIp } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/receipts?ref=CAO-XXXXX → redirige vers une URL signée (temporaire)
+// GET /api/receipts?ref=MVC-XXXXX → redirige vers une URL signée (temporaire)
 // du comprobante PDF stocké. L'accès requiert la référence exacte (PNR), comme
 // le reste des consultations de réservation par référence sur le site.
 export async function GET(req: Request) {
+  // Anti-énumération de références : 20 essais / 15 min par IP.
+  if (!(await rateLimit(`receipts:${clientIp(req)}`, 20, 15 * 60 * 1000))) {
+    return rateLimitResponse();
+  }
+
   const ref = new URL(req.url).searchParams.get("ref");
   if (!ref) return NextResponse.json({ error: "Référence requise." }, { status: 400 });
 

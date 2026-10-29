@@ -1,13 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkInWindow, checkInBlockReason, boardingTimeFor } from "@/lib/checkin";
+import { rateLimit, rateLimitResponse, clientIp } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/bookings/lookup?reference=CAO-XXXXX&lastName=Dupont
+// GET /api/bookings/lookup?reference=MVC-XXXXX&lastName=Dupont
 // Retrouve une réservation pour le check-in : statut de la fenêtre de
 // check-in, et pour chaque passager son siège + son état de check-in.
 export async function GET(req: Request) {
+  // Anti-énumération de références (PNR + nom) : 20 essais / 15 min par IP.
+  if (!(await rateLimit(`lookup:${clientIp(req)}`, 20, 15 * 60 * 1000))) {
+    return rateLimitResponse();
+  }
+
   const { searchParams } = new URL(req.url);
   const reference = (searchParams.get("reference") ?? "").trim().toUpperCase();
   const lastName = (searchParams.get("lastName") ?? "").trim();

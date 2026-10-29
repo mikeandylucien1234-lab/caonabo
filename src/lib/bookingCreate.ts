@@ -33,7 +33,7 @@ export function makeReference(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let s = "";
   for (let i = 0; i < 5; i++) s += chars[Math.floor(Math.random() * chars.length)];
-  return `MVC-${s}`;
+  return `CAO-${s}`;
 }
 
 export interface RunBookingInput {

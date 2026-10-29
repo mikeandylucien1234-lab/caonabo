@@ -5,7 +5,7 @@ import { rateLimit, rateLimitResponse, clientIp } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/bookings/lookup?reference=MVC-XXXXX&lastName=Dupont
+// GET /api/bookings/lookup?reference=CAO-XXXXX&lastName=Dupont
 // Retrouve une réservation pour le check-in : statut de la fenêtre de
 // check-in, et pour chaque passager son siège + son état de check-in.
 export async function GET(req: Request) {

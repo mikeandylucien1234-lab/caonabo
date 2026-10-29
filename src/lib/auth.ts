@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 //  - session : cookie httpOnly signé HMAC-SHA256 (payload {uid, exp})
 // ─────────────────────────────────────────────────────────────────────────────
 
-const COOKIE = "movicash_session";
+const COOKIE = "caonabo_session";
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 jours
 
 function secret(): string {

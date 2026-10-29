@@ -122,7 +122,7 @@ export async function POST(req: Request) {
   try {
     const payment = await createFlowPayment(ctx, {
       commerceOrder: booking.reference,
-      subject: `MoviCash - ${booking.reference}`,
+      subject: `Caonabo Airlinje - ${booking.reference}`,
       amount,
       currency: flowCurrency,
       email: data.contactEmail,

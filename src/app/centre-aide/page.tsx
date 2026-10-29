@@ -4,7 +4,7 @@ import HelpCenterContent from "@/components/sections/HelpCenterContent";
 import { getFaqs } from "@/lib/data/queries";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Centre d'Aide — MoviCash" };
+export const metadata = { title: "Centre d'Aide — Caonabo Airlinje" };
 
 export default async function CentreAidePage({
   searchParams,

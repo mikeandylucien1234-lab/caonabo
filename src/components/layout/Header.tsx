@@ -42,7 +42,7 @@ export default async function Header({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/logo.png"
-          alt="MoviCash"
+          alt="Caonabo Airlinje"
           className="logo-img"
           style={{ height: isHero ? 104 : 72, width: "auto" }}
         />

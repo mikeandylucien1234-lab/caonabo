@@ -47,7 +47,7 @@ export default function CargoTracker() {
           style={inputStyle}
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          placeholder="ex : MVC-CARGO-4821"
+          placeholder="ex : CAO-CARGO-4821"
           aria-label="Numéro de suivi"
         />
         <button
@@ -102,7 +102,7 @@ export default function CargoTracker() {
             })}
           </div>
           <p style={{ fontSize: 12, color: "#a0a0b4", marginTop: 16, marginBottom: 0, fontStyle: "italic" }}>
-            Suivi de démonstration — le service cargo MoviCash est présenté à titre illustratif.
+            Suivi de démonstration — le service cargo Caonabo est présenté à titre illustratif.
           </p>
         </div>
       )}

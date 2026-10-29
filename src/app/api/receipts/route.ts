@@ -5,7 +5,7 @@ import { rateLimit, rateLimitResponse, clientIp } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/receipts?ref=MVC-XXXXX → redirige vers une URL signée (temporaire)
+// GET /api/receipts?ref=CAO-XXXXX → redirige vers une URL signée (temporaire)
 // du comprobante PDF stocké. L'accès requiert la référence exacte (PNR), comme
 // le reste des consultations de réservation par référence sur le site.
 export async function GET(req: Request) {

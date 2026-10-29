@@ -6,7 +6,7 @@ import { formatTicketNumber } from "@/lib/checkin";
 import { rateLimit } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Vérification de billet — MoviCash" };
+export const metadata = { title: "Vérification de billet — Caonabo Airlinje" };
 
 // Page cible du QR code de la carte d'embarquement (agent de porte). N'expose
 // volontairement AUCUNE donnée sensible (pas de document, pas de contact) :

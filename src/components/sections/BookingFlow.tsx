@@ -1,6 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  CheckCircle2,
+  Star,
+  Plane,
+  Paperclip,
+  Luggage,
+  Backpack,
+  AlertTriangle,
+  Lock,
+  CreditCard,
+  Wallet,
+  Timer,
+} from "lucide-react";
 import type {
   BaggagePolicyDTO,
   CityDTO,
@@ -575,7 +588,9 @@ export default function BookingFlow({
     return (
       <div className="hz" style={{ padding: "60px 56px 100px" }}>
         <div style={confirmCard}>
-          <div style={{ fontSize: 46 }}>✅</div>
+          <div style={{ display: "flex", justifyContent: "center", color: "#1f9d55" }}>
+            <CheckCircle2 size={46} strokeWidth={1.75} />
+          </div>
           <h2
             className="font-heading"
             style={{ fontSize: 28, color: "#1e1b4b", margin: "12px 0 8px", fontWeight: 800 }}
@@ -791,7 +806,7 @@ function HoldCountdown({
         border: `1px solid ${low ? "#fecaca" : "#e2daf7"}`,
       }}
     >
-      <span style={{ fontSize: 17 }}>⏱️</span>
+      <Timer size={18} style={{ flexShrink: 0 }} />
       <div>
         <div style={{ fontSize: 11.5, color: low ? "#b91c1c" : "#6b5aa3", fontWeight: 700 }}>
           Sièges réservés pendant
@@ -1031,8 +1046,8 @@ function Step1(props: {
                   color: on ? PURPLE : "#5c5c7a",
                 }}
               >
-                <span aria-hidden style={{ fontSize: 15 }}>
-                  {c === "Première classe" ? "★" : "✈"}
+                <span aria-hidden style={{ display: "inline-flex" }}>
+                  {c === "Première classe" ? <Star size={14} /> : <Plane size={14} />}
                 </span>
                 {c}
               </button>
@@ -1294,7 +1309,13 @@ function EvisaUpload({ value, onChange }: { value: string | null; onChange: (pat
         disabled={uploading}
         style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "11px 18px", borderRadius: 12, border: "1.5px dashed #cfc9ea", background: "#faf9fd", color: "#5b21b6", fontWeight: 700, fontSize: 14, cursor: uploading ? "wait" : "pointer" }}
       >
-        {uploading ? "Envoi en cours…" : "📎 Joindre un fichier (PDF, JPG, PNG)"}
+        {uploading ? (
+          "Envoi en cours…"
+        ) : (
+          <>
+            <Paperclip size={15} /> Joindre un fichier (PDF, JPG, PNG)
+          </>
+        )}
       </button>
       <input ref={inputRef} type="file" accept="application/pdf,image/jpeg,image/png" style={{ display: "none" }} onChange={(e) => handleFile(e.target.files?.[0])} />
       {error && <p style={{ color: "#dc2626", fontSize: 12.5, marginTop: 6 }}>{error}</p>}
@@ -1374,7 +1395,13 @@ function Step4({
               ✓ Inclus pour chaque passager
             </div>
             <div style={{ fontSize: 13.5, color: "#2f6b46", lineHeight: 1.6 }}>
-              🧳 1 bagage en soute ({policy.includedCheckedKg} kg) &nbsp;·&nbsp; 🎒 1 bagage cabine ({policy.includedCabinKg} kg)
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <Luggage size={14} /> 1 bagage en soute ({policy.includedCheckedKg} kg)
+              </span>
+              &nbsp;·&nbsp;
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <Backpack size={14} /> 1 bagage cabine ({policy.includedCabinKg} kg)
+              </span>
             </div>
           </div>
 
@@ -1430,8 +1457,9 @@ function Step4({
             Siège {pax?.firstName ? `de ${pax.firstName}` : `du passager ${activePax + 1}`}
           </div>
           {seatNotice && (
-            <div style={{ background: "#fdecec", border: "1.5px solid #f5c2c2", color: "#b23333", borderRadius: 10, padding: "10px 12px", fontSize: 12.5, marginBottom: 10, lineHeight: 1.5 }}>
-              ⚠️ {seatNotice}
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 8, background: "#fdecec", border: "1.5px solid #f5c2c2", color: "#b23333", borderRadius: 10, padding: "10px 12px", fontSize: 12.5, marginBottom: 10, lineHeight: 1.5 }}>
+              <AlertTriangle size={15} style={{ flexShrink: 0, marginTop: 1 }} />
+              {seatNotice}
             </div>
           )}
           <SeatMap
@@ -1692,22 +1720,26 @@ function Step5(props: {
         {/* paiement (Flow ou démonstration) */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {props.flowConfigured ? (
-            <div style={{ background: "#eefaf0", border: "1px solid #bfe3c6", borderRadius: 12, padding: "12px 14px", fontSize: 12.5, color: "#1f7a3d" }}>
-              🔒 Paiement <b>sécurisé via Flow</b>. Vous serez redirigé vers la plateforme Flow pour régler votre réservation.
-              {props.flowMode === "SANDBOX" && (
-                <span style={{ color: "#a9820f" }}> (mode test)</span>
-              )}
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 8, background: "#eefaf0", border: "1px solid #bfe3c6", borderRadius: 12, padding: "12px 14px", fontSize: 12.5, color: "#1f7a3d" }}>
+              <Lock size={14} style={{ flexShrink: 0, marginTop: 2 }} />
+              <span>
+                Paiement <b>sécurisé via Flow</b>. Vous serez redirigé vers la plateforme Flow pour régler votre réservation.
+                {props.flowMode === "SANDBOX" && (
+                  <span style={{ color: "#a9820f" }}> (mode test)</span>
+                )}
+              </span>
             </div>
           ) : (
-            <div style={{ background: "#fff7e6", border: "1px solid #f0d79a", borderRadius: 12, padding: "12px 14px", fontSize: 12.5, color: "#a9820f" }}>
-              🔒 Paiement en <b>mode démonstration</b> — Flow n&apos;est pas encore configuré. Aucune vraie transaction.
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 8, background: "#fff7e6", border: "1px solid #f0d79a", borderRadius: 12, padding: "12px 14px", fontSize: 12.5, color: "#a9820f" }}>
+              <Lock size={14} style={{ flexShrink: 0, marginTop: 2 }} />
+              <span>Paiement en <b>mode démonstration</b> — Flow n&apos;est pas encore configuré. Aucune vraie transaction.</span>
             </div>
           )}
 
           {props.flowConfigured ? (
             <div style={{ border: "1.5px solid #eceafa", borderRadius: 12, padding: "16px 18px", background: "#faf9fd" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, fontWeight: 700, color: "#1e1b4b", fontSize: 14, marginBottom: 6 }}>
-                <span style={{ fontSize: 20 }}>💳</span> Paiement via Flow
+                <CreditCard size={19} /> Paiement via Flow
               </div>
               <p style={{ fontSize: 13, color: "#5c5c7a", margin: 0, lineHeight: 1.55 }}>
                 En cliquant sur <b>« Payer avec Flow »</b>, vous serez redirigé vers Flow pour choisir votre
@@ -1720,8 +1752,8 @@ function Step5(props: {
           <div style={{ fontWeight: 700, color: "#1e1b4b", fontSize: 14 }}>Mode de paiement</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {[
-              { id: "card", label: "Carte bancaire", icon: "💳" },
-              { id: "paypal", label: "PayPal", icon: "🅿️" },
+              { id: "card", label: "Carte bancaire", icon: CreditCard },
+              { id: "paypal", label: "PayPal", icon: Wallet },
             ].map((m) => {
               const active = props.paymentMethod === m.id;
               const disabled = false;
@@ -1746,7 +1778,7 @@ function Step5(props: {
                     color: "#1e1b4b",
                   }}
                 >
-                  <span style={{ fontSize: 18 }}>{m.icon}</span> {m.label}
+                  <m.icon size={18} /> {m.label}
                 </button>
               );
             })}

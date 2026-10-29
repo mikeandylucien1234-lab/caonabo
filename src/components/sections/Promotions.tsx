@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Tag } from "lucide-react";
 import type { PromotionDTO } from "@/lib/data/types";
 import { formatPrice, type RateInfo } from "@/lib/currency";
 import { usePrefs } from "@/components/PreferencesProvider";
@@ -75,7 +76,7 @@ export default function Promotions({
           className="promo-see-all"
           style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", color: "#3d1e8a", fontWeight: 600, fontSize: 14, padding: "13px 22px", borderRadius: 12, border: "1.5px solid #3d1e8a", cursor: "pointer", whiteSpace: "nowrap" }}
         >
-          🏷 Voir toutes les promotions →
+          <Tag size={15} /> Voir toutes les promotions →
         </a>
       </div>
 

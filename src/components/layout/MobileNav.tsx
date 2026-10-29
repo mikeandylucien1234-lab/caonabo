@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import { User } from "lucide-react";
 import { usePrefs } from "@/components/PreferencesProvider";
 import LocaleCurrencySwitcher from "@/components/LocaleCurrencySwitcher";
 
@@ -50,7 +51,13 @@ export default function MobileNav({
           flexShrink: 0,
         }}
       >
-        {firstName ? `👤 ${firstName}` : dict.login}
+        {firstName ? (
+          <>
+            <User size={14} strokeWidth={2.25} /> {firstName}
+          </>
+        ) : (
+          dict.login
+        )}
       </Link>
 
       <button
@@ -134,9 +141,19 @@ export default function MobileNav({
                 fontWeight: 600,
                 fontSize: 16,
                 textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
               }}
             >
-              {firstName ? `👤 ${firstName}` : dict.login}
+              {firstName ? (
+                <>
+                  <User size={16} strokeWidth={2.25} /> {firstName}
+                </>
+              ) : (
+                dict.login
+              )}
             </Link>
           </nav>
         </>,

@@ -43,9 +43,9 @@ export interface Dict {
 const fr: Dict = {
   nav: { home: "Accueil", destinations: "Destinations", checkin: "Check In", book: "Réserver", contact: "Contact" },
   login: "Se connecter",
-  hero: { badge: "✈ VOLS DIRECTS & AVEC ESCALE", title1: "Voyagez ", hi1: "Plus Loin", title2: ", Vivez ", hi2: "Plus Fort", subtitle: "Vols vers Haïti, le Chili, le Canada et le Pérou." },
+  hero: { badge: "VOLS DIRECTS & AVEC ESCALE", title1: "Voyagez ", hi1: "Plus Loin", title2: ", Vivez ", hi2: "Plus Fort", subtitle: "Vols vers Haïti, le Chili, le Canada et le Pérou." },
   flightSearch: { title: "Trouvez un vol à votre mesure", search: "Rechercher" },
-  dest: { badge: "✈ NOS DESTINATIONS PHARES", titleA: "Explorez nos destinations les plus", hi: "populaires", subtitle: "Des villes vibrantes aux lieux chargés d'histoire, voyagez en toute sérénité avec Caonabo Airlinje.", cta: "📍 Voir toutes les destinations →", from: "À partir de", direct: "Vol direct" },
+  dest: { badge: "NOS DESTINATIONS PHARES", titleA: "Explorez nos destinations les plus", hi: "populaires", subtitle: "Des villes vibrantes aux lieux chargés d'histoire, voyagez en toute sérénité avec Caonabo Airlinje.", cta: "Voir toutes les destinations →", from: "À partir de", direct: "Vol direct" },
   footer: {
     tagline: "Compagnie aérienne de la diaspora haïtienne.",
     rights: "Tous droits réservés.",
@@ -70,9 +70,9 @@ const fr: Dict = {
 const en: Dict = {
   nav: { home: "Home", destinations: "Destinations", checkin: "Check In", book: "Book", contact: "Contact" },
   login: "Sign in",
-  hero: { badge: "✈ DIRECT & CONNECTING FLIGHTS", title1: "Travel ", hi1: "Farther", title2: ", Live ", hi2: "Stronger", subtitle: "Flights to Haiti, Chile, Canada and Peru." },
+  hero: { badge: "DIRECT & CONNECTING FLIGHTS", title1: "Travel ", hi1: "Farther", title2: ", Live ", hi2: "Stronger", subtitle: "Flights to Haiti, Chile, Canada and Peru." },
   flightSearch: { title: "Find a flight that fits you", search: "Search" },
-  dest: { badge: "✈ OUR FLAGSHIP DESTINATIONS", titleA: "Explore our most", hi: "popular destinations", subtitle: "From vibrant cities to places steeped in history, travel with peace of mind with Caonabo Airlinje.", cta: "📍 See all destinations →", from: "From", direct: "Direct flight" },
+  dest: { badge: "OUR FLAGSHIP DESTINATIONS", titleA: "Explore our most", hi: "popular destinations", subtitle: "From vibrant cities to places steeped in history, travel with peace of mind with Caonabo Airlinje.", cta: "See all destinations →", from: "From", direct: "Direct flight" },
   footer: {
     tagline: "The airline of the Haitian diaspora.",
     rights: "All rights reserved.",
@@ -97,9 +97,9 @@ const en: Dict = {
 const es: Dict = {
   nav: { home: "Inicio", destinations: "Destinos", checkin: "Check In", book: "Reservar", contact: "Contacto" },
   login: "Iniciar sesión",
-  hero: { badge: "✈ VUELOS DIRECTOS Y CON ESCALA", title1: "Viaja ", hi1: "Más Lejos", title2: ", Vive ", hi2: "Más Fuerte", subtitle: "Vuelos a Haití, Chile, Canadá y Perú." },
+  hero: { badge: "VUELOS DIRECTOS Y CON ESCALA", title1: "Viaja ", hi1: "Más Lejos", title2: ", Vive ", hi2: "Más Fuerte", subtitle: "Vuelos a Haití, Chile, Canadá y Perú." },
   flightSearch: { title: "Encuentra un vuelo a tu medida", search: "Buscar" },
-  dest: { badge: "✈ NUESTROS DESTINOS ESTRELLA", titleA: "Explora nuestros destinos más", hi: "populares", subtitle: "De ciudades vibrantes a lugares llenos de historia, viaja con total tranquilidad con Caonabo Airlinje.", cta: "📍 Ver todos los destinos →", from: "Desde", direct: "Vuelo directo" },
+  dest: { badge: "NUESTROS DESTINOS ESTRELLA", titleA: "Explora nuestros destinos más", hi: "populares", subtitle: "De ciudades vibrantes a lugares llenos de historia, viaja con total tranquilidad con Caonabo Airlinje.", cta: "Ver todos los destinos →", from: "Desde", direct: "Vuelo directo" },
   footer: {
     tagline: "La aerolínea de la diáspora haitiana.",
     rights: "Todos los derechos reservados.",
@@ -124,9 +124,9 @@ const es: Dict = {
 const ht: Dict = {
   nav: { home: "Akèy", destinations: "Destinasyon", checkin: "Check In", book: "Rezève", contact: "Kontak" },
   login: "Konekte",
-  hero: { badge: "✈ VÒL DIRÈK & AK ESKAL", title1: "Vwayaje ", hi1: "Pi Lwen", title2: ", Viv ", hi2: "Pi Fò", subtitle: "Vòl pou Ayiti, Chili, Kanada ak Perou." },
+  hero: { badge: "VÒL DIRÈK & AK ESKAL", title1: "Vwayaje ", hi1: "Pi Lwen", title2: ", Viv ", hi2: "Pi Fò", subtitle: "Vòl pou Ayiti, Chili, Kanada ak Perou." },
   flightSearch: { title: "Jwenn yon vòl ki fèt pou ou", search: "Chèche" },
-  dest: { badge: "✈ PI BÈL DESTINASYON NOU YO", titleA: "Eksplore destinasyon ki pi", hi: "popilè yo", subtitle: "Depi vil ki gen anpil vi rive kote ki chaje ak istwa, vwayaje an tout trankilite ak Caonabo Airlinje.", cta: "📍 Wè tout destinasyon yo →", from: "Apati", direct: "Vòl dirèk" },
+  dest: { badge: "PI BÈL DESTINASYON NOU YO", titleA: "Eksplore destinasyon ki pi", hi: "popilè yo", subtitle: "Depi vil ki gen anpil vi rive kote ki chaje ak istwa, vwayaje an tout trankilite ak Caonabo Airlinje.", cta: "Wè tout destinasyon yo →", from: "Apati", direct: "Vòl dirèk" },
   footer: {
     tagline: "Konpayi avyon dyaspora ayisyen an.",
     rights: "Tout dwa rezève.",

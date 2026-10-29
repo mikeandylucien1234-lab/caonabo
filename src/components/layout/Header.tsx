@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { User } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import MobileNav from "@/components/layout/MobileNav";
 import LocaleCurrencySwitcher from "@/components/LocaleCurrencySwitcher";
@@ -82,7 +83,7 @@ export default async function Header({
               borderRadius: 12,
             }}
           >
-            👤 {user.firstName}
+            <User size={16} strokeWidth={2.25} /> {user.firstName}
           </Link>
         ) : (
           <Link

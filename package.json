@@ -20,6 +20,7 @@
     "@prisma/client": "^6.3.1",
     "@supabase/supabase-js": "^2.112.3",
     "@tanstack/react-query": "^5.101.4",
+    "lucide-react": "^1.63.0",
     "next": "^15.5.23",
     "pdf-lib": "^1.17.1",
     "qrcode": "^1.5.4",

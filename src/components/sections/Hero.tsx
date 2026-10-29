@@ -1,4 +1,5 @@
 import Header from "@/components/layout/Header";
+import { PlaneTakeoff } from "lucide-react";
 import { getPrefs } from "@/lib/prefs";
 import { getDictionary } from "@/lib/i18n";
 import { getNextFlightDate, getBaggagePolicy, type SiteMediaMap } from "@/lib/data/queries";
@@ -70,6 +71,7 @@ export default async function Hero({ media }: { media?: SiteMediaMap }) {
               borderRadius: 999,
             }}
           >
+            <PlaneTakeoff size={15} strokeWidth={2.25} />
             {t.hero.badge}
           </div>
           <h1

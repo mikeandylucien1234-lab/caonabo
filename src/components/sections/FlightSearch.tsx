@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Search, Calendar } from "lucide-react";
 import type { CityDTO, FlightResultDTO } from "@/lib/data/types";
 import FlightResultCard from "@/components/sections/FlightResultCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
@@ -308,7 +309,7 @@ export default function FlightSearch({ cities }: { cities: CityDTO[] }) {
             opacity: loading ? 0.7 : 1,
           }}
         >
-          {loading ? "…" : dict.flightSearch.search} <span>🔍</span>
+          {loading ? "…" : dict.flightSearch.search} <Search size={15} />
         </button>
         {error && (
           <div style={{ fontSize: 13, color: "#dc2626", marginTop: 10 }}>{error}</div>
@@ -366,7 +367,7 @@ function DateField({
           gap: 8,
         }}
       >
-        <span>📅</span>
+        <Calendar size={14} />
         {value}
       </div>
     </div>

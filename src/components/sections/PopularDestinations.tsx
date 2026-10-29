@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MapPin } from "lucide-react";
 import type { DestinationDTO } from "@/lib/data/types";
 import { formatPrice, type RateInfo } from "@/lib/currency";
 import { getPrefs } from "@/lib/prefs";
@@ -46,6 +47,7 @@ export default async function PopularDestinations({
               borderRadius: 999,
             }}
           >
+            <MapPin size={13} strokeWidth={2.5} />
             {t.dest.badge}
           </div>
           <h2
